@@ -1,10 +1,14 @@
-## Generic TCP and UDP module
+## Middle Control Companion Plugin
 
-A generic module for performing simple TCP and UDP requests
+Official plugin to control Middle Control software using Companion
 
-If you are using this plugin, 
-then it would probably mean that you are using some software that has not been supported yet, 
-and we would therefore really appreciate if you made a module request for it here:
+Please note that :
+
+- Middle Control software has to be running (locally on this computer or on any computer on this network) </li>
+- Middle Control software has to be connected to your ATEM if you have one</li>
+- In order to control gimbal movements you will need to use an APC-R</li>
+
+You can report issues here : 
 
 https://github.com/bitfocus/companion-module-requests/issues
 
