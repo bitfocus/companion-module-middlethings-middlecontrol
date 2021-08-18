@@ -10,11 +10,14 @@ Please note that :
 
 You can report issues here : 
 
-https://github.com/bitfocus/companion-module-requests/issues
+https://github.com/bitfocus/companion-module-middlethings-middlecontrol/issues
 
 In that way, more people will get to benefit from this in the future, thanks. 
 
-**Available commands in this module**
+**Available actions in this module**
 
-* Send TCP
-* Send UDP
+* Select Camera ID
+* Send Camera Action
+* Send Gimbal Action
+* Recall/Save Preset
+* Set Custom Pan/Tilt/Zoom Speed

@@ -4,7 +4,15 @@ The Middle Control Companion plugin can remotely control the Middle Control Soft
 
 ## Getting Started
 
-The yarn command will perform all the steps to build the module. 
+The yarn command will perform all the steps to build the module.
+
+**Available actions in this module**
+
+* Select Camera ID
+* Send Camera Action
+* Send Gimbal Action
+* Recall/Save Preset
+* Set Custom Pan/Tilt/Zoom Speed
 
 ## Changes
 
