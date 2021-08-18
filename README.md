@@ -1,8 +1,16 @@
-# companion-module-generic-tcp-udp
+# companion-module-middlethings-middlecontrol
 
-If you are using this plugin, 
-then it would probably mean that you are using some software that has not been supported yet, 
-and we would therefore really appreciate if you made a module request for it here:
+Official plugin to control Middle Control software using Companion.<br><br>
+
+						If you are running Middle Control on this computer, you can type  127.0.0.1 in the IP adress field. Please note that :
+
+						<ul>
+							<li>Middle Control software has to be running (locally on this computer or on any computer on this network) </li>
+							<li>Middle Control software has to be connected to your ATEM if you have one</li>
+							<li>In order to control gimbal movements you will need to use an APC-R</li>
+						</ul>
+						<a href="https://www.middlethings.co/product-middle-control/#downloads" target="_new" class="btn btn-primary">Download Middle Control</a>
+						<a href="https://middlethings.co/" target="_new" class="btn btn-secondary">Official Website</a>
 
 https://github.com/bitfocus/companion-module-requests/issues
 
