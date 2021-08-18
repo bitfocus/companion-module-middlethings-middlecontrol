@@ -1,0 +1,38 @@
+{
+  "name": "middlethings-middlecontrol",
+	"version": "1.0.5",
+	"api_version": "1.0.0",
+	"description": "Middle Control Companion control",
+	"keywords": [
+		"Gimbal",
+		"PTZ",
+		"RS2",
+		"DJI",
+		"APC-R",
+		"APC",
+		"Blackmagic",
+		"Gimbal"
+	],
+	"manufacturer": "Middle Things",
+	"product": "Middle Control",
+	"shortname": "middlecontrol",
+ 	"homepage": "https://www.middlethings.co/",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bitfocus/companion-module-middlethings-middlecontrol.git"
+	},
+	"author": "Thibaud L <thibaud@middlethings.co>",
+	"contributors": [
+		"Jean T <jean@middlethings.co>",
+		"Thibaud L <thibaud@middlethings.co>"
+	],
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/bitfocus/companion-module-middlethings-middlecontrol/issues"
+	}
+}
+
