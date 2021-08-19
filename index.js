@@ -93,13 +93,15 @@ instance.prototype.config_fields = function () {
 				
 						Official plugin to control Middle Control software using Companion.<br><br>
 
-						If you are running Middle Control on this computer, you can type  127.0.0.1 in the IP adress field. Please note that :
+						If you are running Middle Control on this computer, you can type  127.0.0.1 in the IP adress field below.<br> The instance will appear as connected only after a key press has successfuly been sent.  Please note that :
 
 						<ul>
 							<li>Middle Control software has to be running (locally on this computer or on any computer on this network) </li>
 							<li>Middle Control software has to be connected to your ATEM if you have one</li>
 							<li>In order to control gimbal movements you will need to use an APC-R</li>
 						</ul>
+						If you have any questions, please let us konw at support@middlethings.co
+						<br><br>
 						<a href="https://www.middlethings.co/product-middle-control/#downloads" target="_new" class="btn btn-primary">Download Middle Control</a>
 						<a href="https://middlethings.co/" target="_new" class="btn btn-secondary">Official Website</a>
 					</div>
@@ -149,22 +151,10 @@ instance.prototype.destroy = function () {
 	debug('destroy', self.id)
 }
 
-instance.prototype.CHOICES_END = [
-	{ id: '', label: 'None' },
-	{ id: '\n', label: 'LF - \\n (Common UNIX/Mac)' },
-	{ id: '\r\n', label: 'CRLF - \\r\\n (Common Windows)' },
-	{ id: '\r', label: 'CR - \\r (Old MacOS)' },
-	{ id: '\x00', label: 'NULL - \\x00 (Can happen)' },
-	{ id: '\n\r', label: 'LFCR - \\n\\r (Just stupid)' },
-	{ id: '\x00a', label: 'NULL - \\x00fsd (Can happen)' },
-	{ id: '\n\rb', label: 'LFCR - \\n\\rsdf (Just stupid)' },
-	{ id: '\n\rcc', label: 'LFCR - \\n\\sdr (Just stupid)' },
-	{ id: '\x00acc', label: 'NULL - \\x00fsdsd (Can happen)' },
-	{ id: '\n\rbcc', label: 'LFCR - \\n\\rssddf (Just stupid)' },
-]
+// List of choices for the dropdown boxes
 
 instance.prototype.CHOICES_CAMERACOMMAND = [
-	{ id: 'AUTOFOCUS', label: 'Autofocus' },
+	{ id: 'AUTOFOCUS', label: 'AutoFocus' },
 	{ id: 'AUTOIRIS', label: 'AutoIris' },
 	{ id: 'COLORBARS', label: 'Show Color Bars' },
 	{ id: 'ZEBRA ', label: 'Toggle Zebra' },
@@ -220,6 +210,9 @@ instance.prototype.actions = function (system) {
 	var self = this
 
 	self.system.emit('instance_actions', self.id, {
+
+// Action that selects the camera ID we want to control in Middle Control
+	
 		selectcameraID: {
 			label: 'Select Camera ID',
 			options: [
@@ -242,6 +235,8 @@ instance.prototype.actions = function (system) {
 			],
 		},
 
+// Action that sends a camera command 
+
 		sendcameracommand: {
 			label: 'Send Camera Action',
 			options: [
@@ -262,6 +257,8 @@ instance.prototype.actions = function (system) {
 				},
 			],
 		},
+
+// Action that sends a gimbal command through the APC / APC-R
 
 		sendgimbalcommand: {
 			label: 'Send Gimbal Action',
@@ -284,6 +281,9 @@ instance.prototype.actions = function (system) {
 				},
 			],
 		},
+		
+// Action that sends a Preset control command through the APC / APC-R
+
 
 		preset: {
 			label: 'Recall/Save Preset',
@@ -327,6 +327,8 @@ instance.prototype.actions = function (system) {
 			],
 		},
 
+// Action that sets a custom pan/tilt/zoom speed
+
 		setspeed: {
 			label: 'Set Custom Pan/Tilt/Zoom Speed',
 			options: [
@@ -357,6 +359,8 @@ instance.prototype.actions = function (system) {
 				},
 			],
 		},
+
+// Legacy UDP action
 
 		/*
 		'send': {
