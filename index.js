@@ -210,9 +210,8 @@ instance.prototype.actions = function (system) {
 	var self = this
 
 	self.system.emit('instance_actions', self.id, {
+		// Action that selects the camera ID we want to control in Middle Control
 
-// Action that selects the camera ID we want to control in Middle Control
-	
 		selectcameraID: {
 			label: 'Select Camera ID',
 			options: [
@@ -235,7 +234,7 @@ instance.prototype.actions = function (system) {
 			],
 		},
 
-// Action that sends a camera command 
+		// Action that sends a camera command
 
 		sendcameracommand: {
 			label: 'Send Camera Action',
@@ -258,7 +257,7 @@ instance.prototype.actions = function (system) {
 			],
 		},
 
-// Action that sends a gimbal command through the APC / APC-R
+		// Action that sends a gimbal command through the APC / APC-R
 
 		sendgimbalcommand: {
 			label: 'Send Gimbal Action',
@@ -281,9 +280,8 @@ instance.prototype.actions = function (system) {
 				},
 			],
 		},
-		
-// Action that sends a Preset control command through the APC / APC-R
 
+		// Action that sends a Preset control command through the APC / APC-R
 
 		preset: {
 			label: 'Recall/Save Preset',
@@ -327,7 +325,7 @@ instance.prototype.actions = function (system) {
 			],
 		},
 
-// Action that sets a custom pan/tilt/zoom speed
+		// Action that sets a custom pan/tilt/zoom speed
 
 		setspeed: {
 			label: 'Set Custom Pan/Tilt/Zoom Speed',
@@ -360,7 +358,7 @@ instance.prototype.actions = function (system) {
 			],
 		},
 
-// Legacy UDP action
+		// Legacy UDP action
 
 		/*
 		'send': {
