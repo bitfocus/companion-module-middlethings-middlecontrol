@@ -157,7 +157,7 @@ instance.prototype.CHOICES_CAMERACOMMAND = [
 	{ id: 'AUTOFOCUS', label: 'AutoFocus' },
 	{ id: 'AUTOIRIS', label: 'AutoIris' },
 	{ id: 'COLORBARS', label: 'Show Color Bars' },
-	{ id: 'ZEBRA ', label: 'Toggle Zebra' },
+	{ id: 'ZEBRA', label: 'Toggle Zebra' },
 	{ id: 'FALSECOLORS', label: 'Toggle False Colors' },
 	{ id: 'STATUSVIEW', label: 'Toggle Status View on HDMI Out' },
 	{ id: 'FOCUS+', label: 'Focus in by a step' },
@@ -174,6 +174,10 @@ instance.prototype.CHOICES_CAMERACOMMAND = [
 	{ id: 'SHUTTER-', label: 'Shutter decrease' },
 	{ id: 'ND+', label: 'ND Filter increase' },
 	{ id: 'ND-', label: 'ND Filter decrease' },
+	{ id: 'REC_START', label: 'Start Recording' },
+	{ id: 'REC_STOP', label: 'Stop Recording' },
+	{ id: 'REC_START_ALL', label: 'Start Recording on all cameras' },
+	{ id: 'REC_STOP_ALL', label: 'Stop Recording on all cameras' },
 ]
 
 instance.prototype.CHOICES_GIMBALCOMMAND = [
