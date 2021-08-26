@@ -16,6 +16,10 @@ The yarn headless command will perform all the steps to build the module.
 
 ## Changes
 
+### v1.0.1
+
+Removed TCP calls and optimized variables.
+
 ### v1.0.0
 
 Initial public release (after a lot of local field testing and developments )

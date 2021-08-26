@@ -1,9 +1,7 @@
-var tcp = require('../../tcp')
 var udp = require('../../udp')
 var instance_skel = require('../../instance_skel')
 var debug
 var log
-var middlecontrolport = 2390
 
 function instance(system, id, config) {
 	var self = this
@@ -57,7 +55,7 @@ instance.prototype.init_udp = function () {
 	self.status(self.STATE_WARNING, 'Connecting')
 
 	if (self.config.host !== undefined) {
-		self.udp = new udp(self.config.host, middlecontrolport)
+		self.udp = new udp(self.config.host, 2390) // 2390 is the Middle Control Port, this value should never be changed.
 
 		self.udp.on('error', function (err) {
 			debug('Network error', err)
@@ -115,24 +113,6 @@ instance.prototype.config_fields = function () {
 			width: 6,
 			regex: self.REGEX_IP,
 		},
-		/*	{
-			type: 'textinput',
-			id: 'port',
-			label: 'Target Port',
-			width: 2,
-			default: 7000,
-			regex: self.REGEX_PORT
-        },   
-		{
-			type: 'dropdown',
-			id: 'prot',
-			label: 'Connect with TCP / UDP',
-			default: 'tcp',
-			choices:  [
-				{ id: 'tcp', label: 'TCP' },
-				{ id: 'udp', label: 'UDP' }
-			]
-		}*/
 	]
 }
 
