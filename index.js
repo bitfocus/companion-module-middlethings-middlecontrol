@@ -18,7 +18,7 @@ function instance(system, id, config) {
 instance.prototype.updateConfig = function (config) {
 	var self = this
 	self.init_presets()
-
+	
 	if (self.udp !== undefined) {
 		self.udp.destroy()
 		delete self.udp
@@ -91,17 +91,19 @@ instance.prototype.config_fields = function () {
 				
 						Official plugin to control Middle Control software using Companion.<br><br>
 
-						If you are running Middle Control on this computer, you can type  127.0.0.1 in the IP adress field below.<br> The instance will appear as connected only after a key press has successfuly been sent.  Please note that :
+						Instructions & download ready to go Companion pages at <a href="https://www.middlethings.co/companion" target="_new">middlethings.co/companion</a><br><br>
+
+						If you are running Middle Control on this same computer, you can type  127.0.0.1 in the IP adress field below and press Save.<br> The instance will appear as connected only after a key press has successfuly been sent. Please note that :
 
 						<ul>
 							<li>Middle Control software has to be running (locally on this computer or on any computer on this network) </li>
 							<li>Middle Control software has to be connected to your ATEM if you have one</li>
 							<li>In order to control gimbal movements you will need to use an APC-R</li>
 						</ul>
-						If you have any questions, please let us konw at support@middlethings.co
+						If you have any questions, please let us know at support@middlethings.co
 						<br><br>
 						<a href="https://www.middlethings.co/product-middle-control/#downloads" target="_new" class="btn btn-primary">Download Middle Control</a>
-						<a href="https://middlethings.co/" target="_new" class="btn btn-secondary">Official Website</a>
+						<a href="https://middlethings.co/companion" target="_new" class="btn btn-secondary">Custom Companion pages</a>
 					</div>
 				</div>
 			`,
@@ -111,8 +113,10 @@ instance.prototype.config_fields = function () {
 			id: 'host',
 			label: 'Middle Control IP Address',
 			width: 6,
+			default:'',
 			regex: self.REGEX_IP,
 		},
+		
 	]
 }
 
@@ -176,6 +180,7 @@ instance.prototype.CHOICES_GIMBALCOMMAND = [
 	{ id: 'ZSPEED-', label: 'Zoom Speed Decrease' },
 	{ id: 'SPEED+', label: 'Pan/Tilt Speed Increase' },
 	{ id: 'SPEED-', label: 'Pan/Tilt Speed Decrease' },
+	{ id: 'ACTIVETRACK', label: 'Active Track Enable/Disable' }
 ]
 
 instance.prototype.CHOICES_VARIABLECOMMAND = [
@@ -250,7 +255,7 @@ instance.prototype.actions = function (system) {
 					type: 'text',
 					id: 'Textlabel',
 					label:
-						'Note : after a Pan, Tilt or Roll action, you MUST also add a Key Up/Off action with an Idle command which will stop the movement right after the key is released. For instance, a Pan Left key down action should be followed by a Pan Idle key up action.',
+						'Note : after a Pan, Tilt or Roll Press action, you MUST also add a Release action with an Idle command after at least 70ms, which will stop the movement. For instance, a Pan Left key down action should be followed by a Pan Idle key up action after at least a 70ms delay.',
 					width: 6,
 				},
 				{

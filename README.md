@@ -16,6 +16,11 @@ The yarn headless command will perform all the steps to build the module.
 
 ## Changes
 
+### v1.0.2
+
+Added support for DJI Active Track remote control 
+Improved config page clarity
+
 ### v1.0.1
 
 Removed TCP calls and optimized variables.
