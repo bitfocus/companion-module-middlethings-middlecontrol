@@ -18,7 +18,7 @@ function instance(system, id, config) {
 instance.prototype.updateConfig = function (config) {
 	var self = this
 	self.init_presets()
-	
+
 	if (self.udp !== undefined) {
 		self.udp.destroy()
 		delete self.udp
@@ -113,10 +113,9 @@ instance.prototype.config_fields = function () {
 			id: 'host',
 			label: 'Middle Control IP Address',
 			width: 6,
-			default:'',
+			default: '',
 			regex: self.REGEX_IP,
 		},
-		
 	]
 }
 
@@ -180,7 +179,7 @@ instance.prototype.CHOICES_GIMBALCOMMAND = [
 	{ id: 'ZSPEED-', label: 'Zoom Speed Decrease' },
 	{ id: 'SPEED+', label: 'Pan/Tilt Speed Increase' },
 	{ id: 'SPEED-', label: 'Pan/Tilt Speed Decrease' },
-	{ id: 'ACTIVETRACK', label: 'Active Track Enable/Disable' }
+	{ id: 'ACTIVETRACK', label: 'Active Track Enable/Disable' },
 ]
 
 instance.prototype.CHOICES_VARIABLECOMMAND = [
