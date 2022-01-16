@@ -89,7 +89,7 @@ instance.prototype.config_fields = function () {
 					<h3>Middle Control</h3>
 					<div>
 				
-						Official plugin to control Middle Control software using Companion.<br><br>
+						Official plugin to control MiddleControl software using Companion.<br><br>
 
 						Instructions & download ready to go Companion pages at <a href="https://www.middlethings.co/companion" target="_new">middlethings.co/companion</a><br><br>
 
