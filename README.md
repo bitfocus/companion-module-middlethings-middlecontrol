@@ -1,6 +1,6 @@
 # companion-module-middlethings-middlecontrol
 
-The Middle Control Companion plugin can remotely control the Middle Control Software which in turns controls Blackmagic cameras and even DJI gimbals through the APC or APC-R. It can run on the same device that runs Middle Control, or on a remote device on the same network.
+The Middle Control Companion plugin can remotely control the Middle Control Software which in turns controls Blackmagic cameras and even DJI gimbals through the Middle Things APC or APC-R. It can run on the same device that runs Middle Control, or on a remote device on the same network.
 
 ## Getting Started
 
