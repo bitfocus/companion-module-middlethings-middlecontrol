@@ -198,7 +198,7 @@ instance.prototype.actions = function (system) {
 	var self = this
 
 	self.system.emit('instance_actions', self.id, {
-		// Action that selects the camera ID we want to control in Middle Control
+		// Action that selects the camera ID we want to control in Middle Control 
 
 		selectcameraID: {
 			label: 'Select Camera ID',
