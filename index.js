@@ -153,7 +153,7 @@ class instance extends instance_skel {
 				type: 'dropdown',
 				id: 'prot',
 				label: 'Middle Control Version',
-				default: 'tcp',
+				default: 'udp',
 				choices: [
 					{ id: 'tcp', label: 'Latest' },
 					{ id: 'udp', label: 'Before 2.2' },
