@@ -1,86 +1,120 @@
-var udp = require('../../udp')
-var instance_skel = require('../../instance_skel')
-var debug
-var log
+const tcp = require('../../tcp')
+const udp = require('../../udp')
+const instance_skel = require('../../instance_skel')
 
-function instance(system, id, config) {
-	var self = this
-
-	// super-constructor
-	instance_skel.apply(this, arguments)
-
-	self.actions() // export actions
-	self.init_presets()
-
-	return self
-}
-
-instance.prototype.updateConfig = function (config) {
-	var self = this
-	self.init_presets()
-
-	if (self.udp !== undefined) {
-		self.udp.destroy()
-		delete self.udp
+class instance extends instance_skel {
+	/**
+	 * Create an instance of the module
+	 *
+	 * @param {EventEmitter} system - the brains of the operation
+	 * @param {string} id - the instance ID
+	 * @param {Object} config - saved user configuration parameters
+	 * @since 1.0.0
+	 */
+	constructor(system, id, config) {
+		super(system, id, config)
+		this.actions() // export actions
+		this.init_presets() // export presets
 	}
 
-	if (self.socket !== undefined) {
-		self.socket.destroy()
-		delete self.socket
+	updateConfig(config) {
+		this.init_presets()
+
+		if (this.udp !== undefined) {
+			this.udp.destroy()
+			delete this.udp
+		}
+
+		if (this.socket !== undefined) {
+			this.socket.destroy()
+			delete this.socket
+		}
+
+		this.config = config
+
+		if (this.config.prot == 'tcp') {
+			this.init_tcp()
+		}
+
+		if (this.config.prot == 'udp') {
+			this.init_udp()
+		}
 	}
 
-	self.config = config
+	init() {
+		this.init_presets()
+		if (this.config.prot == 'tcp') {
+			this.init_tcp()
+		}
 
-	self.init_udp()
-}
-
-instance.prototype.init = function () {
-	var self = this
-
-	debug = self.debug
-	log = self.log
-	self.init_presets()
-
-	self.init_udp()
-}
-
-instance.prototype.init_udp = function () {
-	var self = this
-
-	if (self.udp !== undefined) {
-		self.udp.destroy()
-		delete self.udp
+		if (this.config.prot == 'udp') {
+			this.init_udp()
+		}
 	}
 
-	self.status(self.STATE_WARNING, 'Connecting')
+	init_udp() {
+		if (this.udp !== undefined) {
+			this.udp.destroy()
+			delete this.udp
+		}
 
-	if (self.config.host !== undefined) {
-		self.udp = new udp(self.config.host, 2390) // 2390 is the Middle Control Port, this value should never be changed.
+		this.status(this.STATE_WARNING, 'Connecting...')
 
-		self.udp.on('error', function (err) {
-			debug('Network error', err)
-			self.status(self.STATE_ERROR, err)
-			self.log('error', 'Network error: ' + err.message)
-		})
+		if (this.config.host !== undefined) {
+			this.udp = new udp(this.config.host, 2390) // 2390 is the Middle Control UDP Port, this value should never be changed.
 
-		// If we get data, thing should be good
-		self.udp.on('data', function () {
-			self.status(self.STATE_OK)
-		})
+			this.udp.on('error', (err) => {
+				this.debug('Network error', err)
+				this.status(this.STATE_ERROR, err)
+				this.log('error', 'Network error: ' + err.message)
+			})
 
-		self.udp.on('status_change', function (status, message) {
-			self.status(status, message)
-		})
+			// If we get data, thing should be good
+			this.udp.on('data', () => {
+				this.status(this.STATE_OK)
+			})
+
+			this.udp.on('status_change', (status, message) => {
+				this.status(status, message)
+			})
+		}
 	}
-}
 
-// Return config fields for web config
-instance.prototype.config_fields = function () {
-	var self = this
+	init_tcp() {
+		if (this.socket !== undefined) {
+			this.socket.destroy()
+			delete this.socket
+		}
 
-	return [
-		{
-			type: 'text',
+		this.status(this.STATE_WARNING, 'Connecting...')
+
+		if (this.config.host) {
+			this.socket = new tcp(this.config.host, 11580) // 11580 is the Middle TCP Control Port, this value should never be changed.
+
+			this.socket.on('status_change', (status, message) => {
+				this.status(status, message)
+			})
+
+			this.socket.on('error', (err) => {
+				this.debug('Network error', err)
+				this.status(this.STATE_ERROR, err)
+				this.log('error', 'Network error: ' + err.message)
+			})
+
+			this.socket.on('connect', () => {
+				this.status(this.STATE_OK)
+				this.debug('Connected')
+			})
+
+			this.socket.on('data', (data) => {})
+		}
+	}
+
+	// Return config fields for web config
+	config_fields() {
+		return [
+			{
+				type: 'text',
 			id: 'info',
 			label: 'Information',
 			width: 12,
@@ -107,332 +141,461 @@ instance.prototype.config_fields = function () {
 					</div>
 				</div>
 			`,
-		},
-		{
-			type: 'textinput',
-			id: 'host',
-			label: 'Middle Control IP Address',
-			width: 6,
-			default: '',
-			regex: self.REGEX_IP,
-		},
+			},
+			{
+				type: 'textinput',
+				id: 'host',
+				label: 'Target IP',
+				width: 6,
+				regex: this.REGEX_IP,
+			},
+			{
+				type: 'dropdown',
+				id: 'prot',
+				label: 'Middle Control Version',
+				default: 'tcp',
+				choices: [
+					{ id: 'tcp', label: 'Latest' },
+					{ id: 'udp', label: 'Before 2.2' },
+				],
+			},
+		]
+	}
+
+	// When module gets deleted
+	destroy() {
+		if (this.socket !== undefined) {
+			this.socket.destroy()
+		}
+
+		if (this.udp !== undefined) {
+			this.udp.destroy()
+		}
+
+		this.debug('destroy', this.id)
+	}
+
+	CHOICES_END = [
+		{ id: '', label: 'None' },
+		{ id: '\n', label: 'LF - \\n (Common UNIX/Mac)' },
+		{ id: '\r\n', label: 'CRLF - \\r\\n (Common Windows)' },
+		{ id: '\r', label: 'CR - \\r (Old MacOS)' },
+		{ id: '\x00', label: 'NULL - \\x00 (Can happen)' },
+		{ id: '\n\r', label: 'LFCR - \\n\\r (Just stupid)' },
 	]
-}
 
-// When module gets deleted
-instance.prototype.destroy = function () {
-	var self = this
+	CHOICES_CAMERACOMMAND = [
+		{ id: 'AUTOFOCUS', label: 'AutoFocus' },
+		{ id: 'AUTOIRIS', label: 'AutoIris' },
+		{ id: 'COLORBARS', label: 'Show Color Bars' },
+		{ id: 'ZEBRA', label: 'Toggle Zebra' },
+		{ id: 'FALSECOLORS', label: 'Toggle False Colors' },
+		{ id: 'FOCUSPEAKING', label: 'Toggle Focus Peaking' },
+		{ id: 'STATUSVIEW', label: 'Toggle Status View on HDMI Out' },
+		{ id: 'FOCUS+', label: 'Focus in by a step' },
+		{ id: 'FOCUS-', label: 'Focus out by a step' },
+		{ id: 'IRIS+', label: 'Iris increase' },
+		{ id: 'IRIS-', label: 'Iris decrease' },
+		{ id: 'WB+', label: 'White Balance increase' },
+		{ id: 'WB-', label: 'White Balance decrease' },
+		{ id: 'TINT+', label: 'Tint increase' },
+		{ id: 'TINT-', label: 'Tint decrease' },
+		{ id: 'ISO+', label: 'ISO increase' },
+		{ id: 'ISO-', label: 'ISO decrease' },
+		{ id: 'SHUTTER+', label: 'Shutter increase' },
+		{ id: 'SHUTTER-', label: 'Shutter decrease' },
+		{ id: 'ND+', label: 'ND Filter increase' },
+		{ id: 'ND-', label: 'ND Filter decrease' },
+		{ id: 'REC_START', label: 'Start Recording' },
+		{ id: 'REC_STOP', label: 'Stop Recording' },
+		{ id: 'REC_START_ALL', label: 'Start Recording on all cameras' },
+		{ id: 'REC_STOP_ALL', label: 'Stop Recording on all cameras' },
+	]
+	
+	CHOICES_GIMBALCOMMAND = [
+		{ id: 'PAN_L', label: 'Pan Left' },
+		{ id: 'PAN_R', label: 'Pan Right' },
+		{ id: 'PAN_IDLE', label: 'Pan Idle (Required on Key Up)' },
+		{ id: 'TILT_U ', label: 'Tilt Up' },
+		{ id: 'TILT_D', label: 'Tilt Down' },
+		{ id: 'TILT_IDLE', label: 'Tilt Idle (Required on Key Up)' },
+		{ id: 'ROLL_L', label: 'Roll Left' },
+		{ id: 'ROLL_R', label: 'Roll Right' },
+		{ id: 'ROLL_IDLE', label: 'Roll Idle (Required on Key Up)' },
+		{ id: 'ZOOM+', label: 'Zoom in by a step' },
+		{ id: 'ZOOM-', label: 'Zoom out by a step' },
+		{ id: 'ZSPEED+', label: 'Zoom Speed Increase' },
+		{ id: 'ZSPEED-', label: 'Zoom Speed Decrease' },
+		{ id: 'SPEED+', label: 'Pan/Tilt Speed Increase' },
+		{ id: 'SPEED-', label: 'Pan/Tilt Speed Decrease' },
+		{ id: 'ACTIVETRACK', label: 'Active Track Enable/Disable' },
+	]
 
-	if (self.socket !== undefined) {
-		self.socket.destroy()
+	init_presets() {
+		let presets = []
+		this.setPresetDefinitions(presets)
 	}
 
-	if (self.udp !== undefined) {
-		self.udp.destroy()
+	actions(system) {
+		this.system.emit('instance_actions', this.id, {
+			selectcameraID: {
+				label: 'Select Camera ID',
+				options: [
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label: 'Set the camera number you want to control :',
+						width: 6,
+					},
+					{
+						type: 'number',
+						id: 'id_selectcameraID',
+						label: 'Camera ID :',
+						tooltip: 'Select the camera you want to control',
+						default: '1',
+						min: 1,
+						max: 100,
+						width: 6,
+					},
+				],
+			},
+	
+			// Action that sends a camera command
+	
+			sendcameracommand: {
+				label: 'Send Camera Action',
+				options: [
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label: 'Select the action you want to trigger on the currently selected Camera ID',
+						width: 6,
+					},
+					{
+						type: 'dropdown',
+						id: 'id_sendcameracommand',
+						label: 'Action :',
+						tooltip: 'Select the action you want to trigger on the currently selected Camera ID',
+						default: 'AUTOFOCUS',
+						/*width: 6*/
+						choices: this.CHOICES_CAMERACOMMAND,
+					},
+				],
+			},
+	
+			// Action that sends a gimbal command through the APC / APC-R
+	
+			sendgimbalcommand: {
+				label: 'Send Gimbal Action',
+				options: [
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label:
+							'Note : after a Pan, Tilt or Roll Press action, you MUST also add a Release action with an Idle command after at least 70ms, which will stop the movement. For instance, a Pan Left key down action should be followed by a Pan Idle key up action after at least a 70ms delay.',
+						width: 6,
+					},
+					{
+						type: 'dropdown',
+						id: 'id_sendgimbalcommand',
+						label: 'Action :',
+						tooltip: 'Select the action you want to trigger on the currently selected Camera ID',
+						default: 'PAN_L',
+						/*width: 6*/
+						choices: this.CHOICES_GIMBALCOMMAND,
+					},
+				],
+			},
+	
+			// Action that sends a Preset control command through the APC / APC-R
+	
+			preset: {
+				label: 'Recall/Save Preset',
+				options: [
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label:
+							'Select the Preset you want to save or recall. If you want to recall preset number 5.8, set Camera ID to 5, preset number to 8 and select Recall. ',
+						width: 6,
+					},
+					{
+						type: 'number',
+						id: 'id_presetcameraID',
+						label: 'Camera ID :',
+						default: '1',
+						min: 1,
+						max: 100,
+						width: 6,
+						/*regex: self.REGEX_SIGNED_NUMBER*/
+					},
+					{
+						type: 'number',
+						id: 'id_presetnumber',
+						label: 'Preset Number (1-12) :',
+						default: '1',
+						min: 1,
+						max: 12,
+						width: 6,
+					},
+					{
+						type: 'dropdown',
+						id: 'id_presetmode',
+						label: 'Recall or Save Preset ? :',
+						default: 'RECALL',
+						choices: [
+							{ id: 'RECALL', label: 'Recall' },
+							{ id: 'SAVE', label: 'Save' },
+						],
+					},
+				],
+			},
+	
+
+			preset_transition: {
+				label: 'Set Preset Transition Duration',
+				options: [
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label: 'Set the duration of the transition to the next preset which will be recalled',
+						width: 6,
+					},
+					
+					{
+						type: 'number',
+						id: 'id_settransitionduration',
+						label: 'Duration (in s)',
+						min: 0,
+						max: 120,
+						range: true,
+						default: 1,
+					},
+				],
+			},
+			
+						// Action that sets a custom pan/tilt/zoom speed
+
+			setspeed: {
+				label: 'Set Max PTZ Speed',
+				options: [
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label: 'Set a maximum Pan/Tilt Speed or Zoom Speed Value',
+						width: 6,
+					},
+					{
+						type: 'dropdown',
+						id: 'id_setspeedmode',
+						label: 'Select the setting you want to adjust :',
+						default: 'PanTilt',
+						choices: [
+							{ id: 'PanTilt', label: 'Pan/Tilt Max Speed' },
+							{ id: 'Zoom', label: 'Zoom Max Speed' },
+						],
+					},
+					{
+						type: 'number',
+						id: 'id_setspeed',
+						label: 'Value',
+						min: 1,
+						max: 100,
+						range: true,
+						default: 100,
+					},
+				],
+			},
+
+			// Action that sets a custom pan/tilt/roll/zoom speed value or absolute value
+
+			sendabs: {
+				label: 'Send a Custom PTZ Absolute Value',
+				options: [
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label: 'Set a custom absolute PTZ Speed for the Pan, Tilt, Roll & Zoom',
+						width: 6,
+					},
+					{
+						type: 'dropdown',
+						id: 'id_sendabsmode',
+						label: 'Select the parameter you want to set :',
+						default: 'Pan',
+						choices: [
+							{ id: 'Pan', label: 'Pan Value' },
+							{ id: 'Tilt', label: 'Tilt Value' },
+							{ id: 'Roll', label: 'Roll Value' },
+							{ id: 'Zoom', label: 'Zoom Value' },
+						],
+					},
+					{
+						type: 'number',
+						id: 'id_sendabs',
+						label: 'Value',
+						min: -2048,
+						max: 2048,
+						range: true,
+						default: 0,
+					},
+					{
+						type: 'number',
+						id: 'id_sendabsduration',
+						label: 'Transition duration (s)',
+						min: 0,
+						max: 120,
+						range: true,
+						default: 1,
+					},
+				],
+			},
+			// Legacy UDP action
+	
+			/*
+			'send': {
+				label: 'Send Command',
+				options: [
+					{
+						type: 'textinput',
+						id: 'id_send',
+						label: 'Command:',
+						tooltip: 'Use %hh to insert Hex codes',
+						default: '',
+						width: 6
+					},
+					{
+						type: 'dropdown',
+						id: 'id_end',
+						label: 'Command End Character:',
+						default: '\n',
+						choices: self.CHOICES_END
+					}
+	
+				]
+			}*/
+		})
 	}
 
-	debug('destroy', self.id)
-}
+	action(action) {
+		let cmd
+		let end
+		end = '\n'
 
-// List of choices for the dropdown boxes
-
-instance.prototype.CHOICES_CAMERACOMMAND = [
-	{ id: 'AUTOFOCUS', label: 'AutoFocus' },
-	{ id: 'AUTOIRIS', label: 'AutoIris' },
-	{ id: 'COLORBARS', label: 'Show Color Bars' },
-	{ id: 'ZEBRA', label: 'Toggle Zebra' },
-	{ id: 'FALSECOLORS', label: 'Toggle False Colors' },
-	{ id: 'STATUSVIEW', label: 'Toggle Status View on HDMI Out' },
-	{ id: 'FOCUS+', label: 'Focus in by a step' },
-	{ id: 'FOCUS-', label: 'Focus out by a step' },
-	{ id: 'IRIS+', label: 'Iris increase' },
-	{ id: 'IRIS-', label: 'Iris decrease' },
-	{ id: 'WB+', label: 'White Balance increase' },
-	{ id: 'WB-', label: 'White Balance decrease' },
-	{ id: 'TINT+', label: 'Tint increase' },
-	{ id: 'TINT-', label: 'Tint decrease' },
-	{ id: 'ISO+', label: 'ISO increase' },
-	{ id: 'ISO-', label: 'ISO decrease' },
-	{ id: 'SHUTTER+', label: 'Shutter increase' },
-	{ id: 'SHUTTER-', label: 'Shutter decrease' },
-	{ id: 'ND+', label: 'ND Filter increase' },
-	{ id: 'ND-', label: 'ND Filter decrease' },
-	{ id: 'REC_START', label: 'Start Recording' },
-	{ id: 'REC_STOP', label: 'Stop Recording' },
-	{ id: 'REC_START_ALL', label: 'Start Recording on all cameras' },
-	{ id: 'REC_STOP_ALL', label: 'Stop Recording on all cameras' },
-]
-
-instance.prototype.CHOICES_GIMBALCOMMAND = [
-	{ id: 'PAN_L', label: 'Pan Left' },
-	{ id: 'PAN_R', label: 'Pan Right' },
-	{ id: 'PAN_IDLE', label: 'Pan Idle (Required on Key Up)' },
-	{ id: 'TILT_U ', label: 'Tilt Up' },
-	{ id: 'TILT_D', label: 'Tilt Down' },
-	{ id: 'TILT_IDLE', label: 'Tilt Idle (Required on Key Up)' },
-	{ id: 'ROLL_L', label: 'Roll Left' },
-	{ id: 'ROLL_R', label: 'Roll Right' },
-	{ id: 'ROLL_IDLE', label: 'Roll Idle (Required on Key Up)' },
-	{ id: 'ZOOM+', label: 'Zoom in by a step' },
-	{ id: 'ZOOM-', label: 'Zoom out by a step' },
-	{ id: 'ZSPEED+', label: 'Zoom Speed Increase' },
-	{ id: 'ZSPEED-', label: 'Zoom Speed Decrease' },
-	{ id: 'SPEED+', label: 'Pan/Tilt Speed Increase' },
-	{ id: 'SPEED-', label: 'Pan/Tilt Speed Decrease' },
-	{ id: 'ACTIVETRACK', label: 'Active Track Enable/Disable' },
-]
-
-instance.prototype.CHOICES_VARIABLECOMMAND = [
-	{ id: 'PAN_L', label: 'Pan Left' },
-	{ id: 'PAN_R', label: 'Pan Right' },
-]
-
-instance.prototype.init_presets = function () {
-	var self = this
-	var presets = []
-
-	self.setPresetDefinitions(presets)
-}
-
-instance.prototype.actions = function (system) {
-	var self = this
-
-	self.system.emit('instance_actions', self.id, {
-		// Action that selects the camera ID we want to control in Middle Control 
-
-		selectcameraID: {
-			label: 'Select Camera ID',
-			options: [
-				{
-					type: 'text',
-					id: 'Textlabel',
-					label: 'Set the camera number you want to control :',
-					width: 6,
-				},
-				{
-					type: 'number',
-					id: 'id_selectcameraID',
-					label: 'Camera ID :',
-					tooltip: 'Select the camera you want to control',
-					default: '1',
-					min: 1,
-					max: 100,
-					width: 6,
-				},
-			],
-		},
-
-		// Action that sends a camera command
-
-		sendcameracommand: {
-			label: 'Send Camera Action',
-			options: [
-				{
-					type: 'text',
-					id: 'Textlabel',
-					label: 'Select the action you want to trigger on the currently selected Camera ID',
-					width: 6,
-				},
-				{
-					type: 'dropdown',
-					id: 'id_sendcameracommand',
-					label: 'Action :',
-					tooltip: 'Select the action you want to trigger on the currently selected Camera ID',
-					default: 'AUTOFOCUS',
-					/*width: 6*/
-					choices: self.CHOICES_CAMERACOMMAND,
-				},
-			],
-		},
-
-		// Action that sends a gimbal command through the APC / APC-R
-
-		sendgimbalcommand: {
-			label: 'Send Gimbal Action',
-			options: [
-				{
-					type: 'text',
-					id: 'Textlabel',
-					label:
-						'Note : after a Pan, Tilt or Roll Press action, you MUST also add a Release action with an Idle command after at least 70ms, which will stop the movement. For instance, a Pan Left key down action should be followed by a Pan Idle key up action after at least a 70ms delay.',
-					width: 6,
-				},
-				{
-					type: 'dropdown',
-					id: 'id_sendgimbalcommand',
-					label: 'Action :',
-					tooltip: 'Select the action you want to trigger on the currently selected Camera ID',
-					default: 'PAN_L',
-					/*width: 6*/
-					choices: self.CHOICES_GIMBALCOMMAND,
-				},
-			],
-		},
-
-		// Action that sends a Preset control command through the APC / APC-R
-
-		preset: {
-			label: 'Recall/Save Preset',
-			options: [
-				{
-					type: 'text',
-					id: 'Textlabel',
-					label:
-						'Select the Preset you want to save or recall. If you want to recall preset number 5.8, set Camera ID to 5, preset number to 8 and select Recall. ',
-					width: 6,
-				},
-				{
-					type: 'number',
-					id: 'id_presetcameraID',
-					label: 'Camera ID :',
-					default: '1',
-					min: 1,
-					max: 100,
-					width: 6,
-					/*regex: self.REGEX_SIGNED_NUMBER*/
-				},
-				{
-					type: 'number',
-					id: 'id_presetnumber',
-					label: 'Preset Number (1-12) :',
-					default: '1',
-					min: 1,
-					max: 12,
-					width: 6,
-				},
-				{
-					type: 'dropdown',
-					id: 'id_presetmode',
-					label: 'Recall or Save Preset ? :',
-					default: 'RECALL',
-					choices: [
-						{ id: 'RECALL', label: 'Recall' },
-						{ id: 'SAVE', label: 'Save' },
-					],
-				},
-			],
-		},
-
-		// Action that sets a custom pan/tilt/zoom speed
-
-		setspeed: {
-			label: 'Set Custom Pan/Tilt/Zoom Speed',
-			options: [
-				{
-					type: 'text',
-					id: 'Textlabel',
-					label: 'Set a custom Pan/Tilt Speed or Zoom Speed Value',
-					width: 6,
-				},
-				{
-					type: 'dropdown',
-					id: 'id_setspeedmode',
-					label: 'Select the setting you want to adjust :',
-					default: 'PanTilt',
-					choices: [
-						{ id: 'PanTilt', label: 'Pan/Tilt Speed' },
-						{ id: 'Zoom', label: 'Zoom Speed' },
-					],
-				},
-				{
-					type: 'number',
-					id: 'id_setspeed',
-					label: 'Value',
-					min: 1,
-					max: 100,
-					range: true,
-					default: 100,
-				},
-			],
-		},
-
-		// Legacy UDP action
-
-		/*
-		'send': {
-			label: 'Send Command',
-			options: [
-				{
-					type: 'textinput',
-					id: 'id_send',
-					label: 'Command:',
-					tooltip: 'Use %hh to insert Hex codes',
-					default: '',
-					width: 6
-				},
-				{
-					type: 'dropdown',
-					id: 'id_end',
-					label: 'Command End Character:',
-					default: '\n',
-					choices: self.CHOICES_END
+		switch (action.action) {
+			case 'selectcameraID':
+				this.parseVariables(action.options.id_selectcameraID, (value) => {
+					cmd = 'CAM' + unescape(value);
+				})
+				break
+	
+			case 'sendgimbalcommand':
+				this.parseVariables(action.options.id_sendgimbalcommand, (value) => {
+					cmd = unescape(value);
+				})
+				break
+	
+			case 'sendcameracommand':
+				cmd = unescape(action.options.id_sendcameracommand)
+				break
+	
+			case 'preset':
+				if (action.options.id_presetmode == 'RECALL') {
+					cmd = 'PRESET' + unescape(action.options.id_presetnumber) + 'C' + unescape(action.options.id_presetcameraID)
+					break
+				}
+				if (action.options.id_presetmode == 'SAVE') {
+					cmd = 'SPRESET' + unescape(action.options.id_presetnumber) + 'C' + unescape(action.options.id_presetcameraID)
+					break
 				}
 
-			]
-		}*/
-	})
-}
+			case 'preset_transition':
+		
+						cmd = 'PTRANS' + unescape(action.options.id_settransitionduration)
+						break
+	
+			case 'setspeed':
+				if (action.options.id_setspeedmode == 'PanTilt') {
+					cmd = 'PTS' + unescape(action.options.id_setspeed)
+					break
+				}
+				if (action.options.id_setspeedmode == 'Zoom') {
+					cmd = 'ZS' + unescape(action.options.id_setspeed)
+					break
+				}
 
-instance.prototype.action = function (action) {
-	var self = this
-	var cmd
-	var end
-	end = '\n'
+			case 'sendabs':
+				cmd = unescape(action.options.id_sendabsspeed)
+				
+				if (action.options.id_sendabsmode == 'Pan') {
+					cmd = 'aP' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
+					
+					break
+				}
+				if (action.options.id_sendabsmode == 'Tilt') {
+					cmd = 'aT' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
+					
+					break
+				}
+				if (action.options.id_sendabsmode == 'Roll') {
+					cmd = 'aR' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
+					
+					break
+				}
+				if (action.options.id_sendabsmode == 'Zoom') {
+					cmd = 'aZ' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
+					
+					break
+				}
 
-	switch (action.action) {
-		case 'selectcameraID':
-			cmd = 'CAM' + unescape(action.options.id_selectcameraID)
-			break
 
-		case 'sendgimbalcommand':
-			cmd = unescape(action.options.id_sendgimbalcommand)
-			break
-
-		case 'sendcameracommand':
-			cmd = unescape(action.options.id_sendcameracommand)
-			break
-
-		case 'preset':
-			if (action.options.id_presetmode == 'RECALL') {
-				cmd = 'PRESET' + unescape(action.options.id_presetnumber) + 'C' + unescape(action.options.id_presetcameraID)
+	
+			case 'send':
+				cmd = unescape(action.options.id_send)
 				break
-			}
-			if (action.options.id_presetmode == 'SAVE') {
-				cmd = 'SPRESET' + unescape(action.options.id_presetnumber) + 'C' + unescape(action.options.id_presetcameraID)
-				break
-			}
-
-		case 'setspeed':
-			if (action.options.id_setspeedmode == 'PanTilt') {
-				cmd = 'PTS' + unescape(action.options.id_setspeed)
-				break
-			}
-			if (action.options.id_setspeedmode == 'Zoom') {
-				cmd = 'ZS' + unescape(action.options.id_setspeed)
-				break
-			}
-
-		case 'send':
-			cmd = unescape(action.options.id_send)
-			break
-	}
-
-	/*
-	 * create a binary buffer pre-encoded 'latin1' (8bit no change bytes)
-	 * sending a string assumes 'utf8' encoding
-	 * which then escapes character values over 0x7F
-	 * and destroys the 'binary' content
-	 */
-	var sendBuf = Buffer.from(cmd + end, 'latin1')
-	if (sendBuf != '') {
-		if (self.udp !== undefined) {
-			debug('sending', sendBuf, 'to', self.config.host)
-			debug('sending message', cmd, 'to', self.config.host)
-
-			self.udp.send(sendBuf)
 		}
-	}
-}
 
-instance_skel.extendedBy(instance)
+		/*
+		 * create a binary buffer pre-encoded 'latin1' (8bit no change bytes)
+		 * sending a string assumes 'utf8' encoding
+		 * which then escapes character values over 0x7F
+		 * and destroys the 'binary' content
+		 */
+		let sendBuf = Buffer.from(cmd + end, 'latin1')
+
+		if (sendBuf != '') {
+			if (this.config.prot == 'tcp') {
+				this.debug('sending ', sendBuf, 'to', this.config.host)
+
+				if (this.socket !== undefined && this.socket.connected) {
+					this.socket.send(sendBuf)
+					this.log('debug','TCP Message sent :'+cmd);
+
+				} else {
+					this.debug('Socket not connected :(')
+				}
+			}
+
+			if (this.config.prot == 'udp') {
+				if (this.udp !== undefined) {
+					this.debug('sending', sendBuf, 'to', this.config.host)
+
+					this.udp.send(sendBuf)
+				}
+			}
+		}
+
+	/*	this.socket.on('data', function (data) {
+
+			var newdata = ""+data;
+			var newdatachunks = newdata.split("\n");
+		
+				 for (var i = 0 ; i<(newdatachunks.length-1);i++) {
+					 console.log('debug',"real data is :"+newdatachunks[i]); 
+				 }
+		
+		});
+		
+	}*/
+}
 exports = module.exports = instance
