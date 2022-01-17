@@ -594,8 +594,8 @@ class instance extends instance_skel {
 					 console.log('debug',"real data is :"+newdatachunks[i]); 
 				 }
 		
-		});
+		});*/
 		
-	}*/
+	}
 }
 exports = module.exports = instance

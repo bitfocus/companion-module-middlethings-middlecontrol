@@ -16,7 +16,11 @@ The yarn headless command will perform all the steps to build the module.
 
 ## Changes
 
-### v1.1
+### v1.1.2
+
+- Hotfix on a bug that caused crash at boot
+
+### v1.1.1
 
 - Added TCP support for Middle Control 2.2 and above (better performance)
 - Fixed the Status saying "Connecting..." before a key is pressed (Middle Control 2.2 and above)
