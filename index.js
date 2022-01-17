@@ -127,7 +127,7 @@ class instance extends instance_skel {
 
 						Instructions & download ready to go Companion pages at <a href="https://www.middlethings.co/companion" target="_new">middlethings.co/companion</a><br><br>
 
-						If you are running Middle Control on this same computer, you can type  127.0.0.1 in the IP adress field below and press Save.<br> The instance will appear as connected only after a key press has successfuly been sent. Please note that :
+						If you are running Middle Control on this same computer, you can type  127.0.0.1 in the IP adress field below and press Save. (if running Windows, make sure you are using v2.1.5 or above of Middle Control) <br> The instance will appear as connected only after a key press has successfuly been sent. Please note that :
 
 						<ul>
 							<li>Middle Control software has to be running (locally on this computer or on any computer on this network) </li>

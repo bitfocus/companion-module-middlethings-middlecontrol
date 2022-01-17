@@ -18,21 +18,21 @@ The yarn headless command will perform all the steps to build the module.
 
 ### v1.1
 
-Added TCP support for Middle Control 2.2 and above (better performance)
-Fixed the Status saying "Connecting..." before a key is pressed (Middle Control 2.2 and above)
-Added Lift / Gamma / Gain Luma Commands
-Added Contrast / Saturation Commands
-Added Focus Peaking Command
+- Added TCP support for Middle Control 2.2 and above (better performance)
+- Fixed the Status saying "Connecting..." before a key is pressed (Middle Control 2.2 and above)
+- Added Lift / Gamma / Gain Luma Commands
+- Added Contrast / Saturation Commands
+- Added Focus Peaking Command
 
 ### v1.0.2
 
-Added support for DJI Active Track remote control
-Improved config page clarity
+- Added support for DJI Active Track remote control
+- Improved config page clarity
 
 ### v1.0.1
 
-Removed TCP calls and optimized variables.
+- Removed TCP calls and optimized variables.
 
 ### v1.0.0
 
-Initial public release (after a lot of local field testing and developments )
+- Initial public release (after a lot of local field testing and developments )
