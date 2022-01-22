@@ -43,6 +43,9 @@ class instance extends instance_skel {
 
 	init() {
 		this.init_presets()
+		this.init_variables()
+		this.init_feedbacks()
+
 		if (this.config.prot == 'tcp') {
 			this.init_tcp()
 		}
@@ -106,7 +109,300 @@ class instance extends instance_skel {
 				this.debug('Connected')
 			})
 
-			this.socket.on('data', (data) => {})
+			this.socket.on('data', (data) => {
+
+
+				//PARSE INCOMING DATA
+				var response_array = data.toString().slice(1, -2).split(';')
+				this.log('debug', 'RESPONSE ARRAY =' + response_array)
+
+
+				// Standard Middle Control Feedback into ARRAY 1 (detects using PTS presence) 
+				var presence_pts = response_array.findIndex((element) => element.includes('PTS')) 
+				if (parseFloat(presence_pts) > -1) {
+					var response_array1 = data.toString().slice(1, -2).split(';')
+					this.log('debug', 'RESPONSE ARRAY 1 NORM=' + response_array1)
+
+					//GET CAM FROM TCP
+					var CAM = response_array1.find((element) => {
+						if (element.includes('CAM')) {
+							return true
+						}
+					})
+					if (CAM !== undefined) {
+						CAM = CAM.substring(3)
+					}
+
+					//GET PAN/TILT SPEED FROM TCP
+					var PTS = response_array1.find((element) => {
+						if (element.includes('PTS')) {
+							return true
+						}
+					})
+					if (PTS !== undefined) {
+						PTS = parseFloat(PTS.substring(3))
+					}
+
+					//GET ZOOM SPEED FROM TCP
+					var ZS = response_array1.find((element) => {
+						if (element.includes('ZS')) {
+							return true
+						}
+					})
+					if (ZS !== undefined) {
+						ZS = parseFloat(ZS.substring(2))
+					}
+					this.log('debug', 'CAM = ' + CAM)
+					this.log('debug', 'PTS = ' + PTS)
+					this.log('debug', 'ZS = ' + ZS)
+
+					if (CAM !== undefined) {
+						this.setVariable('CAM_var', CAM)
+					}
+					else {
+						this.setVariable('CAM_var', '')
+					}
+
+					if (PTS !== undefined) {
+						this.setVariable('PTS_var', PTS)
+					}
+					else {
+						this.setVariable('PTS_var', '')
+					}
+					if (ZS !== undefined) {
+						this.setVariable('ZS_var', ZS)
+					}
+					else {
+						this.setVariable('ZS_var', '')
+					}
+
+					// CONVERT TO PROTOTYPE FOR FEEDBACKS
+					instance.prototype.CAM = CAM   
+					instance.prototype.PTS = PTS
+					instance.prototype.ZS  = ZS
+				}
+
+				
+				// ATEM Middle Control Feedback into ARRAY 2 (detects using aWB presence) 
+				var presence_aWB = response_array.findIndex((element) => element.includes('aWB')) // Detects if it is an ATEM Middle Control Feedback	(using WB value)
+				if (parseFloat(presence_aWB) > -1) {
+					var response_array2 = data.toString().slice(1, -2).split(';')
+					this.log('debug', 'RESPONSE ARRAY 2 ATEM=' + response_array2)
+
+					this.log('debug', 'ATEM Connected to MiddleControl')
+
+					// GET WHITE BALANCE FROM TCP
+					var aWB = response_array2.find((element) => {
+						if (element.includes('aWB')) {
+							return true
+						}
+					})
+					if (aWB !== undefined) {
+						aWB = parseFloat(aWB.substring(3))
+					}
+
+					// GET FOCUS FROM TCP
+					var aF = response_array2.find((element) => {
+						if (element.includes('aF')) {
+							return true
+						}
+					})
+					if (aF !== undefined) {
+						aF = parseFloat(aF.substring(2))
+					}
+
+					// GET IRIS FROM TCP
+					var aI = response_array2.find((element) => {
+						if (element.includes('aI')) {
+							return true
+						}
+					})
+					if (aI !== undefined) {
+						aI = parseFloat(aI.substring(2))
+					}
+
+					// GET TINT FROM TCP
+					var aTINT = response_array2.find((element) => {
+						if (element.includes('aTINT')) {
+							return true
+						}
+					})
+					if (aTINT !== undefined) {
+						aTINT = parseFloat(aTINT.substring(5))
+					}
+
+					// GET ISO FROM TCP
+					var aISO = response_array2.find((element) => {
+						if (element.includes('aISO')) {
+							return true
+						}
+					})
+					if (aISO !== undefined) {
+						aISO = parseFloat(aISO.substring(4))
+					}
+
+					// GET SHUTTER FROM TCP
+					var aSHUT = response_array2.find((element) => {
+						if (element.includes('aSHUT')) {
+							return true
+						}
+					})
+					if (aSHUT !== undefined) {
+						aSHUT = parseFloat(aSHUT.substring(4))
+					}
+
+					// GET SATURATION FROM TCP
+					var aSAT = response_array2.find((element) => {
+						if (element.includes('aSAT')) {
+							return true
+						}
+					})
+					if (aSAT !== undefined) {
+						aSAT = parseFloat(aSAT.substring(4))
+					}
+
+					// GET CONTRAST FROM TCP
+					var aCONT = response_array2.find((element) => {
+						if (element.includes('aCONT')) {
+							return true
+						}
+					})
+					if (aCONT !== undefined) {
+						aCONT = parseFloat(aCONT.substring(5))
+					}
+
+					// GET BLACK LEVEL FROM TCP
+					var aBLACKLEV = response_array2.find((element) => {
+						if (element.includes('aBLACKLEV')) {
+							return true
+						}
+					})
+					if (aBLACKLEV !== undefined) {
+						aBLACKLEV = parseFloat(aBLACKLEV.substring(9))
+					}
+
+					// GET MID LEVEL FROM TCP
+					var aMIDLEV = response_array2.find((element) => {
+						if (element.includes('aMIDLEV')) {
+							return true
+						}
+					})
+					if (aMIDLEV !== undefined) {
+						aMIDLEV = parseFloat(aMIDLEV.substring(7))
+					}
+
+					// GET WHITELEV FROM TCP
+					var aWHITELEV = response_array2.find((element) => {
+						if (element.includes('aWHITELEV')) {
+							return true
+						}
+					})
+					if (aWHITELEV !== undefined) {
+						aWHITELEV = parseFloat(aWHITELEV.substring(9))
+					}
+
+					// Create Companion Variables
+
+					if (aWB !== undefined) {
+						this.setVariable('aWB_var', aWB)
+					}
+					else {
+						this.setVariable('aWB_var', '')
+					}
+					if (aF !== undefined) {
+						this.setVariable('aF_var', aF)
+					}
+					else {
+						this.setVariable('aF_var', '')
+					}
+					if (aI !== undefined) {
+						this.setVariable('aI_var', aI)
+					}
+					else {
+						this.setVariable('aI_var', '')
+					}
+					if (aTINT !== undefined) {
+						this.setVariable('aTINT_var', aTINT)
+					}
+					else {
+						this.setVariable('aTINT_var', '')
+					}
+					if (aISO !== undefined) {
+						this.setVariable('aISO_var', aISO)
+					}
+					else {
+						this.setVariable('aISO_var', '')
+					}
+					if (aSHUT !== undefined) {
+						this.setVariable('aSHUT_var', aSHUT)
+					}
+					else {
+						this.setVariable('aSHUT_var', '')
+					}
+					if (aSAT !== undefined) {
+						this.setVariable('aSAT_var', aSAT)
+					}
+					else {
+						this.setVariable('aSAT_var', '')
+					}
+
+					if (aCONT !== undefined) {
+						this.setVariable('aCONT_var', aCONT)
+					}
+					else {
+						this.setVariable('aCONT_var', '')
+					}
+					if (aBLACKLEV !== undefined) {
+						this.setVariable('aBLACKLEV_var', aBLACKLEV)
+					}
+					else {
+						this.setVariable('aBLACKLEV_var', '')
+					}
+					if (aMIDLEV !== undefined) {
+						this.setVariable('aMIDLEV_var', aMIDLEV)
+					}
+					else {
+						this.setVariable('aMIDLEV_var', '')
+					}
+					if (aWHITELEV !== undefined) {
+						this.setVariable('aWHITELEV_var', aWHITELEV)
+					}
+					else {
+						this.setVariable('aWHITELEV', '')
+					}
+
+					this.log('debug', 'WB = ' + aWB)
+					this.log('debug', 'Focus = ' + aF)
+					this.log('debug', 'Iris = ' + aI)
+					this.log('debug', 'Tint = ' + aTINT)
+					this.log('debug', 'ISO = ' + aISO)
+					this.log('debug', 'Shutter = ' + aSHUT)
+					this.log('debug', 'Saturation = ' + aSAT)
+					this.log('debug', 'Contrast = ' + aCONT)
+					this.log('debug', 'BlackLev = ' + aBLACKLEV)
+					this.log('debug', 'MidLev = ' + aMIDLEV)
+					this.log('debug', 'WhiteLev = ' + aWHITELEV)
+				}
+				else {
+					this.log('debug', 'VARIABLES_NULL')
+					this.setVariable('aBLACKLEV_var', '-')
+					this.setVariable('aMIDLEV_var', '-')
+					this.setVariable('aWHITELEV_var', '-')
+					this.setVariable('aWB_var', '-')
+					this.setVariable('aF_var', '-')
+					this.setVariable('aI_var', '-')
+					this.setVariable('aTINT_var', '-')
+					this.setVariable('aISO_var', '-')
+					this.setVariable('aCONT_var', '-')
+					this.setVariable('aSAT_var', '-')
+					this.setVariable('aSHUT_var', '-')
+				}
+
+
+
+				this.checkFeedbacks('CurrentCameraID')
+
+			})
 		}
 	}
 
@@ -115,10 +411,10 @@ class instance extends instance_skel {
 		return [
 			{
 				type: 'text',
-			id: 'info',
-			label: 'Information',
-			width: 12,
-			value: `
+				id: 'info',
+				label: 'Information',
+				width: 12,
+				value: `
 				<div class="alert alert-secondary">
 					<h3>Middle Control</h3>
 					<div>
@@ -211,7 +507,7 @@ class instance extends instance_skel {
 		{ id: 'REC_START_ALL', label: 'Start Recording on all cameras' },
 		{ id: 'REC_STOP_ALL', label: 'Stop Recording on all cameras' },
 	]
-	
+
 	CHOICES_GIMBALCOMMAND = [
 		{ id: 'PAN_L', label: 'Pan Left' },
 		{ id: 'PAN_R', label: 'Pan Right' },
@@ -234,6 +530,99 @@ class instance extends instance_skel {
 	init_presets() {
 		let presets = []
 		this.setPresetDefinitions(presets)
+	}
+
+	init_feedbacks() {
+		//var CAMCHECK=parseInt(this.CAM)
+		//this.log('debug',"CAM CALLBACK =" + CAMCHECK )
+
+		const feedbacks = {}
+		feedbacks['CurrentCameraID'] = {
+			type: 'boolean', // Feedbacks can either a simple boolean, or can be an 'advanced' style change (until recently, all feedbacks were 'advanced')
+			label: 'Camera Selected',
+			description: 'If this Camera number is currently selected in Middle Control, change the Companion button style',
+			style: {
+				// The default style change for a boolean feedback
+				// The user will be able to customise these values as well as the fields that will be changed
+				color: this.rgb(0, 0, 0),
+				bgcolor: this.rgb(8, 170, 250),
+			},
+			// options is how the user can choose the condition the feedback activates for
+			options: [
+				{
+					type: 'number',
+					label: 'Camera ID',
+					id: 'camera_id',
+					default: 1,
+				},
+			],
+			callback: function (feedback) {
+				// This callback will be called whenever companion wants to check if this feedback is 'active' and should affect the button style
+				if (instance.prototype.CAM == feedback.options.camera_id) {
+					return true
+				} else {
+					return false
+				}
+			},
+		}
+		this.setFeedbackDefinitions(feedbacks)
+	}
+
+	init_variables() {
+		this.setVariableDefinitions([
+			{
+				label: 'Selected Camera Number',
+				name: 'CAM_var',
+			},
+			{
+				label: 'Pan/Tilt Speed',
+				name: 'PTS_var',
+			},
+			{
+				label: 'Zoom Speed',
+				name: 'ZS_var',
+			},
+			{
+				label: 'White Balance',
+				name: 'aWB_var',
+			},
+			{
+				label: 'Tint',
+				name: 'aTINT_var',
+			},
+			{
+				label: 'Gain (dB)',
+				name: 'aISO_var',
+			},
+			{
+				label: 'Shutter',
+				name: 'aSHUT_var',
+			},
+			{
+				label: 'Contrast',
+				name: 'aCONT_var',
+			},
+			{
+				label: 'Saturation',
+				name: 'aSAT_var',
+			},
+			{
+				label: 'Black Level (Luma)',
+				name: 'aBLACKLEV_var',
+			},
+			{
+				label: 'Mid Level (Luma)',
+				name: 'aMIDLEV_var',
+			},
+			{
+				label: 'White Level (Luma)',
+				name: 'aWHITELEV_var',
+			},
+			{
+				label: 'Focus Value',
+				name: 'aF_var',
+			},
+		])
 	}
 
 	actions(system) {
@@ -259,9 +648,9 @@ class instance extends instance_skel {
 					},
 				],
 			},
-	
+
 			// Action that sends a camera command
-	
+
 			sendcameracommand: {
 				label: 'Send Camera Action',
 				options: [
@@ -282,9 +671,9 @@ class instance extends instance_skel {
 					},
 				],
 			},
-	
+
 			// Action that sends a gimbal command through the APC / APC-R
-	
+
 			sendgimbalcommand: {
 				label: 'Send Gimbal Action',
 				options: [
@@ -306,9 +695,9 @@ class instance extends instance_skel {
 					},
 				],
 			},
-	
+
 			// Action that sends a Preset control command through the APC / APC-R
-	
+
 			preset: {
 				label: 'Recall/Save Preset',
 				options: [
@@ -350,7 +739,6 @@ class instance extends instance_skel {
 					},
 				],
 			},
-	
 
 			preset_transition: {
 				label: 'Set Preset Transition Duration',
@@ -361,7 +749,7 @@ class instance extends instance_skel {
 						label: 'Set the duration of the transition to the next preset which will be recalled',
 						width: 6,
 					},
-					
+
 					{
 						type: 'number',
 						id: 'id_settransitionduration',
@@ -373,8 +761,8 @@ class instance extends instance_skel {
 					},
 				],
 			},
-			
-						// Action that sets a custom pan/tilt/zoom speed
+
+			// Action that sets a custom pan/tilt/zoom speed
 
 			setspeed: {
 				label: 'Set Max PTZ Speed',
@@ -451,7 +839,7 @@ class instance extends instance_skel {
 				],
 			},
 			// Legacy UDP action
-	
+
 			/*
 			'send': {
 				label: 'Send Command',
@@ -485,20 +873,20 @@ class instance extends instance_skel {
 		switch (action.action) {
 			case 'selectcameraID':
 				this.parseVariables(action.options.id_selectcameraID, (value) => {
-					cmd = 'CAM' + unescape(value);
+					cmd = 'CAM' + unescape(value)
 				})
 				break
-	
+
 			case 'sendgimbalcommand':
 				this.parseVariables(action.options.id_sendgimbalcommand, (value) => {
-					cmd = unescape(value);
+					cmd = unescape(value)
 				})
 				break
-	
+
 			case 'sendcameracommand':
 				cmd = unescape(action.options.id_sendcameracommand)
 				break
-	
+
 			case 'preset':
 				if (action.options.id_presetmode == 'RECALL') {
 					cmd = 'PRESET' + unescape(action.options.id_presetnumber) + 'C' + unescape(action.options.id_presetcameraID)
@@ -510,10 +898,9 @@ class instance extends instance_skel {
 				}
 
 			case 'preset_transition':
-		
-						cmd = 'PTRANS' + unescape(action.options.id_settransitionduration)
-						break
-	
+				cmd = 'PTRANS' + unescape(action.options.id_settransitionduration)
+				break
+
 			case 'setspeed':
 				if (action.options.id_setspeedmode == 'PanTilt') {
 					cmd = 'PTS' + unescape(action.options.id_setspeed)
@@ -526,30 +913,28 @@ class instance extends instance_skel {
 
 			case 'sendabs':
 				cmd = unescape(action.options.id_sendabsspeed)
-				
+
 				if (action.options.id_sendabsmode == 'Pan') {
 					cmd = 'aP' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
-					
+
 					break
 				}
 				if (action.options.id_sendabsmode == 'Tilt') {
 					cmd = 'aT' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
-					
+
 					break
 				}
 				if (action.options.id_sendabsmode == 'Roll') {
 					cmd = 'aR' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
-					
+
 					break
 				}
 				if (action.options.id_sendabsmode == 'Zoom') {
 					cmd = 'aZ' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
-					
+
 					break
 				}
 
-
-	
 			case 'send':
 				cmd = unescape(action.options.id_send)
 				break
@@ -569,8 +954,7 @@ class instance extends instance_skel {
 
 				if (this.socket !== undefined && this.socket.connected) {
 					this.socket.send(sendBuf)
-					this.log('debug','TCP Message sent :'+cmd);
-
+					this.log('debug', 'TCP Message sent :' + cmd)
 				} else {
 					this.debug('Socket not connected :(')
 				}
@@ -584,18 +968,6 @@ class instance extends instance_skel {
 				}
 			}
 		}
-
-	/*	this.socket.on('data', function (data) {
-
-			var newdata = ""+data;
-			var newdatachunks = newdata.split("\n");
-		
-				 for (var i = 0 ; i<(newdatachunks.length-1);i++) {
-					 console.log('debug',"real data is :"+newdatachunks[i]); 
-				 }
-		
-		});*/
-		
 	}
 }
 exports = module.exports = instance
