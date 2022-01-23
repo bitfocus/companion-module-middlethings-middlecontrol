@@ -102,6 +102,29 @@ class instance extends instance_skel {
 				this.debug('Network error', err)
 				this.status(this.STATE_ERROR, err)
 				this.log('error', 'Network error: ' + err.message)
+
+
+				this.setVariable('aPAN_var', '-')
+				this.setVariable('aTILT_var', '-')
+				this.setVariable('aROLL_var', '-')
+				this.setVariable('aZOOM_var', '-')
+				this.setVariable('aBLACKLEV_var', '-')
+				this.setVariable('aMIDLEV_var', '-')
+				this.setVariable('aWHITELEV_var', '-')
+				this.setVariable('aWB_var', '-')
+				this.setVariable('aF_var', '-')
+				this.setVariable('aI_var', '-')
+				this.setVariable('aTINT_var', '-')
+				this.setVariable('aISO_var', '-')
+				this.setVariable('aCONT_var', '-')
+				this.setVariable('aSAT_var', '-')
+				this.setVariable('aSHUT_var', '-')
+				this.setVariable('CAM_var', '-')
+				this.setVariable('PTS_var', '-')
+				this.setVariable('ZS_var', '-')
+				this.setVariable('PRES_D_var', '-')
+
+
 			})
 
 			this.socket.on('connect', () => {
@@ -152,9 +175,20 @@ class instance extends instance_skel {
 					if (ZS !== undefined) {
 						ZS = parseFloat(ZS.substring(2))
 					}
+
+					//GET PRESET TRANSITION SPEED FROM TCP
+					var PRES_D = response_array1.find((element) => {
+						if (element.includes('PRES_D')) {
+							return true
+						}
+					})
+					if (PRES_D !== undefined) {
+						PRES_D = parseFloat(PRES_D.substring(6))
+					}
 					this.log('debug', 'CAM = ' + CAM)
 					this.log('debug', 'PTS = ' + PTS)
 					this.log('debug', 'ZS = ' + ZS)
+					this.log('debug', 'PRES_D = ' + PRES_D)
 
 					if (CAM !== undefined) {
 						this.setVariable('CAM_var', CAM)
@@ -174,6 +208,12 @@ class instance extends instance_skel {
 					}
 					else {
 						this.setVariable('ZS_var', '')
+					}
+					if (PRES_D !== undefined) {
+						this.setVariable('PRES_D_var', PRES_D)
+					}
+					else {
+						this.setVariable('PRES_D_var', '')
 					}
 
 					// CONVERT TO PROTOTYPE FOR FEEDBACKS
@@ -398,7 +438,95 @@ class instance extends instance_skel {
 					this.setVariable('aSHUT_var', '-')
 				}
 
+				// Gimbal Middle Control Feedback into ARRAY 3 (detects using aPAN presence) 
+				var presence_aPAN = response_array.findIndex((element) => element.includes('aPAN')) // Detects if it is an Gimbal Canbus Feedback	(using aPAN value)
+				if (parseFloat(presence_aPAN) > -1) {
+					var response_array3 = data.toString().slice(1, -2).split(';')
+					this.log('debug', 'RESPONSE ARRAY 3 GIMBAL=' + response_array3)
 
+					this.log('debug', 'Gimbal CANBUS Connected')
+
+					// GET ABS PAN FROM TCP
+					var aPAN = response_array3.find((element) => {
+						if (element.includes('aPAN')) {
+							return true
+						}
+					})
+					if (aPAN !== undefined) {
+						aPAN = parseFloat(aPAN.substring(4))
+					}
+
+					// GET ABS TILT FROM TCP
+					var aTILT = response_array3.find((element) => {
+						if (element.includes('aTILT')) {
+							return true
+						}
+					})
+					if (aTILT  !== undefined) {
+						aTILT  = parseFloat(aTILT.substring(5))
+					}
+
+					// GET ABS ROLL FROM TCP
+					var aROLL = response_array3.find((element) => {
+						if (element.includes('aROLL')) {
+							return true
+						}
+					})
+					if (aROLL !== undefined) {
+						aROLL = parseFloat(aROLL.substring(5))
+					}
+
+					// GET ABS ZOOM FROM TCP
+					var aZOOM = response_array3.find((element) => {
+						if (element.includes('aZOOM')) {
+							return true
+						}
+					})
+					if (aZOOM !== undefined) {
+						aZOOM = parseFloat(aZOOM.substring(5))
+					}
+
+
+					// Create Companion Variables
+
+					if (aPAN !== undefined) {
+						this.setVariable('aPAN_var', aPAN)
+					}
+					else {
+						this.setVariable('aPAN_var', '')
+					}
+					if (aTILT !== undefined) {
+						this.setVariable('aTILT_var', aTILT)
+					}
+					else {
+						this.setVariable('aTILT_var', '')
+					}
+					if (aROLL !== undefined) {
+						this.setVariable('aROLL_var', aROLL)
+					}
+					else {
+						this.setVariable('aROLL_var', '')
+					}
+					if (aZOOM !== undefined) {
+						this.setVariable('aZOOM_var', aZOOM)
+					}
+					else {
+						this.setVariable('aZOOM_var', '')
+					}
+
+					this.log('debug', 'aPAN = ' + aPAN)
+					this.log('debug', 'aTILT = ' + aTILT)
+					this.log('debug', 'aROLL = ' + aROLL)
+					this.log('debug', 'aZOOM = ' + aZOOM)
+					
+				}
+				else {
+					this.log('debug', 'VARIABLES_NULL')
+					this.setVariable('aPAN_var', '-')
+					this.setVariable('aTILT_var', '-')
+					this.setVariable('aROLL_var', '-')
+					this.setVariable('aZOOM_var', '-')
+				}
 
 				this.checkFeedbacks('CurrentCameraID')
 
@@ -423,7 +551,7 @@ class instance extends instance_skel {
 
 						Instructions & download ready to go Companion pages at <a href="https://www.middlethings.co/companion" target="_new">middlethings.co/companion</a><br><br>
 
-						If you are running Middle Control on this same computer, you can type  127.0.0.1 in the IP adress field below and press Save. (if running Windows, make sure you are using v2.1.5 or above of Middle Control) <br> The instance will appear as connected only after a key press has successfuly been sent. Please note that :
+						If you are running Middle Control on this same computer, you can type  127.0.0.1 in the IP adress field below and press Save. Please note that :
 
 						<ul>
 							<li>Middle Control software has to be running (locally on this computer or on any computer on this network) </li>
@@ -448,8 +576,8 @@ class instance extends instance_skel {
 			{
 				type: 'dropdown',
 				id: 'prot',
-				label: 'Middle Control Version',
-				default: 'udp',
+				label: 'Middle Control Software Version',
+				default: 'tcp',
 				choices: [
 					{ id: 'tcp', label: 'Latest' },
 					{ id: 'udp', label: 'Before 2.2' },
@@ -583,6 +711,10 @@ class instance extends instance_skel {
 				name: 'ZS_var',
 			},
 			{
+				label: 'Preset Transition Speed',
+				name: 'PRES_D_var',
+			},
+			{
 				label: 'White Balance',
 				name: 'aWB_var',
 			},
@@ -621,6 +753,22 @@ class instance extends instance_skel {
 			{
 				label: 'Focus Value',
 				name: 'aF_var',
+			},
+			{
+				label: 'Gimbal Absolute Pan Value',
+				name: 'aPAN_var',
+			},
+			{
+				label: 'Gimbal Absolute Tilt Value',
+				name: 'aTILT_var',
+			},
+			{
+				label: 'Gimbal Absolute Roll Value',
+				name: 'aROLL_var',
+			},
+			{
+				label: 'Gimbal Motor Zoom Value',
+				name: 'aZOOM_var',
 			},
 		])
 	}
@@ -721,10 +869,10 @@ class instance extends instance_skel {
 					{
 						type: 'number',
 						id: 'id_presetnumber',
-						label: 'Preset Number (1-12) :',
+						label: 'Preset Number :',
 						default: '1',
 						min: 1,
-						max: 12,
+						max: 99,
 						width: 6,
 					},
 					{
@@ -803,7 +951,7 @@ class instance extends instance_skel {
 					{
 						type: 'text',
 						id: 'Textlabel',
-						label: 'Set a custom absolute PTZ Speed for the Pan, Tilt, Roll & Zoom',
+						label: 'Set a custom absolute PTZ value for the Pan, Tilt, Roll & Zoom',
 						width: 6,
 					},
 					{
