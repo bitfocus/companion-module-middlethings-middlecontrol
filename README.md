@@ -16,6 +16,12 @@ The yarn headless command will perform all the steps to build the module.
 
 ## Changes
 
+### v1.1.3
+
+- Added Camera ID Selection Feedback 
+- Added Dynamic Variables to access ATEM values such as White Balance, Tint, ISO, Iris, Pan / Tilt Speed, ... 
+- Added Preset Transition Speed Command
+
 ### v1.1.2
 
 - Hotfix on a bug that caused crash at boot
@@ -24,8 +30,6 @@ The yarn headless command will perform all the steps to build the module.
 
 - Added TCP support for Middle Control 2.2 and above (better performance)
 - Fixed the Status saying "Connecting..." before a key is pressed (Middle Control 2.2 and above)
-- Added Lift / Gamma / Gain Luma Commands
-- Added Contrast / Saturation Commands
 - Added Focus Peaking Command
 
 ### v1.0.2
