@@ -276,7 +276,7 @@ class instance extends instance_skel {
 						}
 					})
 					if (aSHUT !== undefined) {
-						aSHUT = parseFloat(aSHUT.substring(4))
+						aSHUT = parseFloat(aSHUT.substring(5))
 					}
 
 					// GET SATURATION FROM TCP
