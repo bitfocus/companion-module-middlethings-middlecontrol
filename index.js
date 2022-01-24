@@ -137,14 +137,14 @@ class instance extends instance_skel {
 
 				//PARSE INCOMING DATA
 				var response_array = data.toString().slice(1, -2).split(';')
-				this.log('debug', 'RESPONSE ARRAY =' + response_array)
+			//	this.log('debug', 'RESPONSE ARRAY =' + response_array)
 
 
 				// Standard Middle Control Feedback into ARRAY 1 (detects using PTS presence) 
 				var presence_pts = response_array.findIndex((element) => element.includes('PTS')) 
 				if (parseFloat(presence_pts) > -1) {
 					var response_array1 = data.toString().slice(1, -2).split(';')
-					this.log('debug', 'RESPONSE ARRAY 1 NORM=' + response_array1)
+				//	this.log('debug', 'RESPONSE ARRAY 1 NORM=' + response_array1)
 
 					//GET CAM FROM TCP
 					var CAM = response_array1.find((element) => {
@@ -185,10 +185,10 @@ class instance extends instance_skel {
 					if (PRES_D !== undefined) {
 						PRES_D = parseFloat(PRES_D.substring(6))
 					}
-					this.log('debug', 'CAM = ' + CAM)
+				/*	this.log('debug', 'CAM = ' + CAM)
 					this.log('debug', 'PTS = ' + PTS)
 					this.log('debug', 'ZS = ' + ZS)
-					this.log('debug', 'PRES_D = ' + PRES_D)
+					this.log('debug', 'PRES_D = ' + PRES_D)*/
 
 					if (CAM !== undefined) {
 						this.setVariable('CAM_var', CAM)
@@ -227,9 +227,8 @@ class instance extends instance_skel {
 				var presence_aWB = response_array.findIndex((element) => element.includes('aWB')) // Detects if it is an ATEM Middle Control Feedback	(using WB value)
 				if (parseFloat(presence_aWB) > -1) {
 					var response_array2 = data.toString().slice(1, -2).split(';')
-					this.log('debug', 'RESPONSE ARRAY 2 ATEM=' + response_array2)
-
-					this.log('debug', 'ATEM Connected to MiddleControl')
+				//	this.log('debug', 'RESPONSE ARRAY 2 ATEM=' + response_array2)
+				//	this.log('debug', 'ATEM Connected to MiddleControl')
 
 					// GET WHITE BALANCE FROM TCP
 					var aWB = response_array2.find((element) => {
@@ -411,6 +410,7 @@ class instance extends instance_skel {
 						this.setVariable('aWHITELEV', '')
 					}
 
+					/*
 					this.log('debug', 'WB = ' + aWB)
 					this.log('debug', 'Focus = ' + aF)
 					this.log('debug', 'Iris = ' + aI)
@@ -422,9 +422,10 @@ class instance extends instance_skel {
 					this.log('debug', 'BlackLev = ' + aBLACKLEV)
 					this.log('debug', 'MidLev = ' + aMIDLEV)
 					this.log('debug', 'WhiteLev = ' + aWHITELEV)
+					*/
 				}
 				else {
-					this.log('debug', 'VARIABLES_NULL')
+					/*this.log('debug', 'VARIABLES_NULL')*/
 					this.setVariable('aBLACKLEV_var', '-')
 					this.setVariable('aMIDLEV_var', '-')
 					this.setVariable('aWHITELEV_var', '-')
@@ -442,9 +443,9 @@ class instance extends instance_skel {
 				var presence_aPAN = response_array.findIndex((element) => element.includes('aPAN')) // Detects if it is an Gimbal Canbus Feedback	(using aPAN value)
 				if (parseFloat(presence_aPAN) > -1) {
 					var response_array3 = data.toString().slice(1, -2).split(';')
-					this.log('debug', 'RESPONSE ARRAY 3 GIMBAL=' + response_array3)
+				//	this.log('debug', 'RESPONSE ARRAY 3 GIMBAL=' + response_array3)
 
-					this.log('debug', 'Gimbal CANBUS Connected')
+				//	this.log('debug', 'Gimbal CANBUS Connected')
 
 					// GET ABS PAN FROM TCP
 					var aPAN = response_array3.find((element) => {
@@ -514,14 +515,15 @@ class instance extends instance_skel {
 						this.setVariable('aZOOM_var', '')
 					}
 
-					this.log('debug', 'aPAN = ' + aPAN)
+				/*	this.log('debug', 'aPAN = ' + aPAN)
 					this.log('debug', 'aTILT = ' + aTILT)
 					this.log('debug', 'aROLL = ' + aROLL)
 					this.log('debug', 'aZOOM = ' + aZOOM)
+					*/
 					
 				}
 				else {
-					this.log('debug', 'VARIABLES_NULL')
+				/*	this.log('debug', 'VARIABLES_NULL')*/
 					this.setVariable('aPAN_var', '-')
 					this.setVariable('aTILT_var', '-')
 					this.setVariable('aROLL_var', '-')
@@ -913,12 +915,12 @@ class instance extends instance_skel {
 			// Action that sets a custom pan/tilt/zoom speed
 
 			setspeed: {
-				label: 'Set Max PTZ Speed',
+				label: 'Set Pan/Tilt/Zoom Speed',
 				options: [
 					{
 						type: 'text',
 						id: 'Textlabel',
-						label: 'Set a maximum Pan/Tilt Speed or Zoom Speed Value',
+						label: 'Set the Pan/Tilt Speed or Zoom Speed Value',
 						width: 6,
 					},
 					{
@@ -927,8 +929,8 @@ class instance extends instance_skel {
 						label: 'Select the setting you want to adjust :',
 						default: 'PanTilt',
 						choices: [
-							{ id: 'PanTilt', label: 'Pan/Tilt Max Speed' },
-							{ id: 'Zoom', label: 'Zoom Max Speed' },
+							{ id: 'PanTilt', label: 'Pan/Tilt Speed' },
+							{ id: 'Zoom', label: 'Zoom Speed' },
 						],
 					},
 					{
@@ -1046,7 +1048,7 @@ class instance extends instance_skel {
 				}
 
 			case 'preset_transition':
-				cmd = 'PTRANS' + unescape(action.options.id_settransitionduration)
+				cmd = 'PRES_D' + unescape(action.options.id_settransitionduration)
 				break
 
 			case 'setspeed':
@@ -1060,7 +1062,6 @@ class instance extends instance_skel {
 				}
 
 			case 'sendabs':
-				cmd = unescape(action.options.id_sendabsspeed)
 
 				if (action.options.id_sendabsmode == 'Pan') {
 					cmd = 'aP' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
