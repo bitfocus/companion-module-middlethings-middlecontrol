@@ -103,7 +103,6 @@ class instance extends instance_skel {
 				this.status(this.STATE_ERROR, err)
 				this.log('error', 'Network error: ' + err.message)
 
-
 				this.setVariable('aPAN_var', '-')
 				this.setVariable('aTILT_var', '-')
 				this.setVariable('aROLL_var', '-')
@@ -123,8 +122,6 @@ class instance extends instance_skel {
 				this.setVariable('PTS_var', '-')
 				this.setVariable('ZS_var', '-')
 				this.setVariable('PRES_D_var', '-')
-
-
 			})
 
 			this.socket.on('connect', () => {
@@ -133,18 +130,15 @@ class instance extends instance_skel {
 			})
 
 			this.socket.on('data', (data) => {
-
-
 				//PARSE INCOMING DATA
 				var response_array = data.toString().slice(1, -2).split(';')
-			//	this.log('debug', 'RESPONSE ARRAY =' + response_array)
+				//	this.log('debug', 'RESPONSE ARRAY =' + response_array)
 
-
-				// Standard Middle Control Feedback into ARRAY 1 (detects using PTS presence) 
-				var presence_pts = response_array.findIndex((element) => element.includes('PTS')) 
+				// Standard Middle Control Feedback into ARRAY 1 (detects using PTS presence)
+				var presence_pts = response_array.findIndex((element) => element.includes('PTS'))
 				if (parseFloat(presence_pts) > -1) {
 					var response_array1 = data.toString().slice(1, -2).split(';')
-				//	this.log('debug', 'RESPONSE ARRAY 1 NORM=' + response_array1)
+					//	this.log('debug', 'RESPONSE ARRAY 1 NORM=' + response_array1)
 
 					//GET CAM FROM TCP
 					var CAM = response_array1.find((element) => {
@@ -185,50 +179,45 @@ class instance extends instance_skel {
 					if (PRES_D !== undefined) {
 						PRES_D = parseFloat(PRES_D.substring(6))
 					}
-				/*	this.log('debug', 'CAM = ' + CAM)
+					/*	this.log('debug', 'CAM = ' + CAM)
 					this.log('debug', 'PTS = ' + PTS)
 					this.log('debug', 'ZS = ' + ZS)
 					this.log('debug', 'PRES_D = ' + PRES_D)*/
 
 					if (CAM !== undefined) {
 						this.setVariable('CAM_var', CAM)
-					}
-					else {
+					} else {
 						this.setVariable('CAM_var', '')
 					}
 
 					if (PTS !== undefined) {
 						this.setVariable('PTS_var', PTS)
-					}
-					else {
+					} else {
 						this.setVariable('PTS_var', '')
 					}
 					if (ZS !== undefined) {
 						this.setVariable('ZS_var', ZS)
-					}
-					else {
+					} else {
 						this.setVariable('ZS_var', '')
 					}
 					if (PRES_D !== undefined) {
 						this.setVariable('PRES_D_var', PRES_D)
-					}
-					else {
+					} else {
 						this.setVariable('PRES_D_var', '')
 					}
 
 					// CONVERT TO PROTOTYPE FOR FEEDBACKS
-					instance.prototype.CAM = CAM   
+					instance.prototype.CAM = CAM
 					instance.prototype.PTS = PTS
-					instance.prototype.ZS  = ZS
+					instance.prototype.ZS = ZS
 				}
 
-				
-				// ATEM Middle Control Feedback into ARRAY 2 (detects using aWB presence) 
+				// ATEM Middle Control Feedback into ARRAY 2 (detects using aWB presence)
 				var presence_aWB = response_array.findIndex((element) => element.includes('aWB')) // Detects if it is an ATEM Middle Control Feedback	(using WB value)
 				if (parseFloat(presence_aWB) > -1) {
 					var response_array2 = data.toString().slice(1, -2).split(';')
-				//	this.log('debug', 'RESPONSE ARRAY 2 ATEM=' + response_array2)
-				//	this.log('debug', 'ATEM Connected to MiddleControl')
+					//	this.log('debug', 'RESPONSE ARRAY 2 ATEM=' + response_array2)
+					//	this.log('debug', 'ATEM Connected to MiddleControl')
 
 					// GET WHITE BALANCE FROM TCP
 					var aWB = response_array2.find((element) => {
@@ -344,69 +333,58 @@ class instance extends instance_skel {
 
 					if (aWB !== undefined) {
 						this.setVariable('aWB_var', aWB)
-					}
-					else {
+					} else {
 						this.setVariable('aWB_var', '')
 					}
 					if (aF !== undefined) {
 						this.setVariable('aF_var', aF)
-					}
-					else {
+					} else {
 						this.setVariable('aF_var', '')
 					}
 					if (aI !== undefined) {
 						this.setVariable('aI_var', aI)
-					}
-					else {
+					} else {
 						this.setVariable('aI_var', '')
 					}
 					if (aTINT !== undefined) {
 						this.setVariable('aTINT_var', aTINT)
-					}
-					else {
+					} else {
 						this.setVariable('aTINT_var', '')
 					}
 					if (aISO !== undefined) {
 						this.setVariable('aISO_var', aISO)
-					}
-					else {
+					} else {
 						this.setVariable('aISO_var', '')
 					}
 					if (aSHUT !== undefined) {
 						this.setVariable('aSHUT_var', aSHUT)
-					}
-					else {
+					} else {
 						this.setVariable('aSHUT_var', '')
 					}
 					if (aSAT !== undefined) {
 						this.setVariable('aSAT_var', aSAT)
-					}
-					else {
+					} else {
 						this.setVariable('aSAT_var', '')
 					}
 
 					if (aCONT !== undefined) {
 						this.setVariable('aCONT_var', aCONT)
-					}
-					else {
+					} else {
 						this.setVariable('aCONT_var', '')
 					}
 					if (aBLACKLEV !== undefined) {
 						this.setVariable('aBLACKLEV_var', aBLACKLEV)
-					}
-					else {
+					} else {
 						this.setVariable('aBLACKLEV_var', '')
 					}
 					if (aMIDLEV !== undefined) {
 						this.setVariable('aMIDLEV_var', aMIDLEV)
-					}
-					else {
+					} else {
 						this.setVariable('aMIDLEV_var', '')
 					}
 					if (aWHITELEV !== undefined) {
 						this.setVariable('aWHITELEV_var', aWHITELEV)
-					}
-					else {
+					} else {
 						this.setVariable('aWHITELEV', '')
 					}
 
@@ -423,8 +401,7 @@ class instance extends instance_skel {
 					this.log('debug', 'MidLev = ' + aMIDLEV)
 					this.log('debug', 'WhiteLev = ' + aWHITELEV)
 					*/
-				}
-				else {
+				} else {
 					/*this.log('debug', 'VARIABLES_NULL')*/
 					this.setVariable('aBLACKLEV_var', '-')
 					this.setVariable('aMIDLEV_var', '-')
@@ -439,13 +416,13 @@ class instance extends instance_skel {
 					this.setVariable('aSHUT_var', '-')
 				}
 
-				// Gimbal Middle Control Feedback into ARRAY 3 (detects using aPAN presence) 
+				// Gimbal Middle Control Feedback into ARRAY 3 (detects using aPAN presence)
 				var presence_aPAN = response_array.findIndex((element) => element.includes('aPAN')) // Detects if it is an Gimbal Canbus Feedback	(using aPAN value)
 				if (parseFloat(presence_aPAN) > -1) {
 					var response_array3 = data.toString().slice(1, -2).split(';')
-				//	this.log('debug', 'RESPONSE ARRAY 3 GIMBAL=' + response_array3)
+					//	this.log('debug', 'RESPONSE ARRAY 3 GIMBAL=' + response_array3)
 
-				//	this.log('debug', 'Gimbal CANBUS Connected')
+					//	this.log('debug', 'Gimbal CANBUS Connected')
 
 					// GET ABS PAN FROM TCP
 					var aPAN = response_array3.find((element) => {
@@ -463,8 +440,8 @@ class instance extends instance_skel {
 							return true
 						}
 					})
-					if (aTILT  !== undefined) {
-						aTILT  = parseFloat(aTILT.substring(5))
+					if (aTILT !== undefined) {
+						aTILT = parseFloat(aTILT.substring(5))
 					}
 
 					// GET ABS ROLL FROM TCP
@@ -487,43 +464,36 @@ class instance extends instance_skel {
 						aZOOM = parseFloat(aZOOM.substring(5))
 					}
 
-
 					// Create Companion Variables
 
 					if (aPAN !== undefined) {
 						this.setVariable('aPAN_var', aPAN)
-					}
-					else {
+					} else {
 						this.setVariable('aPAN_var', '')
 					}
 					if (aTILT !== undefined) {
 						this.setVariable('aTILT_var', aTILT)
-					}
-					else {
+					} else {
 						this.setVariable('aTILT_var', '')
 					}
 					if (aROLL !== undefined) {
 						this.setVariable('aROLL_var', aROLL)
-					}
-					else {
+					} else {
 						this.setVariable('aROLL_var', '')
 					}
 					if (aZOOM !== undefined) {
 						this.setVariable('aZOOM_var', aZOOM)
-					}
-					else {
+					} else {
 						this.setVariable('aZOOM_var', '')
 					}
 
-				/*	this.log('debug', 'aPAN = ' + aPAN)
+					/*	this.log('debug', 'aPAN = ' + aPAN)
 					this.log('debug', 'aTILT = ' + aTILT)
 					this.log('debug', 'aROLL = ' + aROLL)
 					this.log('debug', 'aZOOM = ' + aZOOM)
 					*/
-					
-				}
-				else {
-				/*	this.log('debug', 'VARIABLES_NULL')*/
+				} else {
+					/*	this.log('debug', 'VARIABLES_NULL')*/
 					this.setVariable('aPAN_var', '-')
 					this.setVariable('aTILT_var', '-')
 					this.setVariable('aROLL_var', '-')
@@ -531,7 +501,6 @@ class instance extends instance_skel {
 				}
 
 				this.checkFeedbacks('CurrentCameraID')
-
 			})
 		}
 	}
@@ -1062,7 +1031,6 @@ class instance extends instance_skel {
 				}
 
 			case 'sendabs':
-
 				if (action.options.id_sendabsmode == 'Pan') {
 					cmd = 'aP' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
 
