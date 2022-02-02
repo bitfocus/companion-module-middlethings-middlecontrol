@@ -1,6 +1,6 @@
 {
-  "name": "middlethings-middlecontrol",
-	"version": "1.1.3",
+	"name": "middlethings-middlecontrol",
+	"version": "1.1.4",
 	"api_version": "1.0",
 	"description": "Middle Control Companion control",
 	"keywords": [
@@ -15,7 +15,7 @@
 	"manufacturer": "Middle Things",
 	"product": "Middle Control",
 	"shortname": "middlecontrol",
- 	"homepage": "https://www.middlethings.co/",
+	"homepage": "https://www.middlethings.co/",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -34,4 +34,3 @@
 		"url": "https://github.com/bitfocus/companion-module-middlethings-middlecontrol/issues"
 	}
 }
-
