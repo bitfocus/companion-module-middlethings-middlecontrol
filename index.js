@@ -744,8 +744,8 @@ class instance extends instance_skel {
 		])
 	}
 
-	actions(system) {
-		this.system.emit('instance_actions', this.id, {
+	actions() {
+		this.setActions({
 			selectcameraID: {
 				label: 'Select Camera ID',
 				options: [
