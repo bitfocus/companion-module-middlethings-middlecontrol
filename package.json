@@ -1,7 +1,7 @@
 {
 	"name": "middlethings-middlecontrol",
 	"version": "1.1.4",
-	"api_version": "1.0",
+	"api_version": "1.0.0",
 	"description": "Middle Control Companion control",
 	"keywords": [
 		"PTZ",
@@ -15,7 +15,7 @@
 	"manufacturer": "Middle Things",
 	"product": "Middle Control",
 	"shortname": "middlecontrol",
-	"homepage": "https://www.middlethings.co/",
+	"homepage": "https://github.com/bitfocus/companion-module-middlethings-middlecontrol#readme",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
