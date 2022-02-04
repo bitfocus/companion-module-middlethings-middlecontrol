@@ -179,7 +179,8 @@ class instance extends instance_skel {
 					if (PRES_D !== undefined) {
 						PRES_D = parseFloat(PRES_D.substring(6))
 					}
-					/*	this.log('debug', 'CAM = ' + CAM)
+					/*	
+					this.log('debug', 'CAM = ' + CAM)
 					this.log('debug', 'PTS = ' + PTS)
 					this.log('debug', 'ZS = ' + ZS)
 					this.log('debug', 'PRES_D = ' + PRES_D)*/
@@ -240,13 +241,14 @@ class instance extends instance_skel {
 					}
 
 					// GET IRIS FROM TCP
-					var aI = response_array2.find((element) => {
+					let aI = response_array2.find((element) => {
 						if (element.includes('aI')) {
 							return true
 						}
 					})
 					if (aI !== undefined) {
 						aI = parseFloat(aI.substring(2))
+						instance.prototype.aI = aI
 					}
 
 					// GET TINT FROM TCP
@@ -287,6 +289,7 @@ class instance extends instance_skel {
 					})
 					if (aSAT !== undefined) {
 						aSAT = parseFloat(aSAT.substring(4))
+						instance.prototype.aSAT = aSAT
 					}
 
 					// GET CONTRAST FROM TCP
@@ -297,6 +300,7 @@ class instance extends instance_skel {
 					})
 					if (aCONT !== undefined) {
 						aCONT = parseFloat(aCONT.substring(5))
+						instance.prototype.aCONT = aCONT
 					}
 
 					// GET BLACK LEVEL FROM TCP
@@ -307,6 +311,7 @@ class instance extends instance_skel {
 					})
 					if (aBLACKLEV !== undefined) {
 						aBLACKLEV = parseFloat(aBLACKLEV.substring(9))
+						instance.prototype.aBLEV = aBLACKLEV
 					}
 
 					// GET MID LEVEL FROM TCP
@@ -317,6 +322,7 @@ class instance extends instance_skel {
 					})
 					if (aMIDLEV !== undefined) {
 						aMIDLEV = parseFloat(aMIDLEV.substring(7))
+						instance.prototype.aMLEV = aMIDLEV
 					}
 
 					// GET WHITELEV FROM TCP
@@ -327,6 +333,7 @@ class instance extends instance_skel {
 					})
 					if (aWHITELEV !== undefined) {
 						aWHITELEV = parseFloat(aWHITELEV.substring(9))
+						instance.prototype.aWLEV = aWHITELEV
 					}
 
 					// Create Companion Variables
@@ -357,7 +364,7 @@ class instance extends instance_skel {
 						this.setVariable('aISO_var', '')
 					}
 					if (aSHUT !== undefined) {
-						this.setVariable('aSHUT_var', aSHUT)
+						this.setVariable('aSHUT_var', '1/' + aSHUT)
 					} else {
 						this.setVariable('aSHUT_var', '')
 					}
@@ -519,11 +526,8 @@ class instance extends instance_skel {
 					<div>
 				
 						Official plugin to control MiddleControl software using Companion.<br><br>
-
 						Instructions & download ready to go Companion pages at <a href="https://www.middlethings.co/companion" target="_new">middlethings.co/companion</a><br><br>
-
 						If you are running Middle Control on this same computer, you can type  127.0.0.1 in the IP adress field below and press Save. Please note that :
-
 						<ul>
 							<li>Middle Control software has to be running (locally on this computer or on any computer on this network) </li>
 							<li>Middle Control software has to be connected to your ATEM if you have one</li>
@@ -587,6 +591,10 @@ class instance extends instance_skel {
 		{ id: 'FALSECOLORS', label: 'Toggle False Colors' },
 		{ id: 'FOCUSPEAKING', label: 'Toggle Focus Peaking' },
 		{ id: 'STATUSVIEW', label: 'Toggle Status View on HDMI Out' },
+		{ id: 'REC_START', label: 'Start Recording' },
+		{ id: 'REC_STOP', label: 'Stop Recording' },
+		{ id: 'REC_START_ALL', label: 'Start Recording on all cameras' },
+		{ id: 'REC_STOP_ALL', label: 'Stop Recording on all cameras' },
 		{ id: 'FOCUS+', label: 'Focus in by a step' },
 		{ id: 'FOCUS-', label: 'Focus out by a step' },
 		{ id: 'IRIS+', label: 'Iris increase' },
@@ -599,12 +607,19 @@ class instance extends instance_skel {
 		{ id: 'ISO-', label: 'ISO decrease' },
 		{ id: 'SHUTTER+', label: 'Shutter increase' },
 		{ id: 'SHUTTER-', label: 'Shutter decrease' },
+		{ id: 'CONT+', label: 'Contrast increase' },
+		{ id: 'CONT-', label: 'Contrast decrease' },
+		{ id: 'SAT+', label: 'Saturation increase' },
+		{ id: 'SAT-', label: 'Saturation decrease' },
+		{ id: 'BLEV+', label: 'Black Level (Pedestal) increase' },
+		{ id: 'BLEV-', label: 'Black Level (Pedestal) decrease' },
+		{ id: 'MLEV+', label: 'Mid Level increase' },
+		{ id: 'MLEV-', label: 'Mid Level decrease' },
+		{ id: 'WLEV+', label: 'White Level increase' },
+		{ id: 'WLEV-', label: 'White Level decrease' },
 		{ id: 'ND+', label: 'ND Filter increase' },
 		{ id: 'ND-', label: 'ND Filter decrease' },
-		{ id: 'REC_START', label: 'Start Recording' },
-		{ id: 'REC_STOP', label: 'Stop Recording' },
-		{ id: 'REC_START_ALL', label: 'Start Recording on all cameras' },
-		{ id: 'REC_STOP_ALL', label: 'Stop Recording on all cameras' },
+		{ id: 'RESETCCU', label: 'Reset the Color Correction (CCU)' },
 	]
 
 	CHOICES_GIMBALCOMMAND = [
@@ -624,6 +639,8 @@ class instance extends instance_skel {
 		{ id: 'SPEED+', label: 'Pan/Tilt Speed Increase' },
 		{ id: 'SPEED-', label: 'Pan/Tilt Speed Decrease' },
 		{ id: 'ACTIVETRACK', label: 'Active Track Enable/Disable' },
+		{ id: 'GIMBALAUTOCALIB', label: 'Start a Gimbal Auto-Calibration' },
+		{ id: 'MOTORAUTOCALIB', label: 'Start a Zoom Motor Auto-Calibration' },
 	]
 
 	init_presets() {
@@ -698,6 +715,10 @@ class instance extends instance_skel {
 				name: 'aISO_var',
 			},
 			{
+				label: 'Iris',
+				name: 'aI_var',
+			},
+			{
 				label: 'Shutter',
 				name: 'aSHUT_var',
 			},
@@ -756,13 +777,13 @@ class instance extends instance_skel {
 						width: 6,
 					},
 					{
-						type: 'number',
+						type: 'textinput',
 						id: 'id_selectcameraID',
 						label: 'Camera ID :',
-						tooltip: 'Select the camera you want to control',
-						default: '1',
+						tooltip: 'Set the camera number you want to control (1 to 100)',
+						/*default: '1',
 						min: 1,
-						max: 100,
+						max: 100,*/
 						width: 6,
 					},
 				],
@@ -870,12 +891,11 @@ class instance extends instance_skel {
 					},
 
 					{
-						type: 'number',
+						type: 'textinput',
 						id: 'id_settransitionduration',
 						label: 'Duration (in s)',
-						min: 0,
-						max: 120,
-						range: true,
+						/*min: 0,
+						max: 120,*/
 						default: 1,
 					},
 				],
@@ -903,9 +923,9 @@ class instance extends instance_skel {
 						],
 					},
 					{
-						type: 'number',
+						type: 'textinput',
 						id: 'id_setspeed',
-						label: 'Value',
+						label: 'Value (0 to 100)',
 						min: 1,
 						max: 100,
 						range: true,
@@ -917,7 +937,7 @@ class instance extends instance_skel {
 			// Action that sets a custom pan/tilt/roll/zoom speed value or absolute value
 
 			sendabs: {
-				label: 'Send a Custom PTZ Absolute Value',
+				label: 'Send a Custom Gimbal PTZ Absolute Value',
 				options: [
 					{
 						type: 'text',
@@ -938,25 +958,82 @@ class instance extends instance_skel {
 						],
 					},
 					{
-						type: 'number',
+						type: 'textinput',
 						id: 'id_sendabs',
 						label: 'Value',
-						min: -2048,
+						/*min: -2048,
 						max: 2048,
-						range: true,
+						range: true,*/
 						default: 0,
 					},
 					{
-						type: 'number',
+						type: 'textinput',
 						id: 'id_sendabsduration',
 						label: 'Transition duration (s)',
-						min: 0,
-						max: 120,
-						range: true,
+						/*min: 0,
+						max: 120,*/
 						default: 1,
 					},
 				],
 			},
+
+			// Action that sets a custom camera absolute value
+
+			sendabscameracommand: {
+				label: 'Send a Custom Camera Absolute Value',
+				options: [
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label:
+							'Sets a specific camera value instead of +/- adjustments. For instance, set the ISO to +32db (aISO32) or the White Balance to 5750K (aWB5750)',
+						width: 6,
+					},
+					{
+						type: 'textinput',
+						id: 'id_sendabscameracommand',
+						label: 'Command & Value',
+						default: 'aISO32',
+					},
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label: 'Set Iris : aIxx (xx from 1.2 to 22) ',
+						width: 6,
+					},
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label: 'Set ISO : aISOxx (xx from -12 to 36) ',
+						width: 6,
+					},
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label: 'Set White Balance : aWBxx (xx from 2500 to 10000) ',
+						width: 6,
+					},
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label: 'Set Tint : aTINTxx (xx from -50 to 50) ',
+						width: 6,
+					},
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label: 'Set Focus : aFOCUSxx (xx from 0.0 to 1.0) ',
+						width: 6,
+					},
+					{
+						type: 'text',
+						id: 'Textlabel',
+						label: 'For the complete list of values please check out https://www.middlethings.co/api  ',
+						width: 6,
+					},
+				],
+			},
+
 			// Legacy UDP action
 
 			/*
@@ -1002,6 +1079,12 @@ class instance extends instance_skel {
 				})
 				break
 
+			case 'sendabscameracommand':
+				this.parseVariables(action.options.id_sendabscameracommand, (value) => {
+					cmd = unescape(value)
+				})
+				break
+
 			case 'sendcameracommand':
 				cmd = unescape(action.options.id_sendcameracommand)
 				break
@@ -1017,44 +1100,131 @@ class instance extends instance_skel {
 				}
 
 			case 'preset_transition':
-				cmd = 'PRES_D' + unescape(action.options.id_settransitionduration)
+				this.parseVariables(action.options.id_settransitionduration, (value) => {
+					cmd = 'PRES_D' + unescape(value)
+				})
 				break
 
 			case 'setspeed':
 				if (action.options.id_setspeedmode == 'PanTilt') {
-					cmd = 'PTS' + unescape(action.options.id_setspeed)
+					this.parseVariables(action.options.id_setspeed, (value) => {
+						cmd = 'PTS' + unescape(value)
+					})
 					break
 				}
 				if (action.options.id_setspeedmode == 'Zoom') {
-					cmd = 'ZS' + unescape(action.options.id_setspeed)
+					this.parseVariables(action.options.id_setspeed, (value) => {
+						cmd = 'ZS' + unescape(value)
+					})
 					break
 				}
 
 			case 'sendabs':
-				if (action.options.id_sendabsmode == 'Pan') {
-					cmd = 'aP' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
+				var prefix = 'a'
 
-					break
+				if (action.options.id_sendabsmode == 'Pan') {
+					prefix = 'aP'
 				}
 				if (action.options.id_sendabsmode == 'Tilt') {
-					cmd = 'aT' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
-
-					break
+					prefix = 'aT'
 				}
 				if (action.options.id_sendabsmode == 'Roll') {
-					cmd = 'aR' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
-
-					break
+					prefix = 'aR'
 				}
 				if (action.options.id_sendabsmode == 'Zoom') {
-					cmd = 'aZ' + unescape(action.options.id_sendabs) + ';' + unescape(action.options.id_sendabsduration)
-
-					break
+					prefix = 'aZ'
 				}
+				var sendabsval = 0
+				var sendabsdurationval = 0
+
+				this.parseVariables(action.options.id_sendabs, (value) => {
+					sendabsval = unescape(value)
+				})
+				this.parseVariables(action.options.id_sendabsduration, (value) => {
+					sendabsdurationval = unescape(value)
+				})
+
+				cmd = prefix + unescape(sendabsval) + ';' + unescape(sendabsdurationval)
+
+				break
 
 			case 'send':
 				cmd = unescape(action.options.id_send)
 				break
+		}
+
+		// Iris +/- Management
+
+		var aI = instance.prototype.aI
+		let iris_array = [
+			1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.5, 2.8, 3.2, 3.5, 4.0, 4.5, 5.0, 5.6, 6.3, 7.1, 8.0, 9.0, 10.0, 11.0, 13.0, 14.0,
+			16.0, 18.0, 20.0, 22.0,
+		]
+		for (var i = 0; i < iris_array.length - 1; i++) {
+			if (aI >= iris_array[i] && aI < iris_array[i + 1]) {
+				aI = iris_array[i]
+				break
+			}
+		}
+
+		if (cmd == 'IRIS+') {
+			aI = iris_array[i + 1]
+			cmd = 'aI' + aI
+		}
+
+		if (cmd == 'IRIS-') {
+			aI = iris_array[i - 1]
+			cmd = 'aI' + aI
+		}
+
+		// Contrast +/- Management
+
+		var aCONT = instance.prototype.aCONT
+		if (cmd == 'CONT+') {
+			cmd = 'aCONT' + (aCONT + 1.0)
+		}
+		if (cmd == 'CONT-') {
+			cmd = 'aCONT' + (aCONT - 1.0)
+		}
+
+		// Saturation +/- Management
+
+		var aSAT = instance.prototype.aSAT
+		if (cmd == 'SAT+') {
+			cmd = 'aSAT' + (aSAT + 1.0)
+		}
+		if (cmd == 'SAT-') {
+			cmd = 'aSAT' + (aSAT - 1.0)
+		}
+
+		// Black Level +/- Management
+
+		var aBLEV = instance.prototype.aBLEV
+		if (cmd == 'BLEV+') {
+			cmd = 'aBLACKLEV' + (aBLEV + 0.005)
+		}
+		if (cmd == 'BLEV-') {
+			cmd = 'aBLACKLEV' + (aBLEV - 0.005)
+		}
+
+		// Mid Level +/- Management
+
+		var aMLEV = instance.prototype.aMLEV
+		if (cmd == 'MLEV+') {
+			cmd = 'aMIDLEV' + (aMLEV + 0.005)
+		}
+		if (cmd == 'MLEV-') {
+			cmd = 'aMIDLEV' + (aMLEV - 0.005)
+		}
+
+		// White Level +/- Management
+
+		var aWLEV = instance.prototype.aWLEV
+		if (cmd == 'WLEV+') {
+			cmd = 'aWHITELEV' + (aWLEV + 0.005)
+		}
+		if (cmd == 'WLEV-') {
+			cmd = 'aWHITELEV' + (aWLEV - 0.005)
 		}
 
 		/*
@@ -1063,6 +1233,7 @@ class instance extends instance_skel {
 		 * which then escapes character values over 0x7F
 		 * and destroys the 'binary' content
 		 */
+
 		let sendBuf = Buffer.from(cmd + end, 'latin1')
 
 		if (sendBuf != '') {

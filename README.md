@@ -16,6 +16,17 @@ The yarn headless command will perform all the steps to build the module.
 
 ## Changes
 
+
+### v1.1.4
+
+- Added Contrast / Saturation / BlackMidWhite Levels Commands
+- Added Support for Dynamic Variables inside action fields
+- Added Support for sending custom camera commands
+- Added ResetAll CCU command
+- Fixed latency issue when viewing parameters
+- Fixed too many Iris Steps / not following proper convention
+- General Stability Update
+
 ### v1.1.3
 
 - Added Camera ID Selection Feedback 
