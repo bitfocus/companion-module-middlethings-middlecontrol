@@ -17,6 +17,11 @@ The yarn headless command will perform all the steps to build the module.
 ## Changes
 
 
+### v1.1.7
+
+- Fixed Zoom control not properly working 
+- Fixed White level too slow to change
+
 ### v1.1.4
 
 - Added Contrast / Saturation / BlackMidWhite Levels Commands

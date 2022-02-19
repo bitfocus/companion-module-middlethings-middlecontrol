@@ -597,8 +597,8 @@ class instance extends instance_skel {
 		{ id: 'REC_STOP_ALL', label: 'Stop Recording on all cameras' },
 		{ id: 'FOCUS+', label: 'Focus in by a step' },
 		{ id: 'FOCUS-', label: 'Focus out by a step' },
-		{ id: 'IRIS+', label: 'Iris increase' },
-		{ id: 'IRIS-', label: 'Iris decrease' },
+		{ id: 'IRIS-', label: 'Iris increase' },
+		{ id: 'IRIS+', label: 'Iris decrease' },
 		{ id: 'WB+', label: 'White Balance increase' },
 		{ id: 'WB-', label: 'White Balance decrease' },
 		{ id: 'TINT+', label: 'Tint increase' },
@@ -632,8 +632,9 @@ class instance extends instance_skel {
 		{ id: 'ROLL_L', label: 'Roll Left' },
 		{ id: 'ROLL_R', label: 'Roll Right' },
 		{ id: 'ROLL_IDLE', label: 'Roll Idle (Required on Key Up)' },
-		{ id: 'ZOOM+', label: 'Zoom in by a step' },
-		{ id: 'ZOOM-', label: 'Zoom out by a step' },
+		{ id: 'ZOOM+', label: 'Zoom In' },
+		{ id: 'ZOOM-', label: 'Zoom Out' },
+		{ id: 'Z0', label: 'Zoom Idle (Required on Key Up)' },
 		{ id: 'ZSPEED+', label: 'Zoom Speed Increase' },
 		{ id: 'ZSPEED-', label: 'Zoom Speed Decrease' },
 		{ id: 'SPEED+', label: 'Pan/Tilt Speed Increase' },
@@ -821,7 +822,7 @@ class instance extends instance_skel {
 						type: 'text',
 						id: 'Textlabel',
 						label:
-							'Note : after a Pan, Tilt or Roll Press action, you MUST also add a Release action with an Idle command after at least 70ms, which will stop the movement. For instance, a Pan Left key down action should be followed by a Pan Idle key up action after at least a 70ms delay.',
+							'Note : after a Pan, Tilt, Roll or Zoom Press action, you MUST also add a Release (Key Up) action with an Idle command, which will stop the movement. For instance, a Pan Left key down action should be followed by a Pan Idle key up action',
 						width: 6,
 					},
 					{
@@ -942,7 +943,7 @@ class instance extends instance_skel {
 					{
 						type: 'text',
 						id: 'Textlabel',
-						label: 'Set a custom absolute PTZ value for the Pan, Tilt, Roll & Zoom',
+						label: 'Set a custom absolute PTZ value for the Pan, Tilt, Roll & Zoom of your Gimbal',
 						width: 6,
 					},
 					{
@@ -1221,10 +1222,10 @@ class instance extends instance_skel {
 
 		var aWLEV = instance.prototype.aWLEV
 		if (cmd == 'WLEV+') {
-			cmd = 'aWHITELEV' + (aWLEV + 0.005)
+			cmd = 'aWHITELEV' + (aWLEV + 0.01)
 		}
 		if (cmd == 'WLEV-') {
-			cmd = 'aWHITELEV' + (aWLEV - 0.005)
+			cmd = 'aWHITELEV' + (aWLEV - 0.01)
 		}
 
 		/*
