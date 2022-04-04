@@ -850,7 +850,7 @@ class instance extends instance_skel {
 						width: 6,
 					},
 					{
-						type: 'number',
+						type: 'textinput',
 						id: 'id_presetcameraID',
 						label: 'Camera ID :',
 						default: '1',
@@ -860,7 +860,7 @@ class instance extends instance_skel {
 						/*regex: self.REGEX_SIGNED_NUMBER*/
 					},
 					{
-						type: 'number',
+						type: 'textinput',
 						id: 'id_presetnumber',
 						label: 'Preset Number :',
 						default: '1',
@@ -1065,6 +1065,8 @@ class instance extends instance_skel {
 	action(action) {
 		let cmd
 		let end
+		let PresetCamID
+		let PresetNumber
 		end = '\n'
 
 		switch (action.action) {
@@ -1091,12 +1093,21 @@ class instance extends instance_skel {
 				break
 
 			case 'preset':
+
+				this.parseVariables(action.options.id_presetcameraID, (value) => {
+					PresetCamID = unescape(value)
+				})
+
+				this.parseVariables(action.options.id_presetnumber, (value) => {
+					PresetNumber = unescape(value)
+				})
+
 				if (action.options.id_presetmode == 'RECALL') {
-					cmd = 'PRESET' + unescape(action.options.id_presetnumber) + 'C' + unescape(action.options.id_presetcameraID)
+					cmd = 'PRESET' + PresetNumber + 'C' + PresetCamID
 					break
 				}
 				if (action.options.id_presetmode == 'SAVE') {
-					cmd = 'SPRESET' + unescape(action.options.id_presetnumber) + 'C' + unescape(action.options.id_presetcameraID)
+					cmd = 'SPRESET' + PresetNumber + 'C' + PresetCamID
 					break
 				}
 

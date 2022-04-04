@@ -16,6 +16,10 @@ The yarn headless command will perform all the steps to build the module.
 
 ## Changes
 
+### v1.1.8
+
+- Added Support for custom Preset Pages
+- Preset number & cam ID can now be parsed
 
 ### v1.1.7
 
