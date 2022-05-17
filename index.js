@@ -107,6 +107,7 @@ class instance extends instance_skel {
 				this.setVariable('aTILT_var', '-')
 				this.setVariable('aROLL_var', '-')
 				this.setVariable('aZOOM_var', '-')
+				this.setVariable('aSLIDER_var', '-')
 				this.setVariable('aBLACKLEV_var', '-')
 				this.setVariable('aMIDLEV_var', '-')
 				this.setVariable('aWHITELEV_var', '-')
@@ -122,6 +123,7 @@ class instance extends instance_skel {
 				this.setVariable('PTS_var', '-')
 				this.setVariable('ZS_var', '-')
 				this.setVariable('PRES_D_var', '-')
+				this.setVariable('PRES_C_var', '-')
 			})
 
 			this.socket.on('connect', () => {
@@ -130,9 +132,10 @@ class instance extends instance_skel {
 			})
 
 			this.socket.on('data', (data) => {
+
 				//PARSE INCOMING DATA
 				var response_array = data.toString().slice(1, -2).split(';')
-				//	this.log('debug', 'RESPONSE ARRAY =' + response_array)
+					this.log('debug', 'RESPONSE ARRAY =' + response_array)
 
 				// Standard Middle Control Feedback into ARRAY 1 (detects using PTS presence)
 				var presence_pts = response_array.findIndex((element) => element.includes('PTS'))
@@ -170,6 +173,17 @@ class instance extends instance_skel {
 						ZS = parseFloat(ZS.substring(2))
 					}
 
+
+					//GET SLIDER SPEED FROM TCP
+					var SS = response_array1.find((element) => {
+						if (element.includes('SS')) {
+							return true
+						}
+					})
+					if (SS !== undefined) {
+						SS = parseFloat(SS.substring(2))
+					}
+
 					//GET PRESET TRANSITION SPEED FROM TCP
 					var PRES_D = response_array1.find((element) => {
 						if (element.includes('PRES_D')) {
@@ -178,6 +192,16 @@ class instance extends instance_skel {
 					})
 					if (PRES_D !== undefined) {
 						PRES_D = parseFloat(PRES_D.substring(6))
+					}
+
+					//GET PRESET COMPLETION  FROM TCP
+					var PRES_C = response_array1.find((element) => {
+						if (element.includes('PRES_C')) {
+							return true
+						}
+					})
+					if (PRES_C !== undefined) {
+						PRES_C = parseFloat(PRES_C.substring(6))
 					}
 					/*	
 					this.log('debug', 'CAM = ' + CAM)
@@ -201,11 +225,22 @@ class instance extends instance_skel {
 					} else {
 						this.setVariable('ZS_var', '')
 					}
+					if (SS !== undefined) {
+						this.setVariable('SS_var', SS)
+					} else {
+						this.setVariable('SS_var', '')
+					}
 					if (PRES_D !== undefined) {
 						this.setVariable('PRES_D_var', PRES_D)
 					} else {
 						this.setVariable('PRES_D_var', '')
 					}
+					if (PRES_C !== undefined) {
+						this.setVariable('PRES_C_var', PRES_C)
+					} else {
+						this.setVariable('PRES_C_var', '')
+					}
+
 
 					// CONVERT TO PROTOTYPE FOR FEEDBACKS
 					instance.prototype.CAM = CAM
@@ -471,6 +506,16 @@ class instance extends instance_skel {
 						aZOOM = parseFloat(aZOOM.substring(5))
 					}
 
+					// GET SLIDER POS FROM TCP
+					var aSLIDER = response_array3.find((element) => {
+						if (element.includes('aSLIDER')) {
+							return true
+						}
+					})
+					if (aSLIDER !== undefined) {
+						aSLIDER = parseFloat(aSLIDER.substring(5))
+					}
+
 					// Create Companion Variables
 
 					if (aPAN !== undefined) {
@@ -493,6 +538,11 @@ class instance extends instance_skel {
 					} else {
 						this.setVariable('aZOOM_var', '')
 					}
+					if (aSLIDER !== undefined) {
+						this.setVariable('aSLIDER_var', aSLIDER)
+					} else {
+						this.setVariable('aSLIDER_var', '')
+					}
 
 					/*	this.log('debug', 'aPAN = ' + aPAN)
 					this.log('debug', 'aTILT = ' + aTILT)
@@ -505,6 +555,7 @@ class instance extends instance_skel {
 					this.setVariable('aTILT_var', '-')
 					this.setVariable('aROLL_var', '-')
 					this.setVariable('aZOOM_var', '-')
+					this.setVariable('aSLIDER_var', '-')
 				}
 
 				this.checkFeedbacks('CurrentCameraID')
@@ -635,10 +686,15 @@ class instance extends instance_skel {
 		{ id: 'ZOOM+', label: 'Zoom In' },
 		{ id: 'ZOOM-', label: 'Zoom Out' },
 		{ id: 'Z0', label: 'Zoom Idle (Required on Key Up)' },
+		{ id: 'SLIDER+', label: 'Slider Move Right' },
+		{ id: 'SLIDER-', label: 'Slider Move Left' },
+		{ id: 'S0', label: 'Slider Idle (Required on Key Up)' },
 		{ id: 'ZSPEED+', label: 'Zoom Speed Increase' },
 		{ id: 'ZSPEED-', label: 'Zoom Speed Decrease' },
 		{ id: 'SPEED+', label: 'Pan/Tilt Speed Increase' },
 		{ id: 'SPEED-', label: 'Pan/Tilt Speed Decrease' },
+		{ id: 'SLIDERSPEED+', label: 'Slider Speed Increase' },
+		{ id: 'SLIDERSPEED-', label: 'Slider Speed Decrease' },
 		{ id: 'ACTIVETRACK', label: 'Active Track Enable/Disable' },
 		{ id: 'GIMBALAUTOCALIB', label: 'Start a Gimbal Auto-Calibration' },
 		{ id: 'MOTORAUTOCALIB', label: 'Start a Zoom Motor Auto-Calibration' },
@@ -700,8 +756,16 @@ class instance extends instance_skel {
 				name: 'ZS_var',
 			},
 			{
+				label: 'Slider Speed',
+				name: 'SS_var',
+			},
+			{
 				label: 'Preset Transition Speed',
 				name: 'PRES_D_var',
+			},
+			{
+				label: 'Preset Completion (%) ',
+				name: 'PRES_C_var',
 			},
 			{
 				label: 'White Balance',
@@ -763,6 +827,10 @@ class instance extends instance_skel {
 				label: 'Gimbal Motor Zoom Value',
 				name: 'aZOOM_var',
 			},
+			{
+				label: 'Slider Value',
+				name: 'aSLIDER_var',
+			}
 		])
 	}
 
