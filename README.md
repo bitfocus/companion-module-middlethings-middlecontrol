@@ -16,6 +16,10 @@ The yarn headless command will perform all the steps to build the module.
 
 ## Changes
 
+### v1.1.9
+
+- Added Support for Preset Completion feedback (in %)
+
 ### v1.1.8
 
 - Added Support for custom Preset Pages
