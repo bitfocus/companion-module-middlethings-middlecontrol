@@ -4,7 +4,7 @@ import { Regex } from '@companion-module/base'
 export const ConfigFields = [
 
 			{
-				type: 'text',
+				type: 'static-text',
 				id: 'info',
 				label: 'Information',
 				width: 12,
@@ -23,8 +23,9 @@ export const ConfigFields = [
 						</ul>
 						If you have any questions, please let us know at support@middlethings.co
 						<br><br>
-						<a href="https://www.middlethings.co/product-middle-control/#downloads" target="_new" class="btn btn-primary">Download Middle Control</a>
-						<a href="https://middlethings.co/companion" target="_new" class="btn btn-secondary">Custom Companion pages</a>
+						<a href="https://www.middlethings.co/product-middle-control/#downloads" target="_new" class="btn btn-primary"> ----> Download Middle Control</a>
+                        <br>
+						<a href="https://middlethings.co/companion" target="_new" class="btn btn-secondary">---->  Custom Companion pages</a>
 					</div>
 				</div>
 			`,
@@ -35,16 +36,6 @@ export const ConfigFields = [
 				label: 'Target IP',
 				width: 6,
 				regex: Regex.IP,
-			},
-			{
-				type: 'dropdown',
-				id: 'prot',
-				label: 'Middle Control Software Version',
-				default: 'tcp',
-				choices: [
-					{ id: 'tcp', label: 'Latest' },
-					{ id: 'udp', label: 'Before 2.2' },
-				],
-			},
+			}
 		]
 	
