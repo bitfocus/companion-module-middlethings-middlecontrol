@@ -231,35 +231,35 @@ class instance extends InstanceBase {
                     }
 
                     if (CAM !== undefined) {
-                        this.setVariableValues('CAM_var', CAM)
+                        this.setVariableValues({'CAM_var' : CAM})
                     } else {
-                        this.setVariableValues('CAM_var', '')
+                        this.setVariableValues({'CAM_var' : ''})
                     }
 
                     if (PTS !== undefined) {
-                        this.setVariableValues('PTS_var', PTS)
+                        this.setVariableValues({'PTS_var' : PTS})
                     } else {
-                        this.setVariableValues('PTS_var', '')
+                        this.setVariableValues({'PTS_var' : ''})
                     }
                     if (ZS !== undefined) {
-                        this.setVariableValues('ZS_var', ZS)
+                        this.setVariableValues({'ZS_var' : ZS})
                     } else {
-                        this.setVariableValues('ZS_var', '')
+                        this.setVariableValues({'ZS_var' : ''})
                     }
                     if (SS !== undefined) {
-                        this.setVariableValues('SS_var', SS)
+                        this.setVariableValues({'SS_var' : SS})
                     } else {
-                        this.setVariableValues('SS_var', '')
+                        this.setVariableValues({'SS_var' : ''})
                     }
                     if (PRES_D !== undefined) {
-                        this.setVariableValues('PRES_D_var', PRES_D)
+                        this.setVariableValues({'PRES_D_var' : PRES_D})
                     } else {
-                        this.setVariableValues('PRES_D_var', '')
+                        this.setVariableValues({'PRES_D_var' : ''})
                     }
                     if (PRES_C !== undefined) {
-                        this.setVariableValues('PRES_C_var', PRES_C)
+                        this.setVariableValues({'PRES_C_var' : PRES_C})
                     } else {
-                        this.setVariableValues('PRES_C_var', '')
+                        this.setVariableValues({'PRES_C_var' : ''})
                     }
 
 
@@ -396,75 +396,75 @@ class instance extends InstanceBase {
                     // Create Companion Variables
 
                     if (aWB !== undefined) {
-                        this.setVariableValues('aWB_var', aWB)
+                        this.setVariableValues({'aWB_var' : aWB})
                     } else {
-                        this.setVariableValues('aWB_var', '')
+                        this.setVariableValues({'aWB_var' : ''})
                     }
                     if (aF !== undefined) {
-                        this.setVariableValues('aF_var', aF)
+                        this.setVariableValues({'aF_var' : aF})
                     } else {
-                        this.setVariableValues('aF_var', '')
+                        this.setVariableValues({'aF_var' : ''})
                     }
                     if (aI !== undefined) {
-                        this.setVariableValues('aI_var', aI)
+                        this.setVariableValues({'aI_var' : aI})
                     } else {
-                        this.setVariableValues('aI_var', '')
+                        this.setVariableValues({'aI_var' : ''})
                     }
                     if (aTINT !== undefined) {
-                        this.setVariableValues('aTINT_var', aTINT)
+                        this.setVariableValues({'aTINT_var': aTINT})
                     } else {
-                        this.setVariableValues('aTINT_var', '')
+                        this.setVariableValues({'aTINT_var' : ''})
                     }
                     if (aISO !== undefined) {
-                        this.setVariableValues('aISO_var', aISO)
+                        this.setVariableValues({'aISO_var' : aISO})
                     } else {
-                        this.setVariableValues('aISO_var', '')
+                        this.setVariableValues({'aISO_var' : ''})
                     }
                     if (aSHUT !== undefined) {
-                        this.setVariableValues('aSHUT_var', '1/' + aSHUT)
+                        this.setVariableValues({'aSHUT_var' : '1/' + aSHUT})
                     } else {
-                        this.setVariableValues('aSHUT_var', '')
+                        this.setVariableValues({'aSHUT_var' : ''})
                     }
                     if (aSAT !== undefined) {
-                        this.setVariableValues('aSAT_var', aSAT)
+                        this.setVariableValues({'aSAT_var' : aSAT})
                     } else {
-                        this.setVariableValues('aSAT_var', '')
+                        this.setVariableValues({'aSAT_var' : ''})
                     }
 
                     if (aCONT !== undefined) {
-                        this.setVariableValues('aCONT_var', aCONT)
+                        this.setVariableValues({'aCONT_var' : aCONT})
                     } else {
-                        this.setVariableValues('aCONT_var', '')
+                        this.setVariableValues({'aCONT_var' : ''})
                     }
                     if (aBLACKLEV !== undefined) {
-                        this.setVariableValues('aBLACKLEV_var', aBLACKLEV)
+                        this.setVariableValues({'aBLACKLEV_var' : aBLACKLEV})
                     } else {
-                        this.setVariableValues('aBLACKLEV_var', '')
+                        this.setVariableValues({'aBLACKLEV_var' : ''})
                     }
                     if (aMIDLEV !== undefined) {
-                        this.setVariableValues('aMIDLEV_var', aMIDLEV)
+                        this.setVariableValues({'aMIDLEV_var' : aMIDLEV})
                     } else {
-                        this.setVariableValues('aMIDLEV_var', '')
+                        this.setVariableValues({'aMIDLEV_var' : ''})
                     }
                     if (aWHITELEV !== undefined) {
-                        this.setVariableValues('aWHITELEV_var', aWHITELEV)
+                        this.setVariableValues({'aWHITELEV_var' : aWHITELEV})
                     } else {
-                        this.setVariableValues('aWHITELEV', '')
+                        this.setVariableValues({'aWHITELEV' : ''})
                     }
 
                 } else {
                     //this.log('debug', 'VARIABLES_NULL')
-                    this.setVariableValues('aBLACKLEV_var', '-')
-                    this.setVariableValues('aMIDLEV_var', '-')
-                    this.setVariableValues('aWHITELEV_var', '-')
-                    this.setVariableValues('aWB_var', '-')
-                    this.setVariableValues('aF_var', '-')
-                    this.setVariableValues('aI_var', '-')
-                    this.setVariableValues('aTINT_var', '-')
-                    this.setVariableValues('aISO_var', '-')
-                    this.setVariableValues('aCONT_var', '-')
-                    this.setVariableValues('aSAT_var', '-')
-                    this.setVariableValues('aSHUT_var', '-')
+                    this.setVariableValues({'aBLACKLEV_var': '-'})
+                    this.setVariableValues({'aMIDLEV_var': '-'})
+                    this.setVariableValues({'aWHITELEV_var': '-'})
+                    this.setVariableValues({'aWB_var': '-'})
+                    this.setVariableValues({'aF_var': '-'})
+                    this.setVariableValues({'aI_var': '-'})
+                    this.setVariableValues({'aTINT_var': '-'})
+                    this.setVariableValues({'aISO_var': '-'})
+                    this.setVariableValues({'aCONT_var': '-'})
+                    this.setVariableValues({'aSAT_var': '-'})
+                    this.setVariableValues({'aSHUT_var': '-'})
                 }
 
                 // Gimbal Middle Control Feedback into ARRAY 3 (detects using aPAN presence)
@@ -528,39 +528,39 @@ class instance extends InstanceBase {
                     // Create Companion Variables
 
                     if (aPAN !== undefined) {
-                        this.setVariableValues('aPAN_var', aPAN)
+                        this.setVariableValues({'aPAN_var': aPAN})
                     } else {
-                        this.setVariableValues('aPAN_var', '')
+                        this.setVariableValues({'aPAN_var': ''})
                     }
                     if (aTILT !== undefined) {
-                        this.setVariableValues('aTILT_var', aTILT)
+                        this.setVariableValues({'aTILT_var': aTILT})
                     } else {
-                        this.setVariableValues('aTILT_var', '')
+                        this.setVariableValues({'aTILT_var': ''})
                     }
                     if (aROLL !== undefined) {
-                        this.setVariableValues('aROLL_var', aROLL)
+                        this.setVariableValues({'aROLL_var': aROLL})
                     } else {
-                        this.setVariableValues('aROLL_var', '')
+                        this.setVariableValues({'aROLL_var': ''})
                     }
                     if (aZOOM !== undefined) {
-                        this.setVariableValues('aZOOM_var', aZOOM)
+                        this.setVariableValues({'aZOOM_var': aZOOM})
                     } else {
-                        this.setVariableValues('aZOOM_var', '')
+                        this.setVariableValues({'aZOOM_var': ''})
                     }
                     if (aSLIDER !== undefined) {
-                        this.setVariableValues('aSLIDER_var', aSLIDER)
+                        this.setVariableValues({'aSLIDER_var': aSLIDER})
                     } else {
-                        this.setVariableValues('aSLIDER_var', '')
+                        this.setVariableValues({'aSLIDER_var': ''})
                     }
 
                     
                 } else {
                     //   this.log('debug', 'VARIABLES_NULL')
-                    this.setVariableValues('aPAN_var', '-')
-                    this.setVariableValues('aTILT_var', '-')
-                    this.setVariableValues('aROLL_var', '-')
-                    this.setVariableValues('aZOOM_var', '-')
-                    this.setVariableValues('aSLIDER_var', '-')
+                    this.setVariableValues({'aPAN_var': '-'})
+                    this.setVariableValues({'aTILT_var': '-'})
+                    this.setVariableValues({'aROLL_var': '-'})
+                    this.setVariableValues({'aZOOM_var': '-'})
+                    this.setVariableValues({'aSLIDER_var': '-'})
                 }
 
                 this.checkFeedbacks('CurrentCameraID')

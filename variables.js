@@ -1,91 +1,91 @@
 const variables = [
     {
-        label: 'Selected Camera Number',
-        name: 'CAM_var',
+        name: 'Selected Camera Number',
+        variableId: 'CAM_var',
     },
     {
-        label: 'Pan/Tilt Speed',
-        name: 'PTS_var',
+        name: 'Pan/Tilt Speed',
+        variableId: 'PTS_var',
     },
     {
-        label: 'Zoom Speed',
-        name: 'ZS_var',
+        name: 'Zoom Speed',
+        variableId: 'ZS_var',
     },
     {
-        label: 'Slider Speed',
-        name: 'SS_var',
+        name: 'Slider Speed',
+        variableId: 'SS_var',
     },
     {
-        label: 'Preset Transition Speed',
-        name: 'PRES_D_var',
+        name: 'Preset Transition Speed',
+        variableId: 'PRES_D_var',
     },
     {
-        label: 'Preset Completion (%) ',
-        name: 'PRES_C_var',
+        name: 'Preset Completion (%) ',
+        variableId: 'PRES_C_var',
     },
     {
-        label: 'White Balance',
-        name: 'aWB_var',
+        name: 'White Balance',
+        variableId: 'aWB_var',
     },
     {
-        label: 'Tint',
-        name: 'aTINT_var',
+        name: 'Tint',
+        variableId: 'aTINT_var',
     },
     {
-        label: 'Gain (dB)',
-        name: 'aISO_var',
+        name: 'Gain (dB)',
+        variableId: 'aISO_var',
     },
     {
-        label: 'Iris',
-        name: 'aI_var',
+        name: 'Iris',
+        variableId: 'aI_var',
     },
     {
-        label: 'Shutter',
-        name: 'aSHUT_var',
+        name: 'Shutter',
+        variableId: 'aSHUT_var',
     },
     {
-        label: 'Contrast',
-        name: 'aCONT_var',
+        name: 'Contrast',
+        variableId: 'aCONT_var',
     },
     {
-        label: 'Saturation',
-        name: 'aSAT_var',
+        name: 'Saturation',
+        variableId: 'aSAT_var',
     },
     {
-        label: 'Black Level (Luma)',
-        name: 'aBLACKLEV_var',
+        name: 'Black Level (Luma)',
+        variableId: 'aBLACKLEV_var',
     },
     {
-        label: 'Mid Level (Luma)',
-        name: 'aMIDLEV_var',
+        name: 'Mid Level (Luma)',
+        variableId: 'aMIDLEV_var',
     },
     {
-        label: 'White Level (Luma)',
-        name: 'aWHITELEV_var',
+        name: 'White Level (Luma)',
+        variableId: 'aWHITELEV_var',
     },
     {
-        label: 'Focus Value',
-        name: 'aF_var',
+        name: 'Focus Value',
+        variableId: 'aF_var',
     },
     {
-        label: 'Gimbal Absolute Pan Value',
-        name: 'aPAN_var',
+        name: 'Gimbal Absolute Pan Value',
+        variableId: 'aPAN_var',
     },
     {
-        label: 'Gimbal Absolute Tilt Value',
-        name: 'aTILT_var',
+        name: 'Gimbal Absolute Tilt Value',
+        variableId: 'aTILT_var',
     },
     {
-        label: 'Gimbal Absolute Roll Value',
-        name: 'aROLL_var',
+        name: 'Gimbal Absolute Roll Value',
+        variableId: 'aROLL_var',
     },
     {
-        label: 'Gimbal Motor Zoom Value',
-        name: 'aZOOM_var',
+        name: 'Gimbal Motor Zoom Value',
+        variableId: 'aZOOM_var',
     },
     {
-        label: 'Slider Value',
-        name: 'aSLIDER_var',
+        name: 'Slider Value',
+        variableId: 'aSLIDER_var',
     }
 ]
 
@@ -96,3 +96,6 @@ const variables = [
 export function getVariables() {
    return variables
 }
+
+
+

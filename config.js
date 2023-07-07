@@ -36,6 +36,16 @@ export const ConfigFields = [
 				label: 'Target IP',
 				width: 6,
 				regex: Regex.IP,
-			}
+			},
+            {
+				type: 'dropdown',
+				id: 'prot',
+				label: 'Middle Control Software Version',
+				default: 'tcp',
+				choices: [
+					{ id: 'tcp', label: 'Latest' },
+					{ id: 'udp', label: 'Before 2.2' },
+				],
+			},
 		]
 	
