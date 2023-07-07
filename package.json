@@ -1,21 +1,8 @@
+
 {
 	"name": "middlethings-middlecontrol",
 	"version": "2.0.0",
 	"main": "index.js",
-	"description": "Middle Control Companion control",
-	"keywords": [
-		"PTZ",
-		"RS2",
-		"DJI",
-		"APC-R", 
-		"APC",
-		"Blackmagic", 
-		"Gimbal"
-	],
-	"manufacturer": "Middle Things",
-	"product": "Middle Control",
-	"shortname": "middlecontrol",
-	"homepage": "https://github.com/bitfocus/companion-module-middlethings-middlecontrol#readme",
 	"type": "module",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
