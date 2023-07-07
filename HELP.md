@@ -4,7 +4,7 @@ Official plugin to control Middle Control software using Companion, which allows
 
 Instructions & ready to go Companion pages here : https://www.middlethings.co/companion
 
-Please note that :
+Please note that : sdsd
 
 - Middle Control software has to be running (locally on this computer or on any computer on this network) </li>
 - Middle Control software has to be connected to your ATEM if you have one</li>

@@ -4,7 +4,7 @@ The Middle Control Companion plugin can remotely control the Middle Control Soft
 
 ## Getting Started
 
-The yarn headless command will perform all the steps to build the module.
+The yarn headless command will perform all the steps to build the module.  
 
 **Available actions in this module**
 
