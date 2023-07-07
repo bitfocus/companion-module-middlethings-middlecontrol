@@ -16,6 +16,12 @@ The yarn headless command will perform all the steps to build the module.
 
 ## Changes
 
+
+### v2.0.1
+
+- Fixed variables not displaying properly in Companion 3
+
+
 ### v2.0.0
 
 - Added Support for Companion 3
