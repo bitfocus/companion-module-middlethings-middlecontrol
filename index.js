@@ -129,7 +129,7 @@ class instance extends instance_skel {
 			this.socket.on('connect', () => {
 				this.status(this.STATE_OK)
 				this.debug('Connected')
-			})
+			}) //test
 
 			this.socket.on('data', (data) => {
 
