@@ -17,7 +17,7 @@ The yarn headless command will perform all the steps to build the module.
 ## Changes
 
 
-### v2.0.2
+### v2.1.0
 
 - Improved action "Send a Custom Gimbal PTZ Absolute Value" which can now send Pan / Tilt / Roll / Zoom instruction in the same action. 
 
