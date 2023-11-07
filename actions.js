@@ -336,25 +336,40 @@ export function getActionDefinitions(self) {
             {
                 type: 'static-text',
                 id: 'Textlabel',
-                label: 'Set a custom absolute PTZ value for the Pan, Tilt, Roll & Zoom of your Gimbal',
+                label: 'Set a custom absolute PTZ value for the Pan, Tilt, Roll & Zoom of your Gimbal. Leave the fields that you do not want to touch empty. ',
                 width: 6,
             },
             {
-                type: 'dropdown',
-                id: 'id_sendabsmode',
-                label: 'Select the parameter you want to set :',
-                default: 'Pan',
-                choices: [
-                    { id: 'Pan', label: 'Pan Value' },
-                    { id: 'Tilt', label: 'Tilt Value' },
-                    { id: 'Roll', label: 'Roll Value' },
-                    { id: 'Zoom', label: 'Zoom Value' },
-                ],
+                type: 'textinput',
+                id: 'id_sendabspan',
+                label: 'Pan Value (-2048 to 2048)',
+               /* min: -2048,
+                max: 2048,
+                range: true,*/
+                default: 0,
             },
             {
                 type: 'textinput',
-                id: 'id_sendabs',
-                label: 'Value',
+                id: 'id_sendabstilt',
+                label: 'Tilt Value (-2048 to 2048)',
+                /*min: -2048,
+                max: 2048,
+                range: true,*/
+                default: 0,
+            },
+            {
+                type: 'textinput',
+                id: 'id_sendabsroll',
+                label: 'Roll Value (-2048 to 2048)',
+                /*min: -2048,
+                max: 2048,
+                range: true,*/
+                default: 0,
+            },
+            {
+                type: 'textinput',
+                id: 'id_sendabszoom',
+                label: 'Zoom Value (0 to 4096)',
                 /*min: -2048,
                 max: 2048,
                 range: true,*/
@@ -371,26 +386,20 @@ export function getActionDefinitions(self) {
         ],
     callback: async (event) => {
         var prefix = 'a'
-
-        if (event.options.id_sendabsmode == 'Pan') {
-            prefix = 'aP'
-        }
-        if (event.options.id_sendabsmode == 'Tilt') {
-            prefix = 'aT'
-        }
-        if (event.options.id_sendabsmode == 'Roll') {
-            prefix = 'aR'
-        }
-        if (event.options.id_sendabsmode == 'Zoom') {
-            prefix = 'aZ'
-        }
         var sendabsval = ''
+        var sendabsvalpan = ''
+        var sendabsvaltilt = ''
+        var sendabsvalroll = ''
+        var sendabsvalzoom = ''
         var sendabsdurationval = ''
 
-         sendabsval = unescape(await self.parseVariablesInString(event.options.id_sendabs))
+         sendabsvalpan = unescape(await self.parseVariablesInString(event.options.id_sendabspan))
+         sendabsvaltilt = unescape(await self.parseVariablesInString(event.options.id_sendabstilt))
+         sendabsvalroll = unescape(await self.parseVariablesInString(event.options.id_sendabsroll))
+         sendabsvalzoom = unescape(await self.parseVariablesInString(event.options.id_sendabszoom))
          sendabsdurationval = unescape(await self.parseVariablesInString(event.options.id_sendabsduration))
         
-        var cmd = prefix + sendabsval + ';' + sendabsdurationval
+        var cmd = 'aGLOB;' + 'aP' + sendabsvalpan + ';aT' + sendabsvaltilt + ';aR' + sendabsvalroll + ';aZ' + sendabsvalzoom + ';' + sendabsdurationval
         self.log('debug', '>> ' + cmd)
         self.send(cmd)
     },
