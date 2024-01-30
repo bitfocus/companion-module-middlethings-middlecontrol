@@ -243,7 +243,7 @@ export function getActionDefinitions(self) {
             
             self.log('debug', '>> ' + cmd)
             self.send(cmd)
-            
+             
         },
     },
         
@@ -259,7 +259,7 @@ export function getActionDefinitions(self) {
                 label: 'Set the duration of the transition to the next preset which will be recalled',
                 width: 6,
             },
-
+ 
             {
                 type: 'textinput',
                 id: 'id_settransitionduration',
@@ -270,7 +270,7 @@ export function getActionDefinitions(self) {
             },
         ],
     callback: async (event) => {
-        const cmd = unescape(await self.parseVariablesInString(event.options.id_settransitionduration))
+        const cmd = 'PRES_D' + unescape(await self.parseVariablesInString(event.options.id_settransitionduration))
         self.log('debug', '>> ' + cmd)
         self.send(cmd)
     },

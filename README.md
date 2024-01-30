@@ -16,6 +16,9 @@ The yarn headless command will perform all the steps to build the module.
 
 ## Changes
 
+### v2.1.1
+
+- Fixed Preset Transition Speed not working
 
 ### v2.1.0
 

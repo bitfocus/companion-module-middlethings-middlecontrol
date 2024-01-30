@@ -13,7 +13,7 @@ export const ConfigFields = [
 					<h3>Middle Control</h3>
 					<div>
 				
-						Official plugin to control MiddleControl software using Companion.<br><br>
+						Official plugin to control MiddleControl software using Companion. You can fully control any Blackmagic camera if you are using an ATEM. Controlling a gimbal will require an APC-R. <br><br>
 						Instructions & download ready to go Companion pages at <a href="https://www.middlethings.co/companion" target="_new">middlethings.co/companion</a><br><br>
 						If you are running Middle Control on this same computer, you can type  127.0.0.1 in the IP adress field below and press Save. Please note that :
 						<ul>
