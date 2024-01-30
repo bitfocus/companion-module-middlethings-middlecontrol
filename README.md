@@ -8,11 +8,13 @@ The yarn headless command will perform all the steps to build the module.
 
 **Available actions in this module**
 
-- Select Camera ID
+- Select Camera ID   
 - Send Camera Action
 - Send Gimbal Action
 - Recall/Save Preset
-- Set Custom Pan/Tilt/Zoom Speed
+- Set Custom Camera & Pan/Tilt/Zoom Positions 
+- Set Custom Pan/Tilt/Zoom Speed 
+- Access Camera & Gimbal settings in realtime using Variables 
 
 ## Changes
 
