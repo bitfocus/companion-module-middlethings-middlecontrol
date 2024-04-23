@@ -70,8 +70,11 @@ export const CHOICES_GIMBALCOMMAND = [
     { id: 'SLIDERSPEED+', label: 'Slider Speed Increase' },
     { id: 'SLIDERSPEED-', label: 'Slider Speed Decrease' },
     { id: 'ACTIVETRACK', label: 'Active Track Enable/Disable' },
-    { id: 'GIMBALAUTOCALIB', label: 'Start a Gimbal Auto-Calibration' },
+    { id: 'GIMBALAUTOCALIB', label: 'Start a Gimbal Auto-Calibration (AutoTune)' },
     { id: 'MOTORAUTOCALIB', label: 'Start a Zoom Motor Auto-Calibration' },
+    { id: 'RECENTER', label: 'Recenter Gimbal' },
+    { id: 'GIMBALSLEEP', label: 'Turn Gimbal Off (Sleep)' },
+    { id: 'GIMBALWAKE', label: 'Turn Gimbal On (Wake)' },
 ]
 
  
