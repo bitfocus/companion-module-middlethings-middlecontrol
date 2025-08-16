@@ -18,6 +18,10 @@ The yarn headless command will perform all the steps to build the module.
 
 ## Changes
 
+### v2.3.0
+
+- Slight Fix
+
 ### v2.2.0
 
 - Added remote Sleep / Wake mode & Recenter
