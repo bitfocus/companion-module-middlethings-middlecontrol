@@ -3,7 +3,7 @@
 	"name": "middlethings-middlecontrol",
 	"shortname": "middlecontrol",
 	"description": "Middle Control",
-	"version": "2.0.1",
+	"version": "2.3.0",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-middlethings-middlecontrol.git",
 	"bugs": "https://github.com/bitfocus/companion-module-middlethings-middlecontrol/issues",

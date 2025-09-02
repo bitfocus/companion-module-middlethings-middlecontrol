@@ -580,7 +580,7 @@ class instance extends InstanceBase {
          
         this.log('debug', 'SEND =' + cmd)
         
-       
+       /*
             // Iris +/- Management
 
             var aI = instance.prototype.aI
@@ -604,7 +604,7 @@ class instance extends InstanceBase {
                 aI = iris_array[i - 1]
                 cmd = 'aI' + aI
             }
-
+*/
             // Contrast +/- Management
 
             var aCONT = instance.prototype.aCONT

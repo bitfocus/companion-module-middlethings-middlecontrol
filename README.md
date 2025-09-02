@@ -20,7 +20,7 @@ The yarn headless command will perform all the steps to build the module.
 
 ### v2.3.0
 
-- Slight Fix
+- Fix for Iris control not working properly. 
 
 ### v2.2.0
 
