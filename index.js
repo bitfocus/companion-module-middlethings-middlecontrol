@@ -159,7 +159,7 @@ class instance extends InstanceBase {
                 
                 //PARSE INCOMING DATA
                 var response_array = data.toString().slice(1, -2).split(';')
-                  //  this.log('debug', 'RESPONSE ARRAY =' + response_array)
+                    this.log('debug', 'RESPONSE ARRAY =' + response_array)
 
                 // Standard Middle Control Feedback into ARRAY 1 (detects using PTS presence)
                 var presence_pts = response_array.findIndex((element) => element.includes('PTS'))
