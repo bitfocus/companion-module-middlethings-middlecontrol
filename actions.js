@@ -15,7 +15,7 @@ export const CHOICES_CAMERACOMMAND = [
     { id: 'ZEBRA', label: 'Toggle Zebra' },
     { id: 'FALSECOLORS', label: 'Toggle False Colors' },
     { id: 'FOCUSPEAKING', label: 'Toggle Focus Peaking' },
-    { id: 'STATUSVIEW', label: 'Toggle Status View on HDMI Out' },
+    { id: 'STATUSVIEW', label: 'Toggle Status View / Info Display' },
     { id: 'REC_START', label: 'Start Recording' },
     { id: 'REC_STOP', label: 'Stop Recording' },
     { id: 'REC_START_ALL', label: 'Start Recording on all cameras' },
@@ -45,6 +45,34 @@ export const CHOICES_CAMERACOMMAND = [
     { id: 'ND+', label: 'ND Filter increase' },
     { id: 'ND-', label: 'ND Filter decrease' },
     { id: 'RESETCCU', label: 'Reset the Color Correction (CCU)' },
+
+    // --- Additional Sony Commands ---
+
+    { id: 'CUSTOM_C1', label: 'Sony Custom Button C1' },
+    { id: 'CUSTOM_C2', label: 'Sony Custom Button C2' },
+    { id: 'CUSTOM_C3', label: 'Sony Custom Button C3' },
+    { id: 'CUSTOM_C4', label: 'Sony Custom Button C4' },
+    { id: 'CUSTOM_C5', label: 'Sony Custom Button C5' },
+    { id: 'CUSTOM_C6', label: 'Sony Custom Button C6' },
+
+    // Menu Navigation
+    { id: 'BTN_LEFT',  label: 'Menu Left' },
+    { id: 'BTN_RIGHT', label: 'Menu Right' },
+    { id: 'BTN_UP',    label: 'Menu Up' },
+    { id: 'BTN_DOWN',  label: 'Menu Down' },
+    { id: 'BTN_OK',    label: 'Menu OK / Enter' },
+    { id: 'BTN_MENU',  label: 'Menu Toggle Button' },
+
+    // Joystick / MultiSelector
+    { id: 'MULTISEL_LEFT',  label: 'Sony MultiSelector Left' },
+    { id: 'MULTISEL_RIGHT', label: 'Sony MultiSelector Right' },
+    { id: 'MULTISEL_UP',    label: 'Sony MultiSelector Up' },
+    { id: 'MULTISEL_DOWN',  label: 'Sony MultiSelector Down' },
+    { id: 'MULTISEL_PRESS', label: 'Sony MultiSelector Press' },
+
+    // Digital Zoom
+    { id: 'DIGITAL_ZOOM', label: 'Digital Zoom Toggle' }
+
 ]
 
 export const CHOICES_GIMBALCOMMAND = [
@@ -75,6 +103,35 @@ export const CHOICES_GIMBALCOMMAND = [
     { id: 'RECENTER', label: 'Recenter Gimbal' },
     { id: 'GIMBALSLEEP', label: 'Turn Gimbal Off (Sleep)' },
     { id: 'GIMBALWAKE', label: 'Turn Gimbal On (Wake)' },
+
+    // --- Additional Sony Commands ---
+
+{ id: 'CUSTOM_C1', label: 'Custom Button C1' },
+{ id: 'CUSTOM_C2', label: 'Custom Button C2' },
+{ id: 'CUSTOM_C3', label: 'Custom Button C3' },
+{ id: 'CUSTOM_C4', label: 'Custom Button C4' },
+{ id: 'CUSTOM_C5', label: 'Custom Button C5' },
+{ id: 'CUSTOM_C6', label: 'Custom Button C6' },
+
+// Menu Navigation
+{ id: 'BTN_LEFT',  label: 'Menu Left' },
+{ id: 'BTN_RIGHT', label: 'Menu Right' },
+{ id: 'BTN_UP',    label: 'Menu Up' },
+{ id: 'BTN_DOWN',  label: 'Menu Down' },
+{ id: 'BTN_OK',    label: 'Menu OK / Enter' },
+{ id: 'BTN_MENU',  label: 'Menu Button' },
+
+// Joystick / MultiSelector
+{ id: 'MULTISEL_LEFT',  label: 'MultiSelector Left' },
+{ id: 'MULTISEL_RIGHT', label: 'MultiSelector Right' },
+{ id: 'MULTISEL_UP',    label: 'MultiSelector Up' },
+{ id: 'MULTISEL_DOWN',  label: 'MultiSelector Down' },
+{ id: 'MULTISEL_PRESS', label: 'MultiSelector Press' },
+
+// Digital Zoom
+{ id: 'DIGITAL_ZOOM+', label: 'Digital Zoom In' },
+{ id: 'DIGITAL_ZOOM-', label: 'Digital Zoom Out' }
+
 ]
 
  
