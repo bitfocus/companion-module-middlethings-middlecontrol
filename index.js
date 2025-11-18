@@ -285,31 +285,35 @@ class instance extends InstanceBase {
 						this.setVariableValues({ PRES_C_var: '' })
 					}
 					if (REC !== undefined) {
-						this.setVariableValues({ rec_status: REC })
+						this.setVariableValues({ REC_var: REC })
 					} else {
-						this.setVariableValues({ rec_status: '' })
+						this.setVariableValues({ REC_var: '' })
 					}
 
 					if (AF !== undefined) {
-						this.setVariableValues({ af_status: AF })
+						this.setVariableValues({ AF_var: AF })
 					} else {
-						this.setVariableValues({ af_status: '' })
+						this.setVariableValues({ AF_var: '' })
 					}
 
 					if (DZOOM !== undefined) {
-						this.setVariableValues({ dzoom_status: DZOOM })
+						this.setVariableValues({ DZOOM_var: DZOOM })
 					} else {
-						this.setVariableValues({ dzoom_status: '' })
+						this.setVariableValues({ DZOOM_var: '' })
 					}
 
 					if (PRES_ACTIVE !== undefined) {
-						this.setVariableValues({ preset_active: PRES_ACTIVE })
+						this.setVariableValues({ PRESET_ACTIVE_var: PRES_ACTIVE })
 					} else {
-						this.setVariableValues({ preset_active: '' })
+						this.setVariableValues({ PRESET_ACTIVE_var: '' })
 					}
 
 					// CONVERT TO PROTOTYPE FOR FEEDBACKS
 					this.MIDDLE.CAM = CAM
+                    this.MIDDLE.REC = REC
+                    this.MIDDLE.AF = AF
+                    this.MIDDLE.DZOOM = DZOOM
+                    this.MIDDLE.PRESET_ACTIVE = PRES_ACTIVE
 					instance.prototype.CAM = CAM
 					instance.prototype.PTS = PTS
 					instance.prototype.ZS = ZS
@@ -610,6 +614,11 @@ class instance extends InstanceBase {
 				}
 
 				this.checkFeedbacks('CurrentCameraID')
+                this.checkFeedbacks('RecordingStatus')
+                this.checkFeedbacks('AutofocusStatus')
+                this.checkFeedbacks('DigitalZoomStatus')
+                this.checkFeedbacks('CurrentPresetActive')
+                
 			})
 		} else {
 			this.updateStatus(InstanceStatus.BadConfig)

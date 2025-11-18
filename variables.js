@@ -88,20 +88,20 @@ const variables = [
 		variableId: 'aSLIDER_var',
 	},
 	{
-		name: 'Recording status (0/1)',
-		variableId: 'rec_status',
+		name: 'Recording Status (0/1)',
+		variableId: 'REC_var',
 	},
 	{
-		name: 'Autofocus status (0/1)',
-		variableId: 'af_status',
+		name: 'AutoFocus Status (0/1)',
+		variableId: 'AF_var',
 	},
 	{
-		name: 'Digital zoom status (0/1)',
-		variableId: 'dzoom_status',
+		name: 'Digital Zoom Status (0/1)',
+		variableId: 'DZOOM_var',
 	},
 	{
 		name: 'ID of Currently Running Preset  (0 = none active)',
-		variableId: 'preset_active',
+		variableId: 'PRESET_ACTIVE_var',
 	},
 ]
 

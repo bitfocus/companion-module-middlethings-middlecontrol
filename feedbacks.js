@@ -26,7 +26,8 @@ export function getFeedbackDefinitions(self) {
 			],
 			callback: function (feedback) {
 				// This callback will bse called whenever companion wants to check if this feedback is 'active' and should affect the button style
-				const value = unescape(feedback.options.camera_id)
+
+                const value = unescape(feedback.options.camera_id)
 				if (self.MIDDLE.CAM == value) {
 					return true
 				} else {
@@ -38,18 +39,12 @@ export function getFeedbackDefinitions(self) {
 		RecordingStatus: {
 			type: 'boolean',
 			name: 'Recording status',
-			description: 'Change style when this camera is recording / not recording',
+			description: 'Change style when the current camera is recording / not recording',
 			defaultStyle: {
 				color: combineRgb(0, 0, 0),
-				bgcolor: combineRgb(255, 0, 0), // red when active
+				bgcolor: combineRgb(255, 0, 0), // red when condition is true
 			},
 			options: [
-				{
-					type: 'textinput',
-					label: 'Camera ID',
-					id: 'camera_id',
-					default: '1',
-				},
 				{
 					type: 'dropdown',
 					label: 'Status',
@@ -62,13 +57,12 @@ export function getFeedbackDefinitions(self) {
 				},
 			],
 			callback: function (feedback) {
-				const cam = unescape(feedback.options.camera_id)
-				const desired = feedback.options.status
 
-				// only care about the selected camera
-				if (self.MIDDLE.CAM != cam) return false
+				const desired = feedback.options.status // 'on' or 'off'
+				const rec = self.MIDDLE.REC // "0" or "1" or undefined
 
-				const rec = instance.prototype.REC // "0" or "1"
+				if (rec === undefined) return false
+
 				const isOn = rec === '1'
 				return desired === 'on' ? isOn : !isOn
 			},
@@ -77,18 +71,12 @@ export function getFeedbackDefinitions(self) {
 		AutofocusStatus: {
 			type: 'boolean',
 			name: 'Autofocus status',
-			description: 'Change style when AF is enabled/disabled on this camera',
+			description: 'Change style when autofocus is enabled/disabled on the current camera',
 			defaultStyle: {
 				color: combineRgb(0, 0, 0),
-				bgcolor: combineRgb(0, 255, 0), // green
+				bgcolor: combineRgb(0, 255, 0), // green when condition is true
 			},
 			options: [
-				{
-					type: 'textinput',
-					label: 'Camera ID',
-					id: 'camera_id',
-					default: '1',
-				},
 				{
 					type: 'dropdown',
 					label: 'Status',
@@ -101,11 +89,11 @@ export function getFeedbackDefinitions(self) {
 				},
 			],
 			callback: function (feedback) {
-				const cam = unescape(feedback.options.camera_id)
 				const desired = feedback.options.status
-				if (self.MIDDLE.CAM != cam) return false
+				const af = self.MIDDLE.AF // "0" or "1" or undefined
 
-				const af = instance.prototype.AF // "0" or "1"
+				if (af === undefined) return false
+
 				const isOn = af === '1'
 				return desired === 'on' ? isOn : !isOn
 			},
@@ -114,18 +102,12 @@ export function getFeedbackDefinitions(self) {
 		DigitalZoomStatus: {
 			type: 'boolean',
 			name: 'Digital zoom status',
-			description: 'Change style when digital zoom is enabled/disabled',
+			description: 'Change style when digital zoom is enabled/disabled on the current camera',
 			defaultStyle: {
 				color: combineRgb(0, 0, 0),
-				bgcolor: combineRgb(0, 0, 255), // blue
+				bgcolor: combineRgb(0, 0, 255), // blue when condition is true
 			},
 			options: [
-				{
-					type: 'textinput',
-					label: 'Camera ID',
-					id: 'camera_id',
-					default: '1',
-				},
 				{
 					type: 'dropdown',
 					label: 'Status',
@@ -138,11 +120,11 @@ export function getFeedbackDefinitions(self) {
 				},
 			],
 			callback: function (feedback) {
-				const cam = unescape(feedback.options.camera_id)
 				const desired = feedback.options.status
-				if (self.MIDDLE.CAM != cam) return false
+				const dz = self.MIDDLE.DZOOM // "0" or "1" or undefined
 
-				const dz = instance.prototype.DZOOM // "0" or "1"
+				if (dz === undefined) return false
+
 				const isOn = dz === '1'
 				return desired === 'on' ? isOn : !isOn
 			},
@@ -150,22 +132,16 @@ export function getFeedbackDefinitions(self) {
 
 		CurrentPresetActive: {
 			type: 'boolean',
-			name: 'Currently Active Preset',
-			description: 'Change style when a given preset is active on the selected camera',
+			name: 'Current preset active',
+			description: 'Change style when this preset number is active on the current camera',
 			defaultStyle: {
 				color: combineRgb(0, 0, 0),
-				bgcolor: combineRgb(255, 255, 0), // yellow when active
+				bgcolor: combineRgb(255, 255, 0), // yellow when condition is true
 			},
 			options: [
 				{
-					type: 'textinput',
-					label: 'Camera ID',
-					id: 'camera_id',
-					default: '1',
-				},
-				{
 					type: 'number',
-					label: 'Preset number (0 = none active)',
+					label: 'Preset number (0 = none)',
 					id: 'preset',
 					default: 1,
 					min: 0,
@@ -174,13 +150,11 @@ export function getFeedbackDefinitions(self) {
 				},
 			],
 			callback: function (feedback) {
-				const cam = unescape(feedback.options.camera_id)
-				const desiredPreset = String(feedback.options.preset) // convert to string to match PRES_ACTIVE#
+				const desiredPreset = String(feedback.options.preset) // "0".."12"
+				const activePreset = self.MIDDLE.PRESET_ACTIVE // "0".."12" or undefined
 
-				// Only applies to the currently selected camera
-				if (self.MIDDLE.CAM != cam) return false
+				if (activePreset === undefined) return false
 
-				const activePreset = instance.prototype.PRESET_ACTIVE || '' // "0".."12"
 				return activePreset === desiredPreset
 			},
 		},

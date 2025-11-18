@@ -20,7 +20,12 @@ The yarn headless command will perform all the steps to build the module.
 
 ### v3.1.0
 
-- Adds support for  
+- Adds support for remote control of Sony Camera Menus 
+- Adds support for Sony Multi Selector Control
+- Adds support for Digital Zoom toggle
+- Adds support for triggering Sony Custom C1-C6 Buttons 
+- Adds variables for Rec status (Sony) / AF (Sony) / Digital Zoom (Sony) and Currently Active Preset 
+- Adds feedbacks for Rec status (Sony) / AF (Sony) / Digital Zoom (Sony) and Currently Active Preset 
 
 ### v2.3.0
 
