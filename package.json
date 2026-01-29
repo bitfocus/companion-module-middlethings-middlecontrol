@@ -16,6 +16,6 @@
 		"home-assistant-js-websocket": "^8.0.0"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^1.3.2"
+		"@companion-module/tools": "^1.5.2"
 	}
 }
