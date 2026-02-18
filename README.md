@@ -2,7 +2,7 @@
 
 The Middle Control Companion plugin can remotely control the Middle Control Software which controls Blackmagic, Sony cameras and even DJI gimbals (using Middle Things APC-R & APC-R Mini) . It can run on the same device that runs Middle Control, or on a remote device on the same network.
 
-## Getting Started
+##Getting Started
 
 The yarn headless command will perform all the steps to build the module.         
 
