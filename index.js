@@ -222,6 +222,59 @@ class instance extends InstanceBase {
 					if (REC !== undefined) {
 						REC = REC.substring(3) // "0" or "1"
 					}
+					// --------------------------------------------------
+					// GET RECORDING CAMERA LIST FROM TCP (REC_LIST[1,4,7])
+					// --------------------------------------------------
+					let REC_LIST = response_array1.find((element) => {
+						if (element.startsWith('REC_LIST[')) {
+							return true
+						}
+					})
+
+					if (REC_LIST !== undefined) {
+						// Extract inside brackets: "REC_LIST[4,7,8]" → "4,7,8"
+						const listStr = REC_LIST.slice(9, -1)
+
+						this.MIDDLE.REC_LIST = listStr
+							.split(',')
+							.map((v) => Number(v.trim()))
+							.filter((n) => !Number.isNaN(n))
+
+						this.log('debug', 'Parsed REC_LIST = ' + JSON.stringify(this.MIDDLE.REC_LIST))
+					} else {
+						// Important: clear list if not present in frame
+						this.MIDDLE.REC_LIST = []
+					}
+
+					// --------------------------------------------------
+					// GET CAMERA CONNECTION LIST (CAM_CON_LIST[4,3,7])
+					// --------------------------------------------------
+					let CAM_CON_LIST = response_array1.find((element) => element.startsWith('CAM_CON_LIST['))
+
+					if (CAM_CON_LIST !== undefined) {
+						const listStr = CAM_CON_LIST.slice(13, -1) // remove "CAM_CON_LIST[" and "]"
+						this.MIDDLE.CAM_CON_LIST = listStr
+							.split(',')
+							.map((v) => Number(v.trim()))
+							.filter((n) => !Number.isNaN(n))
+					} else {
+						this.MIDDLE.CAM_CON_LIST = []
+					}
+
+					// --------------------------------------------------
+					// GET APC-R CONNECTION LIST (APCR_CON_LIST[1,2,7])
+					// --------------------------------------------------
+					let APCR_CON_LIST = response_array1.find((element) => element.startsWith('APCR_CON_LIST['))
+
+					if (APCR_CON_LIST !== undefined) {
+						const listStr = APCR_CON_LIST.slice(14, -1) // remove "APCR_CON_LIST[" and "]"
+						this.MIDDLE.APCR_CON_LIST = listStr
+							.split(',')
+							.map((v) => Number(v.trim()))
+							.filter((n) => !Number.isNaN(n))
+					} else {
+						this.MIDDLE.APCR_CON_LIST = []
+					}
 
 					// GET AUTOFOCUS STATUS FROM TCP (AF0 / AF1)
 					let AF = response_array1.find((element) => {
@@ -310,10 +363,10 @@ class instance extends InstanceBase {
 
 					// CONVERT TO PROTOTYPE FOR FEEDBACKS
 					this.MIDDLE.CAM = CAM
-                    this.MIDDLE.REC = REC
-                    this.MIDDLE.AF = AF
-                    this.MIDDLE.DZOOM = DZOOM
-                    this.MIDDLE.PRESET_ACTIVE = PRES_ACTIVE
+					this.MIDDLE.REC = REC
+					this.MIDDLE.AF = AF
+					this.MIDDLE.DZOOM = DZOOM
+					this.MIDDLE.PRESET_ACTIVE = PRES_ACTIVE
 					instance.prototype.CAM = CAM
 					instance.prototype.PTS = PTS
 					instance.prototype.ZS = ZS
@@ -614,11 +667,12 @@ class instance extends InstanceBase {
 				}
 
 				this.checkFeedbacks('CurrentCameraID')
-                this.checkFeedbacks('RecordingStatus')
-                this.checkFeedbacks('AutofocusStatus')
-                this.checkFeedbacks('DigitalZoomStatus')
-                this.checkFeedbacks('CurrentPresetActive')
-                
+				this.checkFeedbacks('RecordingStatus')
+				this.checkFeedbacks('AutofocusStatus')
+				this.checkFeedbacks('DigitalZoomStatus')
+				this.checkFeedbacks('CurrentPresetActive')
+				this.checkFeedbacks('CameraConnectionStatus')
+				this.checkFeedbacks('APCRConnectionStatus')
 			})
 		} else {
 			this.updateStatus(InstanceStatus.BadConfig)

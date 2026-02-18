@@ -9,8 +9,11 @@ export const CHOICES_END = [
 ]
 
 export const CHOICES_CAMERACOMMAND = [
-    { id: 'AUTOFOCUS', label: 'AutoFocus' },
-    { id: 'AUTOIRIS', label: 'AutoIris' },
+    { id: 'AUTOFOCUS', label: 'Auto Focus' },
+    { id: 'AUTOIRIS', label: 'Auto Iris' },
+    { id: 'AUTOWB', label: 'Auto White Balance' },
+    { id: 'AUTOGAIN', label: 'Auto Gain' },
+    { id: 'AUTOSHUTTER', label: 'Auto Shutter' },
     { id: 'COLORBARS', label: 'Show Color Bars' },
     { id: 'ZEBRA', label: 'Toggle Zebra' },
     { id: 'FALSECOLORS', label: 'Toggle False Colors' },
@@ -78,19 +81,19 @@ export const CHOICES_CAMERACOMMAND = [
 export const CHOICES_GIMBALCOMMAND = [
     { id: 'PAN_L', label: 'Pan Left' },
     { id: 'PAN_R', label: 'Pan Right' },
-    { id: 'PAN_IDLE', label: 'Pan Idle (Required on Key Up)' },
+    { id: 'PAN_IDLE', label: 'Pan Idle (Required on release)' },
     { id: 'TILT_U ', label: 'Tilt Up' },
     { id: 'TILT_D', label: 'Tilt Down' },
-    { id: 'TILT_IDLE', label: 'Tilt Idle (Required on Key Up)' },
+    { id: 'TILT_IDLE', label: 'Tilt Idle (Required on release)' },
     { id: 'ROLL_L', label: 'Roll Left' },
     { id: 'ROLL_R', label: 'Roll Right' },
-    { id: 'ROLL_IDLE', label: 'Roll Idle (Required on Key Up)' },
+    { id: 'ROLL_IDLE', label: 'Roll Idle (Required on release)' },
     { id: 'ZOOM+', label: 'Zoom In' },
     { id: 'ZOOM-', label: 'Zoom Out' },
-    { id: 'Z0', label: 'Zoom Idle (Required on Key Up)' },
+    { id: 'Z0', label: 'Zoom Idle (Required on release)' },
     { id: 'SLIDER+', label: 'Slider Move Right' },
     { id: 'SLIDER-', label: 'Slider Move Left' },
-    { id: 'S0', label: 'Slider Idle (Required on Key Up)' },
+    { id: 'S0', label: 'Slider Idle (Required on release)' },
     { id: 'ZSPEED+', label: 'Zoom Speed Increase' },
     { id: 'ZSPEED-', label: 'Zoom Speed Decrease' },
     { id: 'SPEED+', label: 'Pan/Tilt Speed Increase' },
@@ -179,63 +182,115 @@ export function getActionDefinitions(self) {
     
         
         // Action that sends a camera command
-    sendcameracommand: {
-        name: 'Send Camera Action',
-        options: [
-            {
-                type: 'static-text',
-                id: 'Textlabel',
-                label: 'Select the action you want to trigger on the currently selected Camera ID',
-                width: 6,
-            },
-            {
-                type: 'multidropdown',
-                id: 'id_sendcameracommand',
-                label: 'Action :',
-                tooltip: 'Select the action you want to trigger on the currently selected Camera ID',
-                default: 'AUTOFOCUS',
-                /*width: 6*/
-                choices: CHOICES_CAMERACOMMAND,
-            },
-        ],
-    callback: async (event) => {
-        const cmd = unescape(await self.parseVariablesInString(event.options.id_sendcameracommand))
-        self.log('debug', '>> ' + cmd)
-        self.send(cmd)
-    },
-    },
+sendcameracommand: {
+	name: 'Send Camera Action',
+	options: [
+		{
+			type: 'static-text',
+			id: 'Textlabel',
+			label: 'Select the camera action you want to trigger :',
+			width: 6,
+		},
+		{
+			type: 'dropdown',
+			id: 'id_sendcameracommand',
+			label: 'Action :',
+			tooltip: 'Select the camera action you want to trigger :',
+			default: 'AUTOFOCUS',
+			choices: CHOICES_CAMERACOMMAND,
+		},
+
+		// NEW: optional camera number
+		{
+			type: 'textinput',
+			id: 'id_sendcameracommand_camera',
+			label: 'Camera ID (optional):',
+			tooltip: 'If set, the command goes to that camera number no matter which camera is currently selected in Middle Control or Companion. If left empty, the command is sent to the currently selected (active) camera.',
+			default: '',
+			width: 6,
+		},
+	],
+	callback: async (event) => {
+		const baseCmd = unescape(await self.parseVariablesInString(event.options.id_sendcameracommand))
+
+		// read + sanitize optional camera number
+		const camRaw = unescape(
+			await self.parseVariablesInString(event.options.id_sendcameracommand_camera ?? '')
+		).trim()
+
+		let cmd = baseCmd
+
+		// If user entered something, append @C<NUMBER>
+		if (camRaw !== '') {
+			// keep only digits (so variables/spaces/etc don't break the protocol)
+			const camNum = camRaw.replace(/[^\d]/g, '')
+			if (camNum !== '') {
+				cmd = `${baseCmd}@C${camNum}`
+			}
+		}
+
+		self.log('debug', '>> ' + cmd)
+		self.send(cmd)
+	},
+},
         
         
         
         
 
-        // Action that sends a gimbal command through the APC / APC-R
-        sendgimbalcommand: {
-            name: 'Send Gimbal Action',
-            options: [
-                {
-                    type: 'static-text',
-                    id: 'Textlabel',
-                    label:
-                        'Note : after a Pan, Tilt, Roll or Zoom Press action, you MUST also add a Release (Key Up) action with an Idle command, which will stop the movement. For instance, a Pan Left key down action should be followed by a Pan Idle key up action',
-                    width: 6,
-                },
-                {
-                    type: 'dropdown',
-                    id: 'id_sendgimbalcommand',
-                    label: 'Action :',
-                    tooltip: 'Select the action you want to trigger on the currently selected Camera ID',
-                    default: 'PAN_L',
-                    /*width: 6*/
-                    choices: CHOICES_GIMBALCOMMAND,
-                },
-            ],
-        callback: async (event) => {
-            const cmd = unescape(await self.parseVariablesInString(event.options.id_sendgimbalcommand))
-            self.log('debug', '>> ' + cmd)
-            self.send(cmd)
-        },
-    },
+      // Action that sends a gimbal command
+sendgimbalcommand: {
+	name: 'Send Gimbal Action',
+	options: [
+        		{
+			type: 'static-text',
+			id: 'Textlabel',
+			label: 'Select the gimbal action you want to trigger :',
+			width: 6,
+		},
+		{
+			type: 'static-text',
+			id: 'Textlabel',
+			label:
+				'Note : after a Pan, Tilt, Roll or Zoom Press action, you MUST also add a Short Release action with an Idle command, which will stop the movement. For instance, a Pan Left key down action should be followed by a Pan Idle key up action',
+			width: 12,
+		},
+		{
+			type: 'dropdown',
+			id: 'id_sendgimbalcommand',
+			label: 'Action :',
+			tooltip: 'Select the gimbal action you want to trigger',
+			default: 'Pan Left',
+			choices: CHOICES_GIMBALCOMMAND,
+		},
+
+		// NEW: optional camera number (numeric only)
+		{
+			type: 'textinput',
+			id: 'id_sendgimbalcommand_camera',
+			label: 'Camera ID (optional):',
+			tooltip: 'If set, the command goes to that camera number no matter which camera is currently selected in Middle Control or Companion. If left empty, the command is sent to the currently selected (active) camera.',
+			default: '',
+			width: 6,
+			regex: '^[0-9]*$',
+			regexMessage: 'Only numbers are allowed',
+		},
+	],
+	callback: async (event) => {
+		const baseCmd = unescape(
+			await self.parseVariablesInString(event.options.id_sendgimbalcommand)
+		)
+
+		const camNum = unescape(
+			await self.parseVariablesInString(event.options.id_sendgimbalcommand_camera ?? '')
+		).trim()
+
+		const cmd = camNum !== '' ? `${baseCmd}@C${camNum}` : baseCmd
+
+		self.log('debug', '>> ' + cmd)
+		self.send(cmd)
+	},
+},
         
         
         
@@ -339,53 +394,70 @@ export function getActionDefinitions(self) {
     // Action that sets a custom pan/tilt/zoom speed
 
     setspeed: {
-        name: 'Set Pan/Tilt/Zoom Speed',
-        options: [
-            {
-                type: 'static-text',
-                id: 'Textlabel',
-                label: 'Set the Pan/Tilt Speed or Zoom Speed Value',
-                width: 6,
-            },
-            {
-                type: 'dropdown',
-                id: 'id_setspeedmode',
-                label: 'Select the setting you want to adjust :',
-                default: 'PanTilt',
-                choices: [
-                    { id: 'PanTilt', label: 'Pan/Tilt Speed' },
-                    { id: 'Zoom', label: 'Zoom Speed' },
-                ],
-            },
-            {
-                type: 'textinput',
-                id: 'id_setspeed',
-                label: 'Value (0 to 100)',
-                min: 1,
-                max: 100,
-                range: true,
-                default: 100,
-            },
-        ],
-    callback: async (event) => {
-        var cmd = ''
-        if (event.options.id_setspeedmode == 'PanTilt') {
-            
-            const valuePT = unescape(await self.parseVariablesInString(event.options.id_setspeed))
-            cmd = 'PTS' + unescape(valuePT)
-            
-        }
-        if (event.options.id_setspeedmode == 'Zoom') {
-            
-            const valueZ = unescape(await self.parseVariablesInString(event.options.id_setspeed))
-            cmd = 'ZS' + unescape(valueZ)
-           
-        }
-        
-        self.log('debug', '>> ' + cmd)
-        self.send(cmd)
-        
-    },
+	name: 'Set Pan/Tilt/Zoom Speed',
+	options: [
+		{
+			type: 'static-text',
+			id: 'Textlabel',
+			label: 'Set the Pan/Tilt Speed or Zoom Speed Value',
+			width: 6,
+		},
+		{
+			type: 'dropdown',
+			id: 'id_setspeedmode',
+			label: 'Select the setting you want to adjust :',
+			default: 'PanTilt',
+			choices: [
+				{ id: 'PanTilt', label: 'Pan/Tilt Speed' },
+				{ id: 'Zoom', label: 'Zoom Speed' },
+			],
+		},
+		{
+			type: 'textinput',
+			id: 'id_setspeed',
+			label: 'Value (0 to 100)',
+			min: 1,
+			max: 100,
+			range: true,
+			default: 100,
+			regex: '^(100|[0-9]{1,2})$',
+			regexMessage: 'Enter a number from 0 to 100',
+		},
+
+		// NEW: optional camera number (numeric only)
+		{
+			type: 'textinput',
+			id: 'id_setspeed_camera',
+			label: 'Camera ID (optional):',
+			tooltip: 'If set, the command goes to that camera number no matter which camera is currently selected in Middle Control or Companion. If left empty, the command is sent to the currently selected (active) camera.',
+			default: '',
+			width: 6,
+			regex: '^[0-9]*$',
+			regexMessage: 'Only numbers are allowed',
+		},
+	],
+	callback: async (event) => {
+		let cmd = ''
+
+		const value = unescape(await self.parseVariablesInString(event.options.id_setspeed))
+		const camNum = unescape(
+			await self.parseVariablesInString(event.options.id_setspeed_camera ?? '')
+		).trim()
+
+		if (event.options.id_setspeedmode == 'PanTilt') {
+			cmd = 'PTS' + value
+		}
+		if (event.options.id_setspeedmode == 'Zoom') {
+			cmd = 'ZS' + value
+		}
+
+		if (camNum !== '') {
+			cmd = `${cmd}@C${camNum}`
+		}
+
+		self.log('debug', '>> ' + cmd)
+		self.send(cmd)
+	},
 },
 
     // Action that sets a custom pan/tilt/roll/zoom speed value or absolute value
@@ -468,13 +540,13 @@ export function getActionDefinitions(self) {
     // Action that sets a custom camera absolute value
 
     sendabscameracommand: {
-        name: 'Send a Custom Camera Absolute Value',
+        name: 'Send a Custom Command (SDK)',
         options: [
             {
                 type: 'static-text',
                 id: 'Textlabel',
                 label:
-                    'Sets a specific camera value instead of +/- adjustments. For instance, set the ISO to +32db (aISO32) or the White Balance to 5750K (aWB5750)',
+                    'Sets a specific camera or gimbal value instead of +/- adjustments. For instance, set the ISO to +32db (aISO32) or the White Balance to 5750K (aWB5750)',
                 width: 6,
             },
             {

@@ -18,6 +18,13 @@ The yarn headless command will perform all the steps to build the module.
 
 ## Changes
 
+### v3.2.0
+
+- Adds actions for Auto Iris, Auto Shutter, Auto Gain and Auto White Balance for supported cameras
+- Adds support for sending camera and gimbal actions to specific camera IDs simultaneously 
+- Adds feedbacks for APC-R Connection Status and Camera Connexion Status
+- Adds option to specify a camera number for some feedbacks so that you can check multiple status at a glance (Recording Status, APC-R Connexion Status, Camera Connexion Status)
+
 ### v3.1.0
 
 - Adds support for remote control of Sony Camera Menus 
