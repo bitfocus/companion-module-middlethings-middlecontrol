@@ -103,6 +103,18 @@ const variables = [
 		name: 'ID of Currently Running Preset  (0 = none active)',
 		variableId: 'PRESET_ACTIVE_var',
 	},
+	{
+		name: 'Currently Connected IP Camera List(CAM IDs)',
+		variableId: 'LIST_CAM_CON_var',
+	},
+	{
+		name: 'Currently Recording Camera List (CAM IDs) ',
+		variableId: 'LIST_REC_var',
+	},
+	{
+		name: 'Currently Connected APC-R List (CAM IDs)',
+		variableId: 'LIST_APCR_CON_var',
+	},
 ]
 
 export function getVariables() {

@@ -22,7 +22,10 @@ The yarn headless command will perform all the steps to build the module.
 
 - Adds actions for Auto Iris, Auto Shutter, Auto Gain and Auto White Balance for supported cameras
 - Adds support for sending camera and gimbal actions to specific camera IDs simultaneously 
-- Adds feedbacks for APC-R Connection Status and Camera Connexion Status
+- Adds feedbacks for APC-R Connection Status, Camera recording (IP) and Camera Connexion Status (IP)
+- Adds variable with the list of cameras currently connected (over the network)
+- Adds variable with the list of cameras currently recording (over the network)
+- Adds variable with the list of APC-R, APC-R Mini & APC-R Mini Lite currently connected (over the network)
 - Adds option to specify a camera number for some feedbacks so that you can check multiple status at a glance (Recording Status, APC-R Connexion Status, Camera Connexion Status)
 
 ### v3.1.0

@@ -214,11 +214,11 @@ class instance extends InstanceBase {
 					}
 
 					// GET RECORDING STATUS FROM TCP (REC0 / REC1)
+					// IMPORTANT: exclude REC_LIST[...] entries
 					let REC = response_array1.find((element) => {
-						if (element.startsWith('REC')) {
-							return true
-						}
+						return element.startsWith('REC') && !element.startsWith('REC_LIST[')
 					})
+
 					if (REC !== undefined) {
 						REC = REC.substring(3) // "0" or "1"
 					}
@@ -240,6 +240,10 @@ class instance extends InstanceBase {
 							.map((v) => Number(v.trim()))
 							.filter((n) => !Number.isNaN(n))
 
+						this.setVariableValues({
+							LIST_REC_var: this.MIDDLE.REC_LIST.join(','),
+						})
+
 						this.log('debug', 'Parsed REC_LIST = ' + JSON.stringify(this.MIDDLE.REC_LIST))
 					} else {
 						// Important: clear list if not present in frame
@@ -257,6 +261,10 @@ class instance extends InstanceBase {
 							.split(',')
 							.map((v) => Number(v.trim()))
 							.filter((n) => !Number.isNaN(n))
+
+						this.setVariableValues({
+							LIST_CAM_CON_var: this.MIDDLE.CAM_CON_LIST.join(','),
+						})
 					} else {
 						this.MIDDLE.CAM_CON_LIST = []
 					}
@@ -272,6 +280,10 @@ class instance extends InstanceBase {
 							.split(',')
 							.map((v) => Number(v.trim()))
 							.filter((n) => !Number.isNaN(n))
+
+						this.setVariableValues({
+							LIST_APCR_CON_var: this.MIDDLE.APCR_CON_LIST.join(','),
+						})
 					} else {
 						this.MIDDLE.APCR_CON_LIST = []
 					}
