@@ -678,13 +678,15 @@ class instance extends InstanceBase {
 					this.setVariableValues({ aSLIDER_var: '-' })
 				}
 
-				this.checkFeedbacks('CurrentCameraID')
-				this.checkFeedbacks('RecordingStatus')
-				this.checkFeedbacks('AutofocusStatus')
-				this.checkFeedbacks('DigitalZoomStatus')
-				this.checkFeedbacks('CurrentPresetActive')
-				this.checkFeedbacks('CameraConnectionStatus')
-				this.checkFeedbacks('APCRConnectionStatus')
+this.checkFeedbacks(
+  'CurrentCameraID',
+  'RecordingStatus',
+  'AutofocusStatus',
+  'DigitalZoomStatus',
+  'CurrentPresetActive',
+  'CameraConnectionStatus',
+  'APCRConnectionStatus'
+)
 			})
 		} else {
 			this.updateStatus(InstanceStatus.BadConfig)
