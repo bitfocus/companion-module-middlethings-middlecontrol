@@ -18,7 +18,7 @@ The yarn headless command will perform all the steps to build the module.
 
 ## Changes
 
-### v3.2.0
+### v3.2.1
 
 - Adds actions for Auto Iris, Auto Shutter, Auto Gain and Auto White Balance for supported cameras
 - Adds support for sending camera and gimbal actions to specific camera IDs simultaneously 
