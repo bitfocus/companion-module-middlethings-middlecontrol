@@ -17,7 +17,7 @@
 	"runtime": {
 		"type": "node18",
 		"api": "nodejs-ipc",
-		"apiVersion": "0.0.0",
+		"apiVersion": "1.4.3",
 		"entrypoint": "../index.js"
 	},
 	"manufacturer": "Middle Things",

@@ -5,6 +5,17 @@ import { getVariables } from './variables.js'
 import { getFeedbackDefinitions } from './feedbacks.js'
 import { getPresetDefinitions } from './presets.js'
 
+// Convert a raw protocol value to a Number, or the '-' sentinel when the camera
+// reports the parameter as AUTO / unavailable. Middle Control sends '-' (or a
+// non-numeric token) for AUTO White Balance / Tint / Gain / Iris / Shutter etc.;
+// without this, parseFloat('-') would surface as 'NaN' in the Companion variable.
+function numOrAuto(raw) {
+	const s = String(raw).trim()
+	if (s === '' || s === '-') return '-'
+	const n = parseFloat(s)
+	return Number.isFinite(n) ? n : '-'
+}
+
 class instance extends InstanceBase {
 	constructor(internal) {
 		super(internal)
@@ -18,6 +29,12 @@ class instance extends InstanceBase {
 		this.setActionDefinitions(getActionDefinitions(this))
 		this.setPresetDefinitions(getPresetDefinitions(this))
 		this.setVariableDefinitions(getVariables(this))
+
+		// Seed every variable to '-' so buttons show a placeholder instead of
+		// being blank until the first feedback frame arrives.
+		this.setVariableValues(
+			Object.fromEntries(getVariables(this).map((v) => [v.variableId, '-']))
+		)
 
 		this.MIDDLE = { CAM: '1' }
 		await this.configUpdated(config)
@@ -373,7 +390,7 @@ class instance extends InstanceBase {
 						}
 					})
 					if (aWB !== undefined) {
-						aWB = parseFloat(aWB.substring(3))
+						aWB = numOrAuto(aWB.substring(3))
 					}
 
 					// GET FOCUS FROM TCP
@@ -383,7 +400,7 @@ class instance extends InstanceBase {
 						}
 					})
 					if (aF !== undefined) {
-						aF = parseFloat(aF.substring(2))
+						aF = numOrAuto(aF.substring(2))
 					}
 
 					// GET IRIS FROM TCP
@@ -393,7 +410,7 @@ class instance extends InstanceBase {
 						}
 					})
 					if (aI !== undefined) {
-						aI = parseFloat(aI.substring(2))
+						aI = numOrAuto(aI.substring(2))
 						this.MIDDLE.aI = aI
 					}
 
@@ -404,7 +421,7 @@ class instance extends InstanceBase {
 						}
 					})
 					if (aTINT !== undefined) {
-						aTINT = parseFloat(aTINT.substring(5))
+						aTINT = numOrAuto(aTINT.substring(5))
 					}
 
 					// GET ISO FROM TCP
@@ -414,7 +431,7 @@ class instance extends InstanceBase {
 						}
 					})
 					if (aISO !== undefined) {
-						aISO = parseFloat(aISO.substring(4))
+						aISO = numOrAuto(aISO.substring(4))
 					}
 
 					// GET SHUTTER FROM TCP
@@ -424,7 +441,7 @@ class instance extends InstanceBase {
 						}
 					})
 					if (aSHUT !== undefined) {
-						aSHUT = parseFloat(aSHUT.substring(5))
+						aSHUT = numOrAuto(aSHUT.substring(5))
 					}
 
 					// GET SATURATION FROM TCP
@@ -510,7 +527,8 @@ class instance extends InstanceBase {
 						this.setVariableValues({ aISO_var: '' })
 					}
 					if (aSHUT !== undefined) {
-						this.setVariableValues({ aSHUT_var: '1/' + aSHUT })
+						// AUTO/unavailable shutter ('-') must not render as '1/-'.
+						this.setVariableValues({ aSHUT_var: aSHUT === '-' ? '-' : '1/' + aSHUT })
 					} else {
 						this.setVariableValues({ aSHUT_var: '' })
 					}

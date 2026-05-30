@@ -82,7 +82,7 @@ export const CHOICES_GIMBALCOMMAND = [
     { id: 'PAN_L', label: 'Pan Left' },
     { id: 'PAN_R', label: 'Pan Right' },
     { id: 'PAN_IDLE', label: 'Pan Idle (Required on release)' },
-    { id: 'TILT_U ', label: 'Tilt Up' },
+    { id: 'TILT_U', label: 'Tilt Up' },
     { id: 'TILT_D', label: 'Tilt Down' },
     { id: 'TILT_IDLE', label: 'Tilt Idle (Required on release)' },
     { id: 'ROLL_L', label: 'Roll Left' },
@@ -260,7 +260,7 @@ sendgimbalcommand: {
 			id: 'id_sendgimbalcommand',
 			label: 'Action :',
 			tooltip: 'Select the gimbal action you want to trigger',
-			default: 'Pan Left',
+			default: 'PAN_L',
 			choices: CHOICES_GIMBALCOMMAND,
 		},
 

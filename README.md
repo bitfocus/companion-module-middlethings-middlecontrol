@@ -27,6 +27,9 @@ The yarn headless command will perform all the steps to build the module.
 - Fixed Contrast / Saturation / Black Level (Pedestal) (+/-) buttons: they now send raw relative commands so Middle Control applies the exact same step as its on-screen GUI buttons. Previously they computed an absolute value on the wrong scale and overshot (e.g. Black Level jumping past 100). Mid / White Level (+/-) no longer send invalid values (these still await app-side relative support)
 - Fixed the White Level variable not clearing on disconnect
 - Fixed connection-status logging
+- AUTO parameters (White Balance / Tint / Gain / Iris / Shutter / Focus) now show "-" instead of "NaN" in the variables
+- Variables now show "-" on startup instead of being blank until the first update
+- Fixed the Gimbal "Send Gimbal Action" default (was blank / Tilt Up id typo)
 - Removed the unused legacy UDP path; saved "UDP" configurations now connect over TCP automatically
 - Removed an unused dependency (home-assistant-js-websocket)
 
