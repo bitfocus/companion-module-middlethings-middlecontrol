@@ -18,6 +18,12 @@ The yarn headless command will perform all the steps to build the module.
 
 ## Changes
 
+### v3.2.2
+
+- Fixed TCP feedback parsing so messages combined or split by the network are correctly reassembled (more reliable variables & feedbacks)
+- Fixed cached parameter state being shared between multiple Middle Control instances
+- Hardened command sending against malformed input coming from variables
+
 ### v3.2.1
 
 - Adds actions for Auto Iris, Auto Shutter, Auto Gain and Auto White Balance for supported cameras

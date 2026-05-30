@@ -105,6 +105,7 @@ class instance extends InstanceBase {
 
 		if (this.config.host) {
 			this.socket = new TCPHelper(this.config.host, 11580)
+			this._rx = '' // TCP frame-reassembly buffer
 
 			this.socket.on('status_change', (status, message) => {
 				this.updateStatus(status, message)
@@ -141,14 +142,30 @@ class instance extends InstanceBase {
 			})
 
 			this.socket.on('data', (data) => {
+				// Reassemble the TCP byte stream into '{...}\n' frames. The app emits
+				// one frame per tick, but TCP may coalesce or split packets, so we must
+				// buffer and split on '\n' (never assume one 'data' event == one frame).
+				this._rx = (this._rx || '') + data.toString('latin1')
+				if (this._rx.length > 65536) {
+					this.log('warn', 'RX buffer overflow; clearing')
+					this._rx = ''
+					return
+				}
+				let _idx
+				while ((_idx = this._rx.indexOf('\n')) >= 0) {
+					const _line = this._rx.slice(0, _idx)
+					this._rx = this._rx.slice(_idx + 1)
+					const body = _line.trim().replace(/^\{/, '').replace(/\}$/, '')
+					if (!body) continue
+
 				//PARSE INCOMING DATA
-				var response_array = data.toString().slice(1, -2).split(';')
+				var response_array = body.split(';')
 				this.log('debug', 'RESPONSE ARRAY =' + response_array)
 
 				// Standard Middle Control Feedback into ARRAY 1 (detects using PTS presence)
 				var presence_pts = response_array.findIndex((element) => element.includes('PTS'))
 				if (parseFloat(presence_pts) > -1) {
-					var response_array1 = data.toString().slice(1, -2).split(';')
+					var response_array1 = body.split(';')
 					//    this.log('debug', 'RESPONSE ARRAY 1 NORM=' + response_array1)
 
 					//GET CAM FROM TCP
@@ -379,19 +396,14 @@ class instance extends InstanceBase {
 					this.MIDDLE.AF = AF
 					this.MIDDLE.DZOOM = DZOOM
 					this.MIDDLE.PRESET_ACTIVE = PRES_ACTIVE
-					instance.prototype.CAM = CAM
-					instance.prototype.PTS = PTS
-					instance.prototype.ZS = ZS
-					instance.prototype.REC = REC
-					instance.prototype.AF = AF
-					instance.prototype.DZOOM = DZOOM
-					instance.prototype.PRESET_ACTIVE = PRES_ACTIVE
+					this.MIDDLE.PTS = PTS
+					this.MIDDLE.ZS = ZS
 				}
 
 				// ATEM Middle Control Feedback into ARRAY 2 (detects using aWB presence)
 				var presence_aWB = response_array.findIndex((element) => element.includes('aWB')) // Detects if it is an ATEM Middle Control Feedback    (using WB value)
 				if (parseFloat(presence_aWB) > -1) {
-					var response_array2 = data.toString().slice(1, -2).split(';')
+					var response_array2 = body.split(';')
 					//    this.log('debug', 'RESPONSE ARRAY 2 ATEM=' + response_array2)
 					//    this.log('debug', 'ATEM Connected to MiddleControl')
 
@@ -423,7 +435,7 @@ class instance extends InstanceBase {
 					})
 					if (aI !== undefined) {
 						aI = parseFloat(aI.substring(2))
-						instance.prototype.aI = aI
+						this.MIDDLE.aI = aI
 					}
 
 					// GET TINT FROM TCP
@@ -464,7 +476,7 @@ class instance extends InstanceBase {
 					})
 					if (aSAT !== undefined) {
 						aSAT = parseFloat(aSAT.substring(4))
-						instance.prototype.aSAT = aSAT
+						this.MIDDLE.aSAT = aSAT
 					}
 
 					// GET CONTRAST FROM TCP
@@ -475,7 +487,7 @@ class instance extends InstanceBase {
 					})
 					if (aCONT !== undefined) {
 						aCONT = parseFloat(aCONT.substring(5))
-						instance.prototype.aCONT = aCONT
+						this.MIDDLE.aCONT = aCONT
 					}
 
 					// GET BLACK LEVEL FROM TCP
@@ -486,7 +498,7 @@ class instance extends InstanceBase {
 					})
 					if (aBLACKLEV !== undefined) {
 						aBLACKLEV = parseFloat(aBLACKLEV.substring(9))
-						instance.prototype.aBLEV = aBLACKLEV
+						this.MIDDLE.aBLEV = aBLACKLEV
 					}
 
 					// GET MID LEVEL FROM TCP
@@ -497,7 +509,7 @@ class instance extends InstanceBase {
 					})
 					if (aMIDLEV !== undefined) {
 						aMIDLEV = parseFloat(aMIDLEV.substring(7))
-						instance.prototype.aMLEV = aMIDLEV
+						this.MIDDLE.aMLEV = aMIDLEV
 					}
 
 					// GET WHITELEV FROM TCP
@@ -508,7 +520,7 @@ class instance extends InstanceBase {
 					})
 					if (aWHITELEV !== undefined) {
 						aWHITELEV = parseFloat(aWHITELEV.substring(9))
-						instance.prototype.aWLEV = aWHITELEV
+						this.MIDDLE.aWLEV = aWHITELEV
 					}
 
 					// Create Companion Variables
@@ -587,7 +599,7 @@ class instance extends InstanceBase {
 				// Gimbal Middle Control Feedback into ARRAY 3 (detects using aPAN presence)
 				var presence_aPAN = response_array.findIndex((element) => element.includes('aPAN')) // Detects if it is an Gimbal Canbus Feedback    (using aPAN value)
 				if (parseFloat(presence_aPAN) > -1) {
-					var response_array3 = data.toString().slice(1, -2).split(';')
+					var response_array3 = body.split(';')
 					//    this.log('debug', 'RESPONSE ARRAY 3 GIMBAL=' + response_array3)
 
 					//    this.log('debug', 'Gimbal CANBUS Connected')
@@ -687,6 +699,7 @@ this.checkFeedbacks(
   'CameraConnectionStatus',
   'APCRConnectionStatus'
 )
+				} // end while: frame reassembly loop
 			})
 		} else {
 			this.updateStatus(InstanceStatus.BadConfig)
@@ -703,7 +716,7 @@ this.checkFeedbacks(
 		/*
             // Iris +/- Management
 
-            var aI = instance.prototype.aI
+            var aI = this.MIDDLE.aI
             let iris_array = [
                 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.5, 2.8, 3.2, 3.5, 4.0, 4.5, 5.0, 5.6, 6.3, 7.1, 8.0, 9.0, 10.0, 11.0, 13.0, 14.0,
                 16.0, 18.0, 20.0, 22.0,
@@ -727,7 +740,7 @@ this.checkFeedbacks(
 */
 		// Contrast +/- Management
 
-		var aCONT = instance.prototype.aCONT
+		var aCONT = this.MIDDLE.aCONT
 		if (cmd == 'CONT+') {
 			cmd = 'aCONT' + (aCONT + 1.0)
 		}
@@ -737,7 +750,7 @@ this.checkFeedbacks(
 
 		// Saturation +/- Management
 
-		var aSAT = instance.prototype.aSAT
+		var aSAT = this.MIDDLE.aSAT
 		if (cmd == 'SAT+') {
 			cmd = 'aSAT' + (aSAT + 1.0)
 		}
@@ -747,7 +760,7 @@ this.checkFeedbacks(
 
 		// Black Level +/- Management
 
-		var aBLEV = instance.prototype.aBLEV
+		var aBLEV = this.MIDDLE.aBLEV
 		if (cmd == 'BLEV+') {
 			cmd = 'aBLACKLEV' + (aBLEV + 0.005)
 		}
@@ -757,7 +770,7 @@ this.checkFeedbacks(
 
 		// Mid Level +/- Management
 
-		var aMLEV = instance.prototype.aMLEV
+		var aMLEV = this.MIDDLE.aMLEV
 		if (cmd == 'MLEV+') {
 			cmd = 'aMIDLEV' + (aMLEV + 0.005)
 		}
@@ -767,7 +780,7 @@ this.checkFeedbacks(
 
 		// White Level +/- Management
 
-		var aWLEV = instance.prototype.aWLEV
+		var aWLEV = this.MIDDLE.aWLEV
 		if (cmd == 'WLEV+') {
 			cmd = 'aWHITELEV' + (aWLEV + 0.01)
 		}
@@ -775,25 +788,36 @@ this.checkFeedbacks(
 			cmd = 'aWHITELEV' + (aWLEV - 0.01)
 		}
 
-		let sendBuf = Buffer.from(cmd + end, 'latin1')
+		// Strip frame-breaking control chars (newline/CR/NUL/other C0 + DEL) so a value
+		// resolved from a Companion variable cannot inject a second command or corrupt
+		// the frame. ';' is a legitimate field separator (e.g. aGLOB) and is preserved.
+		let safeCmd = ''
+		for (const _ch of String(cmd)) {
+			const _c = _ch.charCodeAt(0)
+			if (_c > 0x1f && _c !== 0x7f) safeCmd += _ch
+		}
+		if (!safeCmd) {
+			this.log('warn', 'Empty command after sanitization, not sending')
+			return
+		}
 
-		if (sendBuf != '') {
-			if (this.config.prot == 'tcp') {
-				if (this.socket !== undefined && this.socket.isConnected) {
-					// this.log('sending ', sendBuf, 'to', this.config.host)
-					this.socket.send(sendBuf)
-					this.log('debug', 'TCP Message sent :' + cmd)
-				} else {
-					this.log('error', 'TCP Socket not connected')
-				}
-			} else if (this.config.prot == 'udp') {
-				if (this.udp !== undefined) {
-					//this.debug('sending', sendBuf, 'to', this.config.host)
-					this.udp.send(sendBuf)
-					this.log('debug', 'UDP Message sent :' + cmd)
-				} else {
-					this.log('error', 'UDP Socket not connected')
-				}
+		let sendBuf = Buffer.from(safeCmd + end, 'latin1')
+
+		if (this.config.prot == 'tcp') {
+			if (this.socket !== undefined && this.socket.isConnected) {
+				// this.log('sending ', sendBuf, 'to', this.config.host)
+				this.socket.send(sendBuf)
+				this.log('debug', 'TCP Message sent :' + safeCmd)
+			} else {
+				this.log('error', 'TCP Socket not connected')
+			}
+		} else if (this.config.prot == 'udp') {
+			if (this.udp !== undefined) {
+				//this.debug('sending', sendBuf, 'to', this.config.host)
+				this.udp.send(sendBuf)
+				this.log('debug', 'UDP Message sent :' + safeCmd)
+			} else {
+				this.log('error', 'UDP Socket not connected')
 			}
 		}
 	}
