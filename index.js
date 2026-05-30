@@ -697,38 +697,15 @@ this.checkFeedbacks(
                 cmd = 'aI' + aI
             }
 */
-		// Contrast +/- Management
-
-		var aCONT = this.MIDDLE.aCONT
-		if (cmd == 'CONT+' || cmd == 'CONT-') {
-			if (!Number.isFinite(aCONT)) {
-				this.log('warn', 'Ignoring ' + cmd + ': no contrast value received from Middle Control yet')
-				return
-			}
-			cmd = 'aCONT' + (cmd == 'CONT+' ? aCONT + 1.0 : aCONT - 1.0)
-		}
-
-		// Saturation +/- Management
-
-		var aSAT = this.MIDDLE.aSAT
-		if (cmd == 'SAT+' || cmd == 'SAT-') {
-			if (!Number.isFinite(aSAT)) {
-				this.log('warn', 'Ignoring ' + cmd + ': no saturation value received from Middle Control yet')
-				return
-			}
-			cmd = 'aSAT' + (cmd == 'SAT+' ? aSAT + 1.0 : aSAT - 1.0)
-		}
-
-		// Black Level +/- Management
-
-		var aBLEV = this.MIDDLE.aBLEV
-		if (cmd == 'BLEV+' || cmd == 'BLEV-') {
-			if (!Number.isFinite(aBLEV)) {
-				this.log('warn', 'Ignoring ' + cmd + ': no black-level value received from Middle Control yet')
-				return
-			}
-			cmd = 'aBLACKLEV' + (cmd == 'BLEV+' ? aBLEV + 0.005 : aBLEV - 0.005)
-		}
+		// Contrast / Saturation / Black Level (+/-) are sent as RAW relative
+		// commands (CONT±/SAT±/BLEV±). Middle Control then applies the exact same
+		// step as its own GUI buttons — applyContrast / applySaturation /
+		// applyBlacklevel with mode .increment — so Companion matches the GUI
+		// instead of computing an absolute value from echoed state here (the old
+		// approach used the wrong scale via the app's ×100 absolute path and
+		// overshot, e.g. black level running past 100).
+		// Note: the app's contrast step is ±0.01 while its GUI button uses ±0.02 —
+		// bump the app's "contrast+/-" handler to 0.02 for exact contrast parity.
 
 		// Mid Level +/- Management
 

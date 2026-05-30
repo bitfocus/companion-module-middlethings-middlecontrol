@@ -24,7 +24,7 @@ The yarn headless command will perform all the steps to build the module.
 - Fixed cached parameter state being shared between multiple Middle Control instances
 - Hardened command sending against malformed input coming from variables
 - Fixed a socket handle leak when the module is restarted or reconfigured
-- Relative Contrast / Saturation / Black / Mid / White Level (+/-) adjustments no longer send invalid values before the current value is known
+- Fixed Contrast / Saturation / Black Level (Pedestal) (+/-) buttons: they now send raw relative commands so Middle Control applies the exact same step as its on-screen GUI buttons. Previously they computed an absolute value on the wrong scale and overshot (e.g. Black Level jumping past 100). Mid / White Level (+/-) no longer send invalid values (these still await app-side relative support)
 - Fixed the White Level variable not clearing on disconnect
 - Fixed connection-status logging
 - Removed the unused legacy UDP path; saved "UDP" configurations now connect over TCP automatically
