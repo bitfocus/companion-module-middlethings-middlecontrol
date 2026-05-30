@@ -1,4 +1,4 @@
-import { InstanceBase, InstanceStatus, runEntrypoint, TCPHelper, UDPHelper } from '@companion-module/base'
+import { InstanceBase, InstanceStatus, runEntrypoint, TCPHelper } from '@companion-module/base'
 import { ConfigFields } from './config.js'
 import { getActionDefinitions } from './actions.js'
 import { getVariables } from './variables.js'
@@ -19,10 +19,7 @@ class instance extends InstanceBase {
 		this.setPresetDefinitions(getPresetDefinitions(this))
 		this.setVariableDefinitions(getVariables(this))
 
-		this.init_udp()
-		//this.init_tcp()
 		this.MIDDLE = { CAM: '1' }
-		//this.updateVariables()
 		await this.configUpdated(config)
 	}
 
@@ -30,19 +27,12 @@ class instance extends InstanceBase {
 	async destroy() {
 		if (this.socket) {
 			this.socket.destroy()
-		} else if (this.udp) {
-			this.udp.destroy()
-		} else {
-			this.updateStatus(InstanceStatus.Disconnected)
+			delete this.socket
 		}
+		this.updateStatus(InstanceStatus.Disconnected)
 	}
 
 	async configUpdated(config) {
-		if (this.udp) {
-			this.udp.destroy()
-			delete this.udp
-		}
-
 		if (this.socket) {
 			this.socket.destroy()
 			delete this.socket
@@ -50,49 +40,18 @@ class instance extends InstanceBase {
 
 		this.config = config
 
-		if (this.config.prot == 'tcp') {
-			this.init_tcp()
+		// The config UI only offers TCP ("Latest"). Older saved configs may still
+		// say 'udp' (which never parsed feedback) — migrate them to TCP.
+		if (this.config.prot !== 'tcp') {
+			this.config.prot = 'tcp'
 		}
 
-		if (this.config.prot == 'udp') {
-			this.init_udp()
-		}
+		this.init_tcp()
 	}
 
 	// Return config fields for web config
 	getConfigFields() {
 		return ConfigFields
-	}
-
-	init_udp() {
-		if (this.udp) {
-			this.udp.destroy()
-			delete this.udp
-		}
-
-		this.updateStatus(InstanceStatus.Connecting)
-
-		if (this.config.host) {
-			this.udp = new UDPHelper(this.config.host, 2390)
-
-			this.udp.on('error', (err) => {
-				this.updateStatus(InstanceStatus.ConnectionFailure, err.message)
-				this.log('error', 'Network error: ' + err.message)
-			})
-
-			// If we get data, thing should be good
-			this.udp.on('listening', () => {
-				console.log('UDP listening')
-				this.updateStatus(InstanceStatus.Ok)
-			})
-
-			this.udp.on('status_change', (status, message) => {
-				console.log('UDP status_change', status, message)
-				this.updateStatus(status, message)
-			})
-		} else {
-			this.updateStatus(InstanceStatus.BadConfig)
-		}
 	}
 
 	init_tcp() {
@@ -109,7 +68,7 @@ class instance extends InstanceBase {
 
 			this.socket.on('status_change', (status, message) => {
 				this.updateStatus(status, message)
-				this.log('TCP status_change', status, message)
+				this.log('debug', 'TCP status_change ' + status + ' ' + message)
 			})
 
 			this.socket.on('error', (err) => {
@@ -579,7 +538,7 @@ class instance extends InstanceBase {
 					if (aWHITELEV !== undefined) {
 						this.setVariableValues({ aWHITELEV_var: aWHITELEV })
 					} else {
-						this.setVariableValues({ aWHITELEV: '' })
+						this.setVariableValues({ aWHITELEV_var: '' })
 					}
 				} else {
 					//this.log('debug', 'VARIABLES_NULL')
@@ -741,51 +700,56 @@ this.checkFeedbacks(
 		// Contrast +/- Management
 
 		var aCONT = this.MIDDLE.aCONT
-		if (cmd == 'CONT+') {
-			cmd = 'aCONT' + (aCONT + 1.0)
-		}
-		if (cmd == 'CONT-') {
-			cmd = 'aCONT' + (aCONT - 1.0)
+		if (cmd == 'CONT+' || cmd == 'CONT-') {
+			if (!Number.isFinite(aCONT)) {
+				this.log('warn', 'Ignoring ' + cmd + ': no contrast value received from Middle Control yet')
+				return
+			}
+			cmd = 'aCONT' + (cmd == 'CONT+' ? aCONT + 1.0 : aCONT - 1.0)
 		}
 
 		// Saturation +/- Management
 
 		var aSAT = this.MIDDLE.aSAT
-		if (cmd == 'SAT+') {
-			cmd = 'aSAT' + (aSAT + 1.0)
-		}
-		if (cmd == 'SAT-') {
-			cmd = 'aSAT' + (aSAT - 1.0)
+		if (cmd == 'SAT+' || cmd == 'SAT-') {
+			if (!Number.isFinite(aSAT)) {
+				this.log('warn', 'Ignoring ' + cmd + ': no saturation value received from Middle Control yet')
+				return
+			}
+			cmd = 'aSAT' + (cmd == 'SAT+' ? aSAT + 1.0 : aSAT - 1.0)
 		}
 
 		// Black Level +/- Management
 
 		var aBLEV = this.MIDDLE.aBLEV
-		if (cmd == 'BLEV+') {
-			cmd = 'aBLACKLEV' + (aBLEV + 0.005)
-		}
-		if (cmd == 'BLEV-') {
-			cmd = 'aBLACKLEV' + (aBLEV - 0.005)
+		if (cmd == 'BLEV+' || cmd == 'BLEV-') {
+			if (!Number.isFinite(aBLEV)) {
+				this.log('warn', 'Ignoring ' + cmd + ': no black-level value received from Middle Control yet')
+				return
+			}
+			cmd = 'aBLACKLEV' + (cmd == 'BLEV+' ? aBLEV + 0.005 : aBLEV - 0.005)
 		}
 
 		// Mid Level +/- Management
 
 		var aMLEV = this.MIDDLE.aMLEV
-		if (cmd == 'MLEV+') {
-			cmd = 'aMIDLEV' + (aMLEV + 0.005)
-		}
-		if (cmd == 'MLEV-') {
-			cmd = 'aMIDLEV' + (aMLEV - 0.005)
+		if (cmd == 'MLEV+' || cmd == 'MLEV-') {
+			if (!Number.isFinite(aMLEV)) {
+				this.log('warn', 'Ignoring ' + cmd + ': mid-level is not reported by Middle Control (no value available)')
+				return
+			}
+			cmd = 'aMIDLEV' + (cmd == 'MLEV+' ? aMLEV + 0.005 : aMLEV - 0.005)
 		}
 
 		// White Level +/- Management
 
 		var aWLEV = this.MIDDLE.aWLEV
-		if (cmd == 'WLEV+') {
-			cmd = 'aWHITELEV' + (aWLEV + 0.01)
-		}
-		if (cmd == 'WLEV-') {
-			cmd = 'aWHITELEV' + (aWLEV - 0.01)
+		if (cmd == 'WLEV+' || cmd == 'WLEV-') {
+			if (!Number.isFinite(aWLEV)) {
+				this.log('warn', 'Ignoring ' + cmd + ': white-level is not reported by Middle Control (no value available)')
+				return
+			}
+			cmd = 'aWHITELEV' + (cmd == 'WLEV+' ? aWLEV + 0.01 : aWLEV - 0.01)
 		}
 
 		// Strip frame-breaking control chars (newline/CR/NUL/other C0 + DEL) so a value
@@ -803,22 +767,12 @@ this.checkFeedbacks(
 
 		let sendBuf = Buffer.from(safeCmd + end, 'latin1')
 
-		if (this.config.prot == 'tcp') {
-			if (this.socket !== undefined && this.socket.isConnected) {
-				// this.log('sending ', sendBuf, 'to', this.config.host)
-				this.socket.send(sendBuf)
-				this.log('debug', 'TCP Message sent :' + safeCmd)
-			} else {
-				this.log('error', 'TCP Socket not connected')
-			}
-		} else if (this.config.prot == 'udp') {
-			if (this.udp !== undefined) {
-				//this.debug('sending', sendBuf, 'to', this.config.host)
-				this.udp.send(sendBuf)
-				this.log('debug', 'UDP Message sent :' + safeCmd)
-			} else {
-				this.log('error', 'UDP Socket not connected')
-			}
+		if (this.socket !== undefined && this.socket.isConnected) {
+			// this.log('sending ', sendBuf, 'to', this.config.host)
+			this.socket.send(sendBuf)
+			this.log('debug', 'TCP Message sent :' + safeCmd)
+		} else {
+			this.log('error', 'TCP Socket not connected')
 		}
 	}
 }

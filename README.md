@@ -23,6 +23,12 @@ The yarn headless command will perform all the steps to build the module.
 - Fixed TCP feedback parsing so messages combined or split by the network are correctly reassembled (more reliable variables & feedbacks)
 - Fixed cached parameter state being shared between multiple Middle Control instances
 - Hardened command sending against malformed input coming from variables
+- Fixed a socket handle leak when the module is restarted or reconfigured
+- Relative Contrast / Saturation / Black / Mid / White Level (+/-) adjustments no longer send invalid values before the current value is known
+- Fixed the White Level variable not clearing on disconnect
+- Fixed connection-status logging
+- Removed the unused legacy UDP path; saved "UDP" configurations now connect over TCP automatically
+- Removed an unused dependency (home-assistant-js-websocket)
 
 ### v3.2.1
 

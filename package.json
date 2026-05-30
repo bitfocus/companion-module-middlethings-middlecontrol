@@ -12,8 +12,7 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@companion-module/base": "~1.4",
-		"home-assistant-js-websocket": "^8.0.0"
+		"@companion-module/base": "~1.4"
 	},
 	"devDependencies": {
 		"@companion-module/tools": "^1.5.2"
