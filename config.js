@@ -11,7 +11,7 @@ export const ConfigFields = [
 				value: `
 
 					Instructions & download ready to go Companion pages at https://www.middlethings.co/companion <br /><br />
-					If you are running Middle Control on this same computer, you can type  127.0.0.1 in the IP adress field below and press Save. Please note that :<br /><br />
+					Running Middle Control on the same computer as Companion ?  Type 127.0.0.1 in the IP adress field below and press Save. Please note that :<br /><br />
 					
 						- Middle Control software has to be running (locally on this computer or on any computer on this network)<br />
 						- In order to control gimbal movements you will need to use an APC-R / APC-R Mini or APC-R Mini Lite<br /><br />
