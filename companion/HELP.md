@@ -3,6 +3,7 @@
 Official plugin to remotely control the **Middle Control** camera control software. Middle Control drives **Blackmagic, Sony, Canon, Panasonic, Lumix, OBSBOT and Visca cameras**. You can also control **DJI gimbals** via Middle Things **APC-R / APC-R Mini / APC-R Mini Lite** hardware. Companion can run on the same computer as Middle Control, or on any computer on the same network.
 
 Instructions & ready-to-go Companion pages: https://www.middlethings.co/companion
+Check exact compatibility : https://www.middlethings.co/compatibility/
 
 ### Setup
 

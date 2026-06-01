@@ -134,7 +134,7 @@ export function getFeedbackDefinitions(self) {
 
 		CameraConnectionStatus: {
 			type: 'boolean',
-			name: 'Camera Connexion Status',
+			name: 'Camera Connection Status',
 			description:
 				'Change style when the specified camera is connected (based on CAM_CON_LIST). If Camera ID is empty, uses the currently selected camera (CAM).',
 			defaultStyle: {
@@ -181,7 +181,7 @@ export function getFeedbackDefinitions(self) {
 
 		APCRConnectionStatus: {
 			type: 'boolean',
-			name: 'APC-R Connexion Status',
+			name: 'APC-R Connection Status',
 			description:
 				'Change style when the specified APC-R is connected (based on APCR_CON_LIST). If ID is empty, uses the currently selected camera (CAM) as the ID to check.',
 			defaultStyle: {
