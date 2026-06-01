@@ -23,13 +23,10 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 
 ## Changes
 
-### v3.2.3
+### v3.2.2
 
 - Added ready-made **Streamdeck+ rotary-encoder presets** (Focus, Iris, ISO/Gain, White Balance, Shutter, Tint, Contrast, Saturation, Black Level, Pan/Tilt Speed, Zoom Speed) in the "Encoders (Streamdeck+)" category
 - Updated the connection/setup information and in-app help (Sony support, feedbacks & variables, port/connection guidance)
-
-### v3.2.2
-
 - Fixed TCP feedback parsing so messages combined or split by the network are correctly reassembled (more reliable variables & feedbacks)
 - Fixed cached parameter state being shared between multiple Middle Control instances
 - Hardened command sending against malformed input coming from variables

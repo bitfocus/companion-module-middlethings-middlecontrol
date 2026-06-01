@@ -15,7 +15,7 @@ const CAT = 'Encoders (Streamdeck+)'
 const WHITE = combineRgb(255, 255, 255)
 const BLACK = combineRgb(0, 0, 0)
 const GREEN = combineRgb(0, 200, 0)
-const TEXT_SIZE = '7' // small text so the label + value fit on an encoder button
+const TEXT_SIZE = '14' // text size for encoder button labels (label + value)
 
 // Build a camera-step encoder preset (uses the `sendcameracommand` action).
 // `down` (press) is optional, e.g. an AUTO toggle.
