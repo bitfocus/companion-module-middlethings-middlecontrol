@@ -9,16 +9,16 @@ export const ConfigFields = [
 				label: 'Information',
 				width: 12,
 				value:
-				'Controls the **Middle Control** software (Blackmagic & Sony cameras, and DJI gimbals via APC-R hardware). ' +
-				'Instructions & ready-to-go Companion pages: [middlethings.co/companion](https://www.middlethings.co/companion)\n\n' +
-				'Running Middle Control on the same computer as Companion? Type **127.0.0.1** in the Target IP field below and press Save. ' +
-				'Otherwise enter the IP of the computer running Middle Control. The module connects over **TCP on port 11580**.\n\n' +
-				'- Middle Control must be running (on this computer, or any computer on this network)\n' +
-				'- Controlling gimbal movement requires an APC-R / APC-R Mini / APC-R Mini Lite\n' +
-				'- Streamdeck+ users: see the **Encoders (Streamdeck+)** preset category for ready-made rotary controls (focus, iris, gain, WB, …)\n\n' +
-				'The connection turns **green (OK)** once Middle Control is reachable. If it stays yellow (Connecting), check the IP, ' +
-				'that Middle Control is running, and that port 11580 isn\'t blocked by a firewall.\n\n' +
-				'Questions? Contact **support@middlethings.co**',
+				'### Middle Control\n' +
+				'Remote control for **Middle Control** — Blackmagic & Sony cameras, and DJI gimbals (via APC-R hardware).\n\n' +
+				'**Setup**\n' +
+				'1. Make sure **Middle Control is running** — on this computer, or any computer on this network.\n' +
+				'2. In **Target IP** below, enter `127.0.0.1` if it runs on this computer, otherwise that computer\'s IP, then press **Save**.\n' +
+				'3. The connection turns **green (OK)** once reachable. Stuck on yellow? Check the IP, that Middle Control is running, and that **TCP port 11580** is open.\n\n' +
+				'**Good to know**\n' +
+				'- 🎚️ **Gimbal movement** needs an APC-R / APC-R Mini / APC-R Mini Lite.\n' +
+				'- 🎛️ **Stream Deck +** — ready-made encoder presets live in the **Encoders (Streamdeck+)** category (focus, iris, gain, WB, …).\n\n' +
+				'**Links** — [Setup guide & ready-to-go pages](https://www.middlethings.co/companion) · Questions? **support@middlethings.co**',
 			},
 			{
 				type: 'textinput',
