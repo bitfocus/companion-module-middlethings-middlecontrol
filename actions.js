@@ -1,3 +1,4 @@
+import { selectCamera, preset as buildPreset, presetTransition, setSpeed, absGimbal, withCamera } from './commands.js'
 
 export const CHOICES_END = [
     { id: '', label: 'None' },
@@ -173,10 +174,14 @@ export function getActionDefinitions(self) {
           
            
             const value = unescape(await self.parseVariablesInString(event.options.id_selectcameraID))
-            var cmd = 'CAM' + unescape(value)
+            const cmd = selectCamera(value)
+            if (cmd === null) {
+                self.log('warn', 'Select Camera ID: not a number: ' + value)
+                return
+            }
             self.log('debug', '>> ' + cmd)
             self.send(cmd)
-           
+
         },
     },
     
@@ -213,21 +218,12 @@ sendcameracommand: {
 	callback: async (event) => {
 		const baseCmd = unescape(await self.parseVariablesInString(event.options.id_sendcameracommand))
 
-		// read + sanitize optional camera number
+		// Optional camera target -> "@C<digits>" (applied consistently via commands.js)
 		const camRaw = unescape(
 			await self.parseVariablesInString(event.options.id_sendcameracommand_camera ?? '')
 		).trim()
 
-		let cmd = baseCmd
-
-		// If user entered something, append @C<NUMBER>
-		if (camRaw !== '') {
-			// keep only digits (so variables/spaces/etc don't break the protocol)
-			const camNum = camRaw.replace(/[^\d]/g, '')
-			if (camNum !== '') {
-				cmd = `${baseCmd}@C${camNum}`
-			}
-		}
+		const cmd = withCamera(baseCmd, camRaw)
 
 		self.log('debug', '>> ' + cmd)
 		self.send(cmd)
@@ -285,7 +281,7 @@ sendgimbalcommand: {
 			await self.parseVariablesInString(event.options.id_sendgimbalcommand_camera ?? '')
 		).trim()
 
-		const cmd = camNum !== '' ? `${baseCmd}@C${camNum}` : baseCmd
+		const cmd = withCamera(baseCmd, camNum)
 
 		self.log('debug', '>> ' + cmd)
 		self.send(cmd)
@@ -344,21 +340,16 @@ sendgimbalcommand: {
             
             const PresetCamID = unescape(await self.parseVariablesInString(event.options.id_presetcameraID))
             const PresetNumber = unescape(await self.parseVariablesInString(event.options.id_presetnumber))
-            
-            var cmd = ''
-            
-            if (event.options.id_presetmode == 'RECALL') {
-                cmd = 'PRESET' + PresetNumber + 'C' + PresetCamID
-               
+
+            const cmd = buildPreset(event.options.id_presetmode, PresetNumber, PresetCamID)
+            if (cmd === null) {
+                self.log('warn', 'Preset: camera/preset number must be numeric (got ' + PresetNumber + ' / ' + PresetCamID + ')')
+                return
             }
-            if (event.options.id_presetmode == 'SAVE') {
-                cmd = 'SPRESET' + PresetNumber + 'C' + PresetCamID
-            
-            }
-            
+
             self.log('debug', '>> ' + cmd)
             self.send(cmd)
-             
+
         },
     },
         
@@ -385,7 +376,12 @@ sendgimbalcommand: {
             },
         ],
     callback: async (event) => {
-        const cmd = 'PRES_D' + unescape(await self.parseVariablesInString(event.options.id_settransitionduration))
+        const dur = unescape(await self.parseVariablesInString(event.options.id_settransitionduration))
+        const cmd = presetTransition(dur)
+        if (cmd === null) {
+            self.log('warn', 'Preset Transition: duration must be a number: ' + dur)
+            return
+        }
         self.log('debug', '>> ' + cmd)
         self.send(cmd)
     },
@@ -437,22 +433,15 @@ sendgimbalcommand: {
 		},
 	],
 	callback: async (event) => {
-		let cmd = ''
-
 		const value = unescape(await self.parseVariablesInString(event.options.id_setspeed))
 		const camNum = unescape(
 			await self.parseVariablesInString(event.options.id_setspeed_camera ?? '')
 		).trim()
 
-		if (event.options.id_setspeedmode == 'PanTilt') {
-			cmd = 'PTS' + value
-		}
-		if (event.options.id_setspeedmode == 'Zoom') {
-			cmd = 'ZS' + value
-		}
-
-		if (camNum !== '') {
-			cmd = `${cmd}@C${camNum}`
+		const cmd = setSpeed(event.options.id_setspeedmode, value, camNum)
+		if (cmd === null) {
+			self.log('warn', 'Set Speed: value must be a number (0-100): ' + value)
+			return
 		}
 
 		self.log('debug', '>> ' + cmd)
@@ -517,21 +506,13 @@ sendgimbalcommand: {
             },
         ],
     callback: async (event) => {
-        var prefix = 'a'
-        var sendabsval = ''
-        var sendabsvalpan = ''
-        var sendabsvaltilt = ''
-        var sendabsvalroll = ''
-        var sendabsvalzoom = ''
-        var sendabsdurationval = ''
-
-         sendabsvalpan = unescape(await self.parseVariablesInString(event.options.id_sendabspan))
-         sendabsvaltilt = unescape(await self.parseVariablesInString(event.options.id_sendabstilt))
-         sendabsvalroll = unescape(await self.parseVariablesInString(event.options.id_sendabsroll))
-         sendabsvalzoom = unescape(await self.parseVariablesInString(event.options.id_sendabszoom))
-         sendabsdurationval = unescape(await self.parseVariablesInString(event.options.id_sendabsduration))
-        
-        var cmd = 'aGLOB;' + 'aP' + sendabsvalpan + ';aT' + sendabsvaltilt + ';aR' + sendabsvalroll + ';aZ' + sendabsvalzoom + ';' + sendabsdurationval
+        const cmd = absGimbal({
+            pan: unescape(await self.parseVariablesInString(event.options.id_sendabspan)),
+            tilt: unescape(await self.parseVariablesInString(event.options.id_sendabstilt)),
+            roll: unescape(await self.parseVariablesInString(event.options.id_sendabsroll)),
+            zoom: unescape(await self.parseVariablesInString(event.options.id_sendabszoom)),
+            duration: unescape(await self.parseVariablesInString(event.options.id_sendabsduration)),
+        })
         self.log('debug', '>> ' + cmd)
         self.send(cmd)
     },
