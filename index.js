@@ -4,17 +4,7 @@ import { getActionDefinitions } from './actions.js'
 import { getVariables } from './variables.js'
 import { getFeedbackDefinitions } from './feedbacks.js'
 import { getPresetDefinitions } from './presets.js'
-
-// Convert a raw protocol value to a Number, or the '-' sentinel when the camera
-// reports the parameter as AUTO / unavailable. Middle Control sends '-' (or a
-// non-numeric token) for AUTO White Balance / Tint / Gain / Iris / Shutter etc.;
-// without this, parseFloat('-') would surface as 'NaN' in the Companion variable.
-function numOrAuto(raw) {
-	const s = String(raw).trim()
-	if (s === '' || s === '-') return '-'
-	const n = parseFloat(s)
-	return Number.isFinite(n) ? n : '-'
-}
+import { numOrAuto, parseList, reassembleFrames, sanitizeCommand } from './lib.js'
 
 class instance extends InstanceBase {
 	constructor(internal) {
@@ -121,18 +111,14 @@ class instance extends InstanceBase {
 				// Reassemble the TCP byte stream into '{...}\n' frames. The app emits
 				// one frame per tick, but TCP may coalesce or split packets, so we must
 				// buffer and split on '\n' (never assume one 'data' event == one frame).
-				this._rx = (this._rx || '') + data.toString('latin1')
-				if (this._rx.length > 65536) {
+				if ((this._rx || '').length + data.length > 65536) {
 					this.log('warn', 'RX buffer overflow; clearing')
 					this._rx = ''
 					return
 				}
-				let _idx
-				while ((_idx = this._rx.indexOf('\n')) >= 0) {
-					const _line = this._rx.slice(0, _idx)
-					this._rx = this._rx.slice(_idx + 1)
-					const body = _line.trim().replace(/^\{/, '').replace(/\}$/, '')
-					if (!body) continue
+				const { frames, rest } = reassembleFrames(this._rx, data.toString('latin1'))
+				this._rx = rest
+				for (const body of frames) {
 
 				//PARSE INCOMING DATA
 				var response_array = body.split(';')
@@ -228,10 +214,7 @@ class instance extends InstanceBase {
 						// Extract inside brackets: "REC_LIST[4,7,8]" → "4,7,8"
 						const listStr = REC_LIST.slice(9, -1)
 
-						this.MIDDLE.REC_LIST = listStr
-							.split(',')
-							.map((v) => Number(v.trim()))
-							.filter((n) => !Number.isNaN(n))
+						this.MIDDLE.REC_LIST = parseList(listStr)
 
 						this.setVariableValues({
 							LIST_REC_var: this.MIDDLE.REC_LIST.join(','),
@@ -250,10 +233,7 @@ class instance extends InstanceBase {
 
 					if (CAM_CON_LIST !== undefined) {
 						const listStr = CAM_CON_LIST.slice(13, -1) // remove "CAM_CON_LIST[" and "]"
-						this.MIDDLE.CAM_CON_LIST = listStr
-							.split(',')
-							.map((v) => Number(v.trim()))
-							.filter((n) => !Number.isNaN(n))
+						this.MIDDLE.CAM_CON_LIST = parseList(listStr)
 
 						this.setVariableValues({
 							LIST_CAM_CON_var: this.MIDDLE.CAM_CON_LIST.join(','),
@@ -269,10 +249,7 @@ class instance extends InstanceBase {
 
 					if (APCR_CON_LIST !== undefined) {
 						const listStr = APCR_CON_LIST.slice(14, -1) // remove "APCR_CON_LIST[" and "]"
-						this.MIDDLE.APCR_CON_LIST = listStr
-							.split(',')
-							.map((v) => Number(v.trim()))
-							.filter((n) => !Number.isNaN(n))
+						this.MIDDLE.APCR_CON_LIST = parseList(listStr)
 
 						this.setVariableValues({
 							LIST_APCR_CON_var: this.MIDDLE.APCR_CON_LIST.join(','),
@@ -676,7 +653,7 @@ this.checkFeedbacks(
   'CameraConnectionStatus',
   'APCRConnectionStatus'
 )
-				} // end while: frame reassembly loop
+				} // end for: frame reassembly loop
 			})
 		} else {
 			this.updateStatus(InstanceStatus.BadConfig)
@@ -747,14 +724,9 @@ this.checkFeedbacks(
 			cmd = 'aWHITELEV' + (cmd == 'WLEV+' ? aWLEV + 0.01 : aWLEV - 0.01)
 		}
 
-		// Strip frame-breaking control chars (newline/CR/NUL/other C0 + DEL) so a value
-		// resolved from a Companion variable cannot inject a second command or corrupt
-		// the frame. ';' is a legitimate field separator (e.g. aGLOB) and is preserved.
-		let safeCmd = ''
-		for (const _ch of String(cmd)) {
-			const _c = _ch.charCodeAt(0)
-			if (_c > 0x1f && _c !== 0x7f) safeCmd += _ch
-		}
+		// Strip frame-breaking control chars so a value resolved from a Companion
+		// variable cannot inject a second command or corrupt the frame.
+		const safeCmd = sanitizeCommand(cmd)
 		if (!safeCmd) {
 			this.log('warn', 'Empty command after sanitization, not sending')
 			return
