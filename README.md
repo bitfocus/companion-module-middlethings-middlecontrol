@@ -1,22 +1,32 @@
 # companion-module-middlethings-middlecontrol
 
-The Middle Control Companion plugin can remotely control the Middle Control Software which controls Blackmagic, Sony cameras and even DJI gimbals (using Middle Things APC-R & APC-R Mini) . It can run on the same device that runs Middle Control, or on a remote device on the same network.
+The Middle Control Companion plugin remotely controls the Middle Control software, which drives **Blackmagic and Sony cameras** and **DJI gimbals** (via Middle Things APC-R / APC-R Mini / APC-R Mini Lite). It can run on the same device as Middle Control, or on any device on the same network. Connects over TCP on port 11580.
 
-## Getting Started
+**Features**
 
-The yarn headless command will perform all the steps to build the module.         
+- Select Camera ID
+- Send Camera Action (CCU: focus, iris, WB, tint, gain/ISO, shutter, ND, levels; Auto modes; zebra/false-colour/peaking)
+- Send Gimbal Action (pan/tilt/roll/zoom/slider, speed, recenter, sleep/wake, Active Track)
+- Recall/Save Preset & preset transition duration
+- Recording start/stop (per camera or all)
+- Sony menus, MultiSelector and Custom C1–C6 buttons
+- Set Custom Camera & Pan/Tilt/Zoom Positions
+- Set Custom Pan/Tilt/Zoom Speed
+- Send a Custom Command (SDK)
+- Feedbacks (recording tally, camera/APC-R connection, active preset, AF, digital zoom)
+- Live Variables for camera & gimbal settings
+- **Streamdeck+ rotary-encoder presets** (Focus, Iris, ISO/Gain, WB, Shutter, Tint, Zoom Speed) — see the "Encoders (Streamdeck+)" preset category
 
-**Available actions in this module**
+## Development
 
-- Select Camera ID   
-- Send Camera Action
-- Send Gimbal Action
-- Recall/Save Preset
-- Set Custom Camera & Pan/Tilt/Zoom Positions 
-- Set Custom Pan/Tilt/Zoom Speed 
-- Access Camera & Gimbal settings in realtime using Variables 
+This is an ESM project (`"type": "module"`). Install with `yarn install`. Load it as a developer module in Companion (point Companion at this folder) to test against a running Middle Control instance.
 
 ## Changes
+
+### v3.2.3
+
+- Added ready-made **Streamdeck+ rotary-encoder presets** (Focus, Iris, ISO/Gain, White Balance, Shutter, Tint, Zoom Speed) in the "Encoders (Streamdeck+)" category
+- Updated the connection/setup information and in-app help (Sony support, feedbacks & variables, port/connection guidance)
 
 ### v3.2.2
 
