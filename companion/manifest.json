@@ -21,13 +21,24 @@
 		"entrypoint": "../index.js"
 	},
 	"manufacturer": "Middle Things",
-	"products": ["Middle Control"],
+	"products": ["Middle Control","APC-R","APC-R Mini","APC-R Mini Lite", "Middle Remote"],
 	"keywords": [
 		"PTZ", 
 		"RS2",
+		"RS3",
+		"RS4",
 		"DJI",
 		"APC-R",  
 		"APC",
+		"ATEM",
+		"Middle Remote",
+		"Middle Control",
 		"Blackmagic", 
+		"OBSBOT", 
+		"Lumix", 
+		"Panasonic", 
+		"Visca", 
+		"Sony", 
+		"Canon", 
 		"Gimbal"]
 }

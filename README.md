@@ -26,19 +26,16 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 ### v3.2.2
 
 - Added ready-made **Streamdeck+ rotary-encoder presets** (Focus, Iris, ISO/Gain, White Balance, Shutter, Tint, Contrast, Saturation, Black Level, Pan/Tilt Speed, Zoom Speed) in the "Encoders (Streamdeck+)" category
-- Updated the connection/setup information and in-app help (Sony support, feedbacks & variables, port/connection guidance)
 - Fixed TCP feedback parsing so messages combined or split by the network are correctly reassembled (more reliable variables & feedbacks)
 - Fixed cached parameter state being shared between multiple Middle Control instances
 - Hardened command sending against malformed input coming from variables
 - Fixed a socket handle leak when the module is restarted or reconfigured
-- Fixed Contrast / Saturation / Black Level (Pedestal) (+/-) buttons: they now send raw relative commands so Middle Control applies the exact same step as its on-screen GUI buttons. Previously they computed an absolute value on the wrong scale and overshot (e.g. Black Level jumping past 100). Mid / White Level (+/-) no longer send invalid values (these still await app-side relative support)
+- Fixed Contrast / Saturation / Black Level (Pedestal) (+/-) buttons: they now send raw relative commands so Middle Control applies the exact same step as its on-screen GUI buttons. 
 - Fixed the White Level variable not clearing on disconnect
-- Fixed connection-status logging
 - AUTO parameters (White Balance / Tint / Gain / Iris / Shutter / Focus) now show "-" instead of "NaN" in the variables
 - Variables now show "-" on startup instead of being blank until the first update
 - Fixed the Gimbal "Send Gimbal Action" default (was blank / Tilt Up id typo)
 - Removed the unused legacy UDP path; saved "UDP" configurations now connect over TCP automatically
-- Removed an unused dependency (home-assistant-js-websocket)
 
 ### v3.2.1
 

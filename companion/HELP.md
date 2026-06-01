@@ -1,6 +1,6 @@
 ## Middle Control Companion Plugin
 
-Official plugin to remotely control the **Middle Control** software. Middle Control drives **Blackmagic and Sony cameras** and **DJI gimbals** (via Middle Things **APC-R / APC-R Mini / APC-R Mini Lite** hardware). Companion can run on the same computer as Middle Control, or on any computer on the same network.
+Official plugin to remotely control the **Middle Control** camera control software. Middle Control drives **Blackmagic, Sony, Canon, Panasonic, Lumix, OBSBOT and Visca cameras**. You can also control **DJI gimbals** via Middle Things **APC-R / APC-R Mini / APC-R Mini Lite** hardware. Companion can run on the same computer as Middle Control, or on any computer on the same network.
 
 Instructions & ready-to-go Companion pages: https://www.middlethings.co/companion
 
@@ -16,15 +16,10 @@ Instructions & ready-to-go Companion pages: https://www.middlethings.co/companio
 ### What you can do
 
 **Cameras (CCU):** select the active camera, adjust focus, iris, white balance, tint, gain/ISO, shutter, ND, contrast, saturation and black/mid/white levels; toggle Auto Focus / Auto Iris / Auto WB / Auto Gain / Auto Shutter; zebra, false colour, focus peaking, colour bars.
-
 **Gimbal:** pan / tilt / roll / zoom / slider, speed control, recenter, sleep/wake, auto-calibration, Active Track.
-
 **Recording:** start/stop on the active camera or on all cameras at once.
-
 **Presets:** recall and save positions, and set the preset transition duration.
-
-**Sony extras:** menu navigation, MultiSelector, and Custom C1–C6 buttons.
-
+**Camera extras:** menu navigation, MultiSelector, and Custom C1–C6 buttons.
 **Custom commands (SDK):** send any raw command/value (e.g. set ISO or WB to a specific value). See https://www.middlethings.co/api
 
 ### Feedbacks & variables
