@@ -15,6 +15,7 @@ const CAT = 'Encoders (Streamdeck+)'
 const WHITE = combineRgb(255, 255, 255)
 const BLACK = combineRgb(0, 0, 0)
 const GREEN = combineRgb(0, 200, 0)
+const TEXT_SIZE = '7' // small text so the label + value fit on an encoder button
 
 // Build a camera-step encoder preset (uses the `sendcameracommand` action).
 // `down` (press) is optional, e.g. an AUTO toggle.
@@ -23,7 +24,7 @@ function cameraEncoder({ title, text, down, left, right, feedbacks }) {
 		type: 'button',
 		category: CAT,
 		name: title,
-		style: { text, size: '14', color: WHITE, bgcolor: BLACK },
+		style: { text, size: TEXT_SIZE, color: WHITE, bgcolor: BLACK },
 		options: { rotaryActions: true },
 		steps: [
 			{
@@ -40,6 +41,31 @@ function cameraEncoder({ title, text, down, left, right, feedbacks }) {
 			},
 		],
 		feedbacks: feedbacks ?? [],
+	}
+}
+
+// Build a gimbal-step encoder preset (uses the `sendgimbalcommand` action),
+// e.g. the Pan/Tilt and Zoom speed knobs.
+function gimbalEncoder({ title, text, left, right }) {
+	return {
+		type: 'button',
+		category: CAT,
+		name: title,
+		style: { text, size: TEXT_SIZE, color: WHITE, bgcolor: BLACK },
+		options: { rotaryActions: true },
+		steps: [
+			{
+				down: [],
+				up: [],
+				rotate_left: [
+					{ actionId: 'sendgimbalcommand', options: { id_sendgimbalcommand: left, id_sendgimbalcommand_camera: '' } },
+				],
+				rotate_right: [
+					{ actionId: 'sendgimbalcommand', options: { id_sendgimbalcommand: right, id_sendgimbalcommand_camera: '' } },
+				],
+			},
+		],
+		feedbacks: [],
 	}
 }
 
@@ -105,33 +131,45 @@ export function getPresetDefinitions() {
 		right: 'TINT+',
 	})
 
-	// Zoom Speed — gimbal speed step (uses the `sendgimbalcommand` action)
-	presets.encoder_zoomspeed = {
-		type: 'button',
-		category: CAT,
-		name: 'Zoom Speed encoder (rotate to adjust)',
-		style: { text: 'ZOOM SPD\n$(middlecontrol:ZS_var)', size: '14', color: WHITE, bgcolor: BLACK },
-		options: { rotaryActions: true },
-		steps: [
-			{
-				down: [],
-				up: [],
-				rotate_left: [
-					{
-						actionId: 'sendgimbalcommand',
-						options: { id_sendgimbalcommand: 'ZSPEED-', id_sendgimbalcommand_camera: '' },
-					},
-				],
-				rotate_right: [
-					{
-						actionId: 'sendgimbalcommand',
-						options: { id_sendgimbalcommand: 'ZSPEED+', id_sendgimbalcommand_camera: '' },
-					},
-				],
-			},
-		],
-		feedbacks: [],
-	}
+	// Contrast — rotate to adjust
+	presets.encoder_contrast = cameraEncoder({
+		title: 'Contrast encoder (rotate to adjust)',
+		text: 'CONTR\n$(middlecontrol:aCONT_var)',
+		left: 'CONT-',
+		right: 'CONT+',
+	})
+
+	// Saturation — rotate to adjust
+	presets.encoder_saturation = cameraEncoder({
+		title: 'Saturation encoder (rotate to adjust)',
+		text: 'SAT\n$(middlecontrol:aSAT_var)',
+		left: 'SAT-',
+		right: 'SAT+',
+	})
+
+	// Black Level (Pedestal) — rotate to adjust
+	presets.encoder_blacklevel = cameraEncoder({
+		title: 'Black Level encoder (rotate to adjust)',
+		text: 'BLACK\n$(middlecontrol:aBLACKLEV_var)',
+		left: 'BLEV-',
+		right: 'BLEV+',
+	})
+
+	// Pan/Tilt Speed — gimbal speed step
+	presets.encoder_ptspeed = gimbalEncoder({
+		title: 'Pan/Tilt Speed encoder (rotate to adjust)',
+		text: 'PT SPD\n$(middlecontrol:PTS_var)',
+		left: 'SPEED-',
+		right: 'SPEED+',
+	})
+
+	// Zoom Speed — gimbal speed step
+	presets.encoder_zoomspeed = gimbalEncoder({
+		title: 'Zoom Speed encoder (rotate to adjust)',
+		text: 'ZOOM SPD\n$(middlecontrol:ZS_var)',
+		left: 'ZSPEED-',
+		right: 'ZSPEED+',
+	})
 
 	return presets
 }

@@ -25,7 +25,7 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 
 ### v3.2.3
 
-- Added ready-made **Streamdeck+ rotary-encoder presets** (Focus, Iris, ISO/Gain, White Balance, Shutter, Tint, Zoom Speed) in the "Encoders (Streamdeck+)" category
+- Added ready-made **Streamdeck+ rotary-encoder presets** (Focus, Iris, ISO/Gain, White Balance, Shutter, Tint, Contrast, Saturation, Black Level, Pan/Tilt Speed, Zoom Speed) in the "Encoders (Streamdeck+)" category
 - Updated the connection/setup information and in-app help (Sony support, feedbacks & variables, port/connection guidance)
 
 ### v3.2.2
