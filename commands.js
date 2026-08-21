@@ -69,6 +69,16 @@ export function setSpeed(mode, valueRaw, camRaw) {
 	return withCamera(cmd, camRaw)
 }
 
+// STOPPRESET / STOPPRESET@C<id> — stop the running preset. (stoppreset)
+// Bare STOPPRESET stops the currently active camera, or ALL cameras when the app
+// is in All-Cameras mode — exactly like the app's on-screen Stop button. An
+// optional camera id appends "@C<id>" to stop the preset on that specific camera
+// regardless of the active selection (honoured by the app's udpStopPreset path,
+// which passes the id through to stopPresetExecution(camID:)).
+export function stopPreset(camRaw) {
+	return withCamera('STOPPRESET', camRaw)
+}
+
 // aGLOB;aP<pan>;aT<tilt>;aR<roll>;aZ<zoom>;<duration>. (sendabs)
 // Advanced/custom absolute positioning — preserves the exact field text (values
 // may be signed/fractional, and the app clamps server-side). No rejection so the

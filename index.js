@@ -1,10 +1,11 @@
 import { InstanceBase, InstanceStatus, runEntrypoint, TCPHelper } from '@companion-module/base'
-import { ConfigFields } from './config.js'
+import { buildConfigFields } from './config.js'
 import { getActionDefinitions } from './actions.js'
 import { getVariables } from './variables.js'
 import { getFeedbackDefinitions } from './feedbacks.js'
 import { getPresetDefinitions } from './presets.js'
 import { numOrAuto, parseList, reassembleFrames, sanitizeCommand } from './lib.js'
+import { MiddleDiscovery } from './discovery.js'
 
 class instance extends InstanceBase {
 	constructor(internal) {
@@ -14,6 +15,13 @@ class instance extends InstanceBase {
 	async init(config) {
 		this.config = config
 		this.updateStatus(InstanceStatus.Disconnected)
+
+		// Best-effort LAN auto-discovery (listens for the app's :15502 beacon).
+		// Never throws; if it fails, manual IP entry is unaffected.
+		if (!this.discovery) {
+			this.discovery = new MiddleDiscovery(this.log.bind(this))
+			this.discovery.start()
+		}
 
 		this.setFeedbackDefinitions(getFeedbackDefinitions(this))
 		this.setActionDefinitions(getActionDefinitions(this))
@@ -36,6 +44,10 @@ class instance extends InstanceBase {
 			this.socket.destroy()
 			delete this.socket
 		}
+		if (this.discovery) {
+			this.discovery.stop()
+			delete this.discovery
+		}
 		this.updateStatus(InstanceStatus.Disconnected)
 	}
 
@@ -56,9 +68,36 @@ class instance extends InstanceBase {
 		this.init_tcp()
 	}
 
-	// Return config fields for web config
+	// Return config fields for web config. Built dynamically so the panel can
+	// list Middle Control instances discovered on the LAN (refreshed each time
+	// the dialog is opened).
 	getConfigFields() {
-		return ConfigFields
+		return buildConfigFields(this.discovery ? this.discovery.getChoices() : [])
+	}
+
+	// The IP to connect to: a picked discovered instance wins, otherwise the
+	// manually entered Target IP.
+	_effectiveHost() {
+		const d = this.config?.device
+		if (d && d !== 'manual' && /^\d{1,3}(\.\d{1,3}){3}$/.test(d)) return d
+		return this.config?.host
+	}
+
+	// Clear every published variable and all cached device state, then re-check
+	// feedbacks. Used on connection loss so nothing stays stuck on a stale value
+	// that is no longer being refreshed.
+	_resetAllState() {
+		this.setVariableValues(Object.fromEntries(getVariables().map((v) => [v.variableId, '-'])))
+		this.MIDDLE = {} // undefined fields make every feedback evaluate to "off"
+		this.checkFeedbacks(
+			'CurrentCameraID',
+			'RecordingStatus',
+			'AutofocusStatus',
+			'DigitalZoomStatus',
+			'CurrentPresetActive',
+			'CameraConnectionStatus',
+			'APCRConnectionStatus'
+		)
 	}
 
 	init_tcp() {
@@ -69,8 +108,9 @@ class instance extends InstanceBase {
 
 		this.updateStatus(InstanceStatus.Connecting)
 
-		if (this.config.host) {
-			this.socket = new TCPHelper(this.config.host, 11580)
+		const host = this._effectiveHost()
+		if (host) {
+			this.socket = new TCPHelper(host, 11580)
 			this._rx = '' // TCP frame-reassembly buffer
 
 			this.socket.on('status_change', (status, message) => {
@@ -81,30 +121,11 @@ class instance extends InstanceBase {
 			this.socket.on('error', (err) => {
 				this.updateStatus(InstanceStatus.ConnectionFailure, err.message)
 				this.log('error', 'Network error: ' + err.message)
-
-				this.setVariableValues({
-					aPAN_var: '-',
-					aTILT_var: '-',
-					aROLL_var: '-',
-					aZOOM_var: '-',
-					aSLIDER_var: '-',
-					aBLACKLEV_var: '-',
-					aMIDLEV_var: '-',
-					aWHITELEV_var: '-',
-					aWB_var: '-',
-					aF_var: '-',
-					aI_var: '-',
-					aTINT_var: '-',
-					aISO_var: '-',
-					aCONT_var: '-',
-					aSAT_var: '-',
-					aSHUT_var: '-',
-					CAM_var: '-',
-					PTS_var: '-',
-					ZS_var: '-',
-					PRES_D_var: '-',
-					PRES_C_var: '-',
-				})
+				// Connection lost: clear ALL variables and cached state and re-run
+				// feedbacks, so a stale value that is no longer being refreshed can't
+				// stay stuck on screen (e.g. a red recording tally or a green
+				// connection indicator lingering after the link drops).
+				this._resetAllState()
 			})
 
 			this.socket.on('data', (data) => {
@@ -736,7 +757,10 @@ this.checkFeedbacks(
 
 		if (this.socket !== undefined && this.socket.isConnected) {
 			// this.log('sending ', sendBuf, 'to', this.config.host)
-			this.socket.send(sendBuf)
+			// TCPHelper.send() returns a promise that rejects on a write error (e.g. the
+			// peer resets the connection between the isConnected check and the kernel
+			// write). Catch it so an unhandled rejection can't crash the module process.
+			this.socket.send(sendBuf).catch((e) => this.log('error', 'TCP send failed: ' + e.message))
 			this.log('debug', 'TCP Message sent :' + safeCmd)
 		} else {
 			this.log('error', 'TCP Socket not connected')

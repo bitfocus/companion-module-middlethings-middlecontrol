@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { toInt, withCamera, selectCamera, preset, presetTransition, setSpeed, absGimbal } from './commands.js'
+import { toInt, withCamera, selectCamera, preset, presetTransition, setSpeed, absGimbal, stopPreset } from './commands.js'
 
 // --- toInt ---
 test('toInt: accepts signed integers, rejects junk', () => {
@@ -69,6 +69,15 @@ test('setSpeed: optional camera suffix; rejects non-numeric', () => {
 	assert.equal(setSpeed('Zoom', '40', '12'), 'ZS40@C12')
 	assert.equal(setSpeed('PanTilt', '', ''), null)
 	assert.equal(setSpeed('PanTilt', 'x', ''), null)
+})
+
+// --- stopPreset: bare STOPPRESET, or STOPPRESET@C<id> when a camera is given ---
+test('stopPreset: bare token with no camera, @C suffix with one', () => {
+	assert.equal(stopPreset(), 'STOPPRESET')
+	assert.equal(stopPreset(''), 'STOPPRESET')
+	assert.equal(stopPreset('5'), 'STOPPRESET@C5')
+	assert.equal(stopPreset(' 12 '), 'STOPPRESET@C12')
+	assert.equal(stopPreset('3;REC_STOP'), 'STOPPRESET@C3') // digits-only, can't inject
 })
 
 // --- absGimbal: exact aGLOB template, all fields always present ---

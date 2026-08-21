@@ -9,8 +9,8 @@ Check exact compatibility : https://www.middlethings.co/compatibility/
 
 1. Install and launch **Middle Control** on a Mac on your network.
 2. In Companion, add this connection and set **Target IP**:
-   - Same computer as Companion → `127.0.0.1`
-   - Another computer → that computer's IP address
+   - **Auto-detect**: instances found on your network appear in the **Middle Control** dropdown on the config page — just pick one. They show by name on Middle Control 3.3.0+, otherwise by IP. (Detection can take up to ~10 s; re-open the config dialog to refresh.)
+   - **Manual**: choose *Manual* in the dropdown, then type the **Target IP** — `127.0.0.1` when Middle Control runs on this same computer, otherwise the IP of the computer running it. (The Target IP box is locked unless *Manual* is selected.)
 3. The module connects over **TCP on port 11580**. The connection turns **green (OK)** once Middle Control is reachable. If it stays yellow, check the IP, that Middle Control is running, and that port 11580 isn't blocked by a firewall.
 4. To control **gimbal movement** you need an APC-R / APC-R Mini / APC-R Mini Lite.
 
@@ -19,7 +19,7 @@ Check exact compatibility : https://www.middlethings.co/compatibility/
 **Cameras (CCU):** select the active camera, adjust focus, iris, white balance, tint, gain/ISO, shutter, ND, contrast, saturation and black/mid/white levels; toggle Auto Focus / Auto Iris / Auto WB / Auto Gain / Auto Shutter; zebra, false colour, focus peaking, colour bars.
 **Gimbal:** pan / tilt / roll / zoom / slider, speed control, recenter, sleep/wake, auto-calibration, Active Track.
 **Recording:** start/stop on the active camera or on all cameras at once.
-**Presets:** recall and save positions, and set the preset transition duration.
+**Presets:** recall and save positions, stop a running preset, and set the preset transition duration.
 **Camera extras:** menu navigation, MultiSelector, and Custom C1–C6 buttons.
 **Custom commands (SDK):** send any raw command/value (e.g. set ISO or WB to a specific value). See https://www.middlethings.co/api
 
@@ -31,7 +31,7 @@ Boolean **feedbacks** let buttons reflect live state: recording tally, camera co
 
 ### Streamdeck+ encoders
 
-This module ships ready-made rotary-encoder presets in the **"Encoders (Streamdeck+)"** preset category — Focus, Iris, ISO/Gain, White Balance, Shutter, Tint and Zoom Speed. Rotate to step the value; press (where shown) toggles the matching Auto mode.
+This module ships ready-made rotary-encoder presets in the **"Encoders (Streamdeck+)"** preset category — Focus, Iris, ISO/Gain, White Balance, Shutter, Tint, Contrast, Saturation, Black Level, Pan/Tilt Speed and Zoom Speed. Rotate to step the value; press (where shown) toggles the matching Auto mode.
 
 Note: gimbal **pan / tilt / roll / zoom** are not offered as encoder presets, because those start a continuous movement that needs a separate stop command on release — which a rotary detent doesn't provide. Use buttons for gimbal motion.
 

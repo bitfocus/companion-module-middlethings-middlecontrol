@@ -54,8 +54,14 @@ export function reassembleFrames(buffer, chunk) {
 export function sanitizeCommand(cmd) {
 	let out = ''
 	for (const ch of String(cmd)) {
-		const c = ch.charCodeAt(0)
-		if (c > 0x1f && c !== 0x7f) out += ch
+		const c = ch.codePointAt(0)
+		// The wire protocol is ASCII text: keep only printable ASCII (0x20–0x7E).
+		// This drops C0 controls and DEL AND anything above 0x7E — critical because
+		// index.js encodes the outgoing buffer as 'latin1', whose encoder masks each
+		// code unit with & 0xFF: a non-Latin-1 char like U+200A would otherwise land
+		// on the wire as raw 0x0A (newline) and split one command into two. ';' (0x3B)
+		// is printable and preserved as the legitimate aGLOB field separator.
+		if (c >= 0x20 && c <= 0x7e) out += ch
 	}
 	return out
 }

@@ -7,7 +7,8 @@ The Middle Control Companion plugin remotely controls the Middle Control softwar
 - Select Camera ID
 - Send Camera Action (CCU: focus, iris, WB, tint, gain/ISO, shutter, ND, levels; Auto modes; zebra/false-colour/peaking)
 - Send Gimbal Action (pan/tilt/roll/zoom/slider, speed, recenter, sleep/wake, Active Track)
-- Recall/Save Preset & preset transition duration
+- Recall/Save Preset, Stop Running Preset & preset transition duration
+- Automatic network discovery of Middle Control (with manual IP fallback)
 - Recording start/stop (per camera or all)
 - Sony menus, MultiSelector and Custom C1–C6 buttons
 - Set Custom Camera & Pan/Tilt/Zoom Positions
@@ -22,6 +23,13 @@ The Middle Control Companion plugin remotely controls the Middle Control softwar
 This is an ESM project (`"type": "module"`). Install with `yarn install`. Load it as a developer module in Companion (point Companion at this folder) to test against a running Middle Control instance.
 
 ## Changes
+
+### v3.3.0
+
+- **Automatic discovery**: the module now finds Middle Control on the network for you. It listens for the app's `middleInstance` beacon (UDP 15502, broadcast every 8 s by every instance — Free and Pro alike) and lists detected instances in a single **Middle Control** dropdown on the config page — one row per instance, shown by name when the app advertises one (Middle Control 3.3.0+) and otherwise by the address Companion can reach it on. Choose **Manual** to type an IP; the Target IP field is greyed/locked unless Manual is selected.
+- Added **Stop Running Preset** action — stops the preset on the active camera (or all cameras in All-Cameras mode), matching the app's Stop button. An optional Camera ID stops the preset on a specific camera instead (`STOPPRESET` / `STOPPRESET@C<id>`).
+- **Mid Level, White Level and Preset Completion now update live** — the app (Middle Control 3.3.0+) feeds these back, so the `Mid Level`/`White Level` variables populate and the **Mid Level +/-** and **White Level +/-** actions work. (Slider Value / Slider Speed remain placeholders until that path is wired.)
+- **Hardening:** outgoing commands are restricted to ASCII so a non-Latin-1 character can't be masked into a frame-splitting newline; TCP send errors are caught (no more possible crash on a mid-write disconnect); and on connection loss all variables, cached state and feedbacks are cleared so a recording/connection indicator can't stay stuck lit.
 
 ### v3.2.2
 
