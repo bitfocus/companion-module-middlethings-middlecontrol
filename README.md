@@ -26,10 +26,10 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 
 ### v3.3.0
 
-- **Automatic discovery**: the module now finds Middle Control on the network for you. It listens for the app's `middleInstance` beacon (UDP 15502, broadcast every 8 s by every instance — Free and Pro alike) and lists detected instances in a single **Middle Control** dropdown on the config page — one row per instance, shown by name when the app advertises one (Middle Control 3.3.0+) and otherwise by the address Companion can reach it on. Choose **Manual** to type an IP; the Target IP field is greyed/locked unless Manual is selected.
-- Added **Stop Running Preset** action — stops the preset on the active camera (or all cameras in All-Cameras mode), matching the app's Stop button. An optional Camera ID stops the preset on a specific camera instead (`STOPPRESET` / `STOPPRESET@C<id>`).
-- **Mid Level, White Level and Preset Completion now update live** — the app (Middle Control 3.3.0+) feeds these back, so the `Mid Level`/`White Level` variables populate and the **Mid Level +/-** and **White Level +/-** actions work. (Slider Value / Slider Speed remain placeholders until that path is wired.)
-- **Hardening:** outgoing commands are restricted to ASCII so a non-Latin-1 character can't be masked into a frame-splitting newline; TCP send errors are caught (no more possible crash on a mid-write disconnect); and on connection loss all variables, cached state and feedbacks are cleared so a recording/connection indicator can't stay stuck lit.
+- **Automatic discovery** — Middle Control now shows up automatically in a dropdown on the config page, so you can pick it instead of typing an IP (choose **Manual** to enter one by hand). Works for Free and Pro; shows each instance by name with Middle Control 3.3.0+.
+- **Stop Running Preset** action — stops the running preset on the active camera, or all cameras in All-Cameras mode. Optional Camera ID to target a specific camera.
+- **Mid Level, White Level and Preset Completion now update live** (with Middle Control 3.3.0+), so the Mid Level +/- and White Level +/- actions work.
+- **Reliability** — safer command handling, no crash if the connection drops mid-send, and a clean reset on disconnect so buttons don't stay stuck lit.
 
 ### v3.2.2
 
