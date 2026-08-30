@@ -316,5 +316,47 @@ export function getFeedbackDefinitions(self) {
 				return activePreset === desiredPreset
 			},
 		},
+
+		ShakeRunning: {
+			type: 'boolean',
+			name: 'Automation: Camera Shake running',
+			description: 'Change style while the Camera Shake automation is running on the current camera',
+			defaultStyle: {
+				color: combineRgb(0, 0, 0),
+				bgcolor: combineRgb(180, 90, 255), // purple = Camera Shake identity colour
+			},
+			options: [],
+			callback: function () {
+				return self.MIDDLE.SHAKE_RUN === '1'
+			},
+		},
+
+		ZoomLoopRunning: {
+			type: 'boolean',
+			name: 'Automation: Zoom Loop running',
+			description: 'Change style while the Zoom Loop automation is running on the current camera',
+			defaultStyle: {
+				color: combineRgb(0, 0, 0),
+				bgcolor: combineRgb(0, 200, 0), // green = Zoom Loop identity colour
+			},
+			options: [],
+			callback: function () {
+				return self.MIDDLE.ZLOOP_RUN === '1'
+			},
+		},
+
+		PresetsSequenceRunning: {
+			type: 'boolean',
+			name: 'Automation: Presets Sequence running',
+			description: 'Change style while the Presets Sequence automation is running on the current camera',
+			defaultStyle: {
+				color: combineRgb(0, 0, 0),
+				bgcolor: combineRgb(8, 130, 255), // blue = Presets Sequence identity colour
+			},
+			options: [],
+			callback: function () {
+				return self.MIDDLE.PRESETSEQ_RUN === '1'
+			},
+		},
 	}
 }

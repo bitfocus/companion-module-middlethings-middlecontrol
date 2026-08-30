@@ -115,6 +115,22 @@ const variables = [
 		name: 'Currently Connected APC-R List (CAM IDs)',
 		variableId: 'LIST_APCR_CON_var',
 	},
+	{
+		name: 'Automation: Camera Shake Running (0/1)',
+		variableId: 'SHAKE_RUN_var',
+	},
+	{
+		name: 'Automation: Zoom Loop Running (0/1)',
+		variableId: 'ZLOOP_RUN_var',
+	},
+	{
+		name: 'Automation: Presets Sequence Running (0/1)',
+		variableId: 'PRESETSEQ_RUN_var',
+	},
+	{
+		name: 'Automation: Active Presets Sequence Bank',
+		variableId: 'SEQ_BANK_var',
+	},
 ]
 
 export function getVariables() {

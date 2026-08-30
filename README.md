@@ -14,8 +14,9 @@ The Middle Control Companion plugin remotely controls the Middle Control softwar
 - Set Custom Camera & Pan/Tilt/Zoom Positions
 - Set Custom Pan/Tilt/Zoom Speed
 - Send a Custom Command (SDK)
-- Feedbacks (recording tally, camera/APC-R connection, active preset, AF, digital zoom)
-- Live Variables for camera & gimbal settings
+- Automations (Camera Shake, Zoom Loop, Presets Sequence) — start/stop and live parameters, per camera
+- Feedbacks (recording tally, camera/APC-R connection, active preset, AF, digital zoom, automation running)
+- Live Variables for camera & gimbal settings, plus automation state (running effects & active sequence bank)
 - **Streamdeck+ rotary-encoder presets** (Focus, Iris, ISO/Gain, WB, Shutter, Tint, Zoom Speed) — see the "Encoders (Streamdeck+)" preset category
 
 ## Development
@@ -23,6 +24,11 @@ The Middle Control Companion plugin remotely controls the Middle Control softwar
 This is an ESM project (`"type": "module"`). Install with `yarn install`. Load it as a developer module in Companion (point Companion at this folder) to test against a running Middle Control instance.
 
 ## Changes
+
+### v3.4.0
+
+- Adds an Automations action to start, stop and adjust Camera Shake, Zoom Loop and Presets Sequence
+- Adds automation feedbacks and variables (which effect is running, plus the active sequence bank)
 
 ### v3.3.0
 

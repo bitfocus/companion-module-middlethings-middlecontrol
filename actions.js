@@ -6,6 +6,7 @@ import {
 	absGimbal,
 	withCamera,
 	stopPreset,
+	automation,
 } from './commands.js'
 
 export const CHOICES_END = [
@@ -394,6 +395,118 @@ export function getActionDefinitions(self) {
 			callback: async (event) => {
 				const camNum = unescape(await self.parseVariablesInString(event.options.id_stoppreset_camera ?? '')).trim()
 				const cmd = stopPreset(camNum)
+				self.log('debug', '>> ' + cmd)
+				self.send(cmd)
+			},
+		},
+
+		// Action that controls an Automation. Pick the type, then the per-type action;
+		// the relevant options appear via isVisible. NOTE: isVisible runs in an isolated
+		// scope on the client — each function must reference only its `o` argument and
+		// inline literals (no outside variables).
+		automation: {
+			name: 'Automations',
+			options: [
+				{
+					type: 'static-text',
+					id: 'Textlabel',
+					label:
+						'Control an Automation. Pick the type, then the action — the relevant options appear below. Leave Camera ID empty to target the currently selected camera.',
+					width: 12,
+				},
+				{
+					type: 'dropdown',
+					id: 'auto_type',
+					label: 'Automation',
+					default: 'shake',
+					choices: [
+						{ id: 'shake', label: 'Camera Shake' },
+						{ id: 'zloop', label: 'Zoom Loop' },
+						{ id: 'presetseq', label: 'Presets Sequence' },
+					],
+				},
+				{
+					type: 'dropdown',
+					id: 'op_shake',
+					label: 'Action',
+					default: 'start',
+					choices: [
+						{ id: 'start', label: 'Start' },
+						{ id: 'stop', label: 'Stop' },
+						{ id: 'speed', label: 'Set Speed (1–100)' },
+						{ id: 'ampl', label: 'Set Amplitude (1–100)' },
+					],
+					isVisible: (o) => o.auto_type === 'shake',
+				},
+				{
+					type: 'dropdown',
+					id: 'op_zloop',
+					label: 'Action',
+					default: 'start',
+					choices: [
+						{ id: 'start', label: 'Start' },
+						{ id: 'stop', label: 'Stop' },
+						{ id: 'speed', label: 'Set Speed (1–100)' },
+						{ id: 'rest', label: 'Set Rest Duration (0.1–15 s)' },
+						{ id: 'dur', label: 'Set Zoom Duration (0.1–60 s)' },
+					],
+					isVisible: (o) => o.auto_type === 'zloop',
+				},
+				{
+					type: 'dropdown',
+					id: 'op_presetseq',
+					label: 'Action',
+					default: 'start',
+					choices: [
+						{ id: 'start', label: 'Start' },
+						{ id: 'stop', label: 'Stop' },
+						{ id: 'rest', label: 'Set Rest Duration (0.1–15 s)' },
+						{ id: 'speed', label: 'Set Transition Speed (0.1–15 s)' },
+						{ id: 'bank', label: 'Set Active Bank (1–7)' },
+					],
+					isVisible: (o) => o.auto_type === 'presetseq',
+				},
+				{
+					type: 'textinput',
+					id: 'auto_value',
+					label: 'Value',
+					tooltip: 'Numeric value for the selected "Set …" action (see its range above). Durations are in seconds.',
+					default: '',
+					width: 6,
+					isVisible: (o) =>
+						(o.auto_type === 'shake' && (o.op_shake === 'speed' || o.op_shake === 'ampl')) ||
+						(o.auto_type === 'zloop' && (o.op_zloop === 'speed' || o.op_zloop === 'rest' || o.op_zloop === 'dur')) ||
+						(o.auto_type === 'presetseq' &&
+							(o.op_presetseq === 'rest' || o.op_presetseq === 'speed' || o.op_presetseq === 'bank')),
+				},
+				{
+					type: 'textinput',
+					id: 'auto_camera',
+					label: 'Camera ID (optional):',
+					tooltip: 'If set, targets that camera number. If empty, the currently selected camera.',
+					default: '',
+					width: 6,
+					regex: '^[0-9]*$',
+					regexMessage: 'Only numbers are allowed',
+				},
+			],
+			callback: async (event) => {
+				const type = event.options.auto_type
+				const op =
+					type === 'shake'
+						? event.options.op_shake
+						: type === 'zloop'
+						? event.options.op_zloop
+						: type === 'presetseq'
+						? event.options.op_presetseq
+						: undefined
+				const value = unescape(await self.parseVariablesInString(event.options.auto_value ?? '')).trim()
+				const camNum = unescape(await self.parseVariablesInString(event.options.auto_camera ?? '')).trim()
+				const cmd = automation(type, op, value, camNum)
+				if (cmd === null) {
+					self.log('warn', 'Automation: invalid selection or missing value (' + type + ' / ' + op + ')')
+					return
+				}
 				self.log('debug', '>> ' + cmd)
 				self.send(cmd)
 			},

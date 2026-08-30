@@ -86,3 +86,41 @@ export function stopPreset(camRaw) {
 export function absGimbal({ pan, tilt, roll, zoom, duration }) {
 	return `aGLOB;aP${pan};aT${tilt};aR${roll};aZ${zoom};${duration}`
 }
+
+// Automations — one effect (cue) per command, optional "@C<id>". (automation action)
+// Effects: shake (Camera Shake), zloop (Zoom Loop), presetseq (Presets Sequence).
+// Each op maps to the app's handleAutomationCommand vocabulary; the app clamps all
+// ranges server-side, so we just forward the exact numeric text. Value ops require a
+// finite number; start/stop take none. Boomerang is intentionally not offered (its
+// engine isn't implemented app-side). Returns null on invalid input (caller skips send).
+const AUTOMATION_CMDS = {
+	shake: { start: 'SHAKE-START', stop: 'SHAKE-STOP', speed: 'SHAKE-SPEED', ampl: 'SHAKE-AMPL' },
+	zloop: {
+		start: 'ZLOOP-START',
+		stop: 'ZLOOP-STOP',
+		speed: 'ZLOOP-SPEED',
+		rest: 'ZLOOP-RESTDURATION',
+		dur: 'ZLOOP-DURATION',
+	},
+	presetseq: {
+		start: 'PRESETSEQ-START',
+		stop: 'PRESETSEQ-STOP',
+		rest: 'PRESETSEQ-RESTDURATION',
+		speed: 'PRESETSEQ-SPEED',
+		bank: 'PRESETSEQ-BANK',
+	},
+}
+const AUTOMATION_VALUE_OPS = new Set(['speed', 'ampl', 'rest', 'dur', 'bank'])
+
+export function automation(type, op, valueRaw, camRaw) {
+	const table = AUTOMATION_CMDS[type]
+	if (!table) return null
+	const base = table[op]
+	if (!base) return null
+	if (AUTOMATION_VALUE_OPS.has(op)) {
+		const s = String(valueRaw ?? '').trim()
+		if (s === '' || !Number.isFinite(Number(s))) return null
+		return withCamera(base + s, camRaw) // keep the user's exact numeric text (e.g. "2.5")
+	}
+	return withCamera(base, camRaw)
+}

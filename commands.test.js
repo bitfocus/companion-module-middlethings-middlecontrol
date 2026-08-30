@@ -1,6 +1,16 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { toInt, withCamera, selectCamera, preset, presetTransition, setSpeed, absGimbal, stopPreset } from './commands.js'
+import {
+	toInt,
+	withCamera,
+	selectCamera,
+	preset,
+	presetTransition,
+	setSpeed,
+	absGimbal,
+	stopPreset,
+	automation,
+} from './commands.js'
 
 // --- toInt ---
 test('toInt: accepts signed integers, rejects junk', () => {
@@ -87,4 +97,32 @@ test('absGimbal: builds the exact aGLOB frame', () => {
 		absGimbal({ pan: '-100', tilt: '200', roll: '5', zoom: '4096', duration: '2' }),
 		'aGLOB;aP-100;aT200;aR5;aZ4096;2'
 	)
+})
+
+// --- automation: type+op → wire command, optional @C, value ops require a number ---
+test('automation: start/stop take no value', () => {
+	assert.equal(automation('shake', 'start', '', ''), 'SHAKE-START')
+	assert.equal(automation('shake', 'stop', '', ''), 'SHAKE-STOP')
+	assert.equal(automation('zloop', 'start', '', ''), 'ZLOOP-START')
+	assert.equal(automation('presetseq', 'stop', '', ''), 'PRESETSEQ-STOP')
+})
+test('automation: value ops append the exact numeric text', () => {
+	assert.equal(automation('shake', 'speed', '50', ''), 'SHAKE-SPEED50')
+	assert.equal(automation('shake', 'ampl', '30', '3'), 'SHAKE-AMPL30@C3')
+	assert.equal(automation('zloop', 'speed', '80', ''), 'ZLOOP-SPEED80')
+	assert.equal(automation('zloop', 'rest', '2.5', ''), 'ZLOOP-RESTDURATION2.5')
+	assert.equal(automation('zloop', 'dur', '10', ''), 'ZLOOP-DURATION10')
+	assert.equal(automation('presetseq', 'rest', '1.5', ''), 'PRESETSEQ-RESTDURATION1.5')
+	assert.equal(automation('presetseq', 'speed', '2', ''), 'PRESETSEQ-SPEED2')
+	assert.equal(automation('presetseq', 'bank', '3', '12'), 'PRESETSEQ-BANK3@C12')
+})
+test('automation: optional @C only when a camera is given', () => {
+	assert.equal(automation('presetseq', 'start', '', '5'), 'PRESETSEQ-START@C5')
+	assert.equal(automation('presetseq', 'start', '', ''), 'PRESETSEQ-START')
+})
+test('automation: rejects missing/non-numeric value and bad type/op', () => {
+	assert.equal(automation('shake', 'speed', '', ''), null)
+	assert.equal(automation('shake', 'speed', 'abc', ''), null)
+	assert.equal(automation('bogus', 'start', '', ''), null)
+	assert.equal(automation('shake', 'bogus', '', ''), null)
 })

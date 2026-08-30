@@ -309,6 +309,19 @@ class instance extends InstanceBase {
 						// "PRES_ACTIVE" is 11 characters → keep what comes after
 						PRES_ACTIVE = PRES_ACTIVE.substring(11) // e.g. "0", "2", "3"
 					}
+
+					// GET AUTOMATION RUN STATES (Companion feed): SHAKE_RUN / ZLOOP_RUN /
+					// PRESETSEQ_RUN (0/1) + PRESETSEQ_BANK (active sequence bank). Anchored
+					// startsWith so PRESETSEQ_RUN and PRESETSEQ_BANK never cross-match.
+					let SHAKE_RUN = response_array1.find((element) => element.startsWith('SHAKE_RUN'))
+					if (SHAKE_RUN !== undefined) SHAKE_RUN = SHAKE_RUN.substring(9) // "0"/"1"
+					let ZLOOP_RUN = response_array1.find((element) => element.startsWith('ZLOOP_RUN'))
+					if (ZLOOP_RUN !== undefined) ZLOOP_RUN = ZLOOP_RUN.substring(9) // "0"/"1"
+					let PRESETSEQ_RUN = response_array1.find((element) => element.startsWith('PRESETSEQ_RUN'))
+					if (PRESETSEQ_RUN !== undefined) PRESETSEQ_RUN = PRESETSEQ_RUN.substring(13) // "0"/"1"
+					let SEQ_BANK = response_array1.find((element) => element.startsWith('PRESETSEQ_BANK'))
+					if (SEQ_BANK !== undefined) SEQ_BANK = SEQ_BANK.substring(14) // "1".."7"
+
 					if (CAM !== undefined) {
 						this.setVariableValues({ CAM_var: CAM })
 					} else {
@@ -372,6 +385,17 @@ class instance extends InstanceBase {
 					this.MIDDLE.PRESET_ACTIVE = PRES_ACTIVE
 					this.MIDDLE.PTS = PTS
 					this.MIDDLE.ZS = ZS
+
+					this.setVariableValues({
+						SHAKE_RUN_var: SHAKE_RUN ?? '',
+						ZLOOP_RUN_var: ZLOOP_RUN ?? '',
+						PRESETSEQ_RUN_var: PRESETSEQ_RUN ?? '',
+						SEQ_BANK_var: SEQ_BANK ?? '',
+					})
+					this.MIDDLE.SHAKE_RUN = SHAKE_RUN
+					this.MIDDLE.ZLOOP_RUN = ZLOOP_RUN
+					this.MIDDLE.PRESETSEQ_RUN = PRESETSEQ_RUN
+					this.MIDDLE.SEQ_BANK = SEQ_BANK
 				}
 
 				// ATEM Middle Control Feedback into ARRAY 2 (detects using aWB presence)
@@ -672,7 +696,10 @@ this.checkFeedbacks(
   'DigitalZoomStatus',
   'CurrentPresetActive',
   'CameraConnectionStatus',
-  'APCRConnectionStatus'
+  'APCRConnectionStatus',
+  'ShakeRunning',
+  'ZoomLoopRunning',
+  'PresetsSequenceRunning'
 )
 				} // end for: frame reassembly loop
 			})
