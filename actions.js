@@ -7,6 +7,8 @@ import {
 	withCamera,
 	stopPreset,
 	automation,
+	focusStep,
+	presetEase,
 } from './commands.js'
 
 export const CHOICES_END = [
@@ -33,8 +35,19 @@ export const CHOICES_CAMERACOMMAND = [
 	{ id: 'REC_STOP', label: 'Stop Recording' },
 	{ id: 'REC_START_ALL', label: 'Start Recording on all cameras' },
 	{ id: 'REC_STOP_ALL', label: 'Stop Recording on all cameras' },
-	{ id: 'FOCUS+', label: 'Focus in by a step' },
-	{ id: 'FOCUS-', label: 'Focus out by a step' },
+	// Focus (Middle Control 4.0.4+): the plain in/out actions behave like the app's own focus button —
+	// one press = one fine step, repeated presses ramp up. For an exact step size use the
+	// "Focus by a Fixed Step" action; for press-and-hold put FOCUS_IN / FOCUS_OUT on Press and
+	// FOCUS_IDLE on Release (presets in the "Focus (buttons)" category do exactly that).
+	{ id: 'FOCUS+', label: 'Focus in (fine step, ramps when repeated)' },
+	{ id: 'FOCUS-', label: 'Focus out (fine step, ramps when repeated)' },
+	{ id: 'FOCUS_IN', label: 'Focus in — hold (on Press; add "Focus stop" on Release)' },
+	{ id: 'FOCUS_OUT', label: 'Focus out — hold (on Press; add "Focus stop" on Release)' },
+	{ id: 'FOCUS_IDLE', label: 'Focus stop (Release of a Focus in / out hold)' },
+	{ id: 'LIVEVIEW_OPEN', label: 'Open the Live View window (selected camera)' },
+	{ id: 'LIVEVIEW_CLOSE', label: 'Close the Live View window' },
+	{ id: 'MULTIVIEW_OPEN', label: 'Open the Multi View window (Middle Control Pro)' },
+	{ id: 'MULTIVIEW_CLOSE', label: 'Close the Multi View window' },
 	{ id: 'IRIS+', label: 'Iris increase' },
 	{ id: 'IRIS-', label: 'Iris decrease' },
 	{ id: 'WB+', label: 'White Balance increase' },
@@ -332,6 +345,89 @@ export function getActionDefinitions(self) {
 					return
 				}
 
+				self.log('debug', '>> ' + cmd)
+				self.send(cmd)
+			},
+		},
+
+		// Focus by an exact step — FOCUS+<size> / FOCUS-<size> (Middle Control 4.0.4 or later).
+		focus_step: {
+			name: 'Focus by a Fixed Step',
+			options: [
+				{
+					type: 'static-text',
+					id: 'Textlabel',
+					label:
+						'Moves the focus by an exact fraction of the lens travel, without the ramp of the plain Focus in / out actions. 0.002 is about the finest step of the app, 0.01 is the step the plain actions used before Middle Control 4.0.4.',
+					width: 6,
+				},
+				{
+					type: 'dropdown',
+					id: 'id_focusstep_dir',
+					label: 'Direction',
+					default: 'in',
+					choices: [
+						{ id: 'in', label: 'Focus in (+)' },
+						{ id: 'out', label: 'Focus out (−)' },
+					],
+				},
+				{
+					type: 'textinput',
+					id: 'id_focusstep_size',
+					label: 'Step (fraction of the lens travel, 0.0001 – 1)',
+					default: '0.002',
+					useVariables: true,
+				},
+				{
+					type: 'textinput',
+					id: 'id_focusstep_camera',
+					label: 'Camera ID (optional):',
+					tooltip:
+						'If set, the step goes to that camera number whatever the current selection. Empty = the selected camera.',
+					default: '',
+					width: 6,
+				},
+			],
+			callback: async (event) => {
+				const size = unescape(await self.parseVariablesInString(event.options.id_focusstep_size ?? ''))
+				const camRaw = unescape(await self.parseVariablesInString(event.options.id_focusstep_camera ?? '')).trim()
+				const cmd = focusStep(event.options.id_focusstep_dir, size, camRaw)
+				if (cmd === null) {
+					self.log('warn', 'Focus by a Fixed Step: the step must be a positive number (e.g. 0.002) — nothing sent')
+					return
+				}
+				self.log('debug', '>> ' + cmd)
+				self.send(cmd)
+			},
+		},
+
+		// Preset transition easing — PRES_E<0..100> (APC-R firmware 2.0 or later), one value for all
+		// cameras like the transition duration.
+		preset_ease: {
+			name: 'Set Preset Transition Easing',
+			options: [
+				{
+					type: 'static-text',
+					id: 'Textlabel',
+					label:
+						'Easing of the preset transitions: 0 = linear, 100 = maximum ease-in / ease-out. One value for all cameras, like the transition duration (APC-R firmware 2.0 or later).',
+					width: 6,
+				},
+				{
+					type: 'textinput',
+					id: 'id_presetease',
+					label: 'Easing (0 – 100)',
+					default: '50',
+					useVariables: true,
+				},
+			],
+			callback: async (event) => {
+				const v = unescape(await self.parseVariablesInString(event.options.id_presetease ?? ''))
+				const cmd = presetEase(v)
+				if (cmd === null) {
+					self.log('warn', 'Preset Transition Easing: the value must be a number between 0 and 100 — nothing sent')
+					return
+				}
 				self.log('debug', '>> ' + cmd)
 				self.send(cmd)
 			},
@@ -688,7 +784,20 @@ export function getActionDefinitions(self) {
 				{
 					type: 'static-text',
 					id: 'Textlabel',
-					label: 'Set Focus : aFOCUSxx (xx from 0.0 to 1.0) ',
+					// The app parses `aF` + number: `aFOCUS0.5` was rejected as non-numeric (3.4.0 help text).
+					label: 'Set Focus : aFxx (xx from 0.0 to 1.0, e.g. aF0.5) ',
+					width: 6,
+				},
+				{
+					type: 'static-text',
+					id: 'Textlabel',
+					label: 'Set Shutter : aSHUTxx (xx = denominator, e.g. aSHUT50 for 1/50) ',
+					width: 6,
+				},
+				{
+					type: 'static-text',
+					id: 'Textlabel',
+					label: 'Set ND : NDxx (xx = denominator, e.g. ND64 — NDCLEAR to clear; Sony variable ND) ',
 					width: 6,
 				},
 				{

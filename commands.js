@@ -124,3 +124,27 @@ export function automation(type, op, valueRaw, camRaw) {
 	}
 	return withCamera(base, camRaw)
 }
+
+// FOCUS+<size> / FOCUS-<size> — ONE focus step of exactly <size> (fraction of the lens travel,
+// 0 < size ≤ 1), optional "@C<id>". (focus_step action) Middle Control ≥ 4.0.4: a bare FOCUS±
+// behaves like the app's own focus button (fine first step, ramp while repeated, release after
+// the stream stops), so a FIXED step needs its size spelled out — "0.01" is the step the bare
+// command used before 4.0.4. The size text is forwarded as typed (the app clamps above 1);
+// non-numeric, non-positive or non-finite sizes return null (caller skips the send).
+export function focusStep(direction, sizeRaw, camRaw) {
+	const sign = direction === 'out' || direction === '-' ? '-' : '+'
+	const s = String(sizeRaw ?? '').trim()
+	const n = Number(s)
+	if (s === '' || !Number.isFinite(n) || n <= 0) return null
+	return withCamera(`FOCUS${sign}${s}`, camRaw)
+}
+
+// PRES_E<easing> — preset transition easing, 0 (linear) … 100, one value for all cameras like
+// PRES_D (APC-R firmware 2.0 or later). (preset_ease action) Rounded and clamped to 0..100;
+// rejects non-numeric input.
+export function presetEase(valueRaw) {
+	const s = String(valueRaw ?? '').trim()
+	const n = Number(s)
+	if (s === '' || !Number.isFinite(n)) return null
+	return `PRES_E${clamp(Math.round(n), 0, 100)}`
+}
