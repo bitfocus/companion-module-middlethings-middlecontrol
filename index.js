@@ -441,6 +441,14 @@ class instance extends InstanceBase {
 						aF = numOrAuto(aF.substring(2))
 					}
 
+					// GET ND FILTER FROM TCP — `aND<denominator>` (4, 16, 64 …) or `aND-` when the filter is
+					// clear / the camera has none; startsWith, not includes (other tokens contain "aND").
+					var aND = response_array2.find((element) => element.startsWith('aND'))
+					if (aND !== undefined) {
+						aND = aND.substring(3).trim()
+						if (aND === '' || aND === '-') aND = 'CLEAR'
+					}
+
 					// GET IRIS FROM TCP
 					let aI = response_array2.find((element) => {
 						if (element.includes('aI')) {
@@ -548,6 +556,13 @@ class instance extends InstanceBase {
 						this.setVariableValues({ aF_var: aF })
 					} else {
 						this.setVariableValues({ aF_var: '' })
+					}
+					// ND filter: variable ("CLEAR" or the denominator) + state for the NDStatus feedback
+					this.MIDDLE.ND = aND
+					if (aND !== undefined) {
+						this.setVariableValues({ aND_var: aND })
+					} else {
+						this.setVariableValues({ aND_var: '' })
 					}
 					if (aI !== undefined) {
 						this.setVariableValues({ aI_var: aI })
@@ -715,7 +730,8 @@ this.checkFeedbacks(
   'APCRConnectionStatus',
   'ShakeRunning',
   'ZoomLoopRunning',
-  'PresetsSequenceRunning'
+  'PresetsSequenceRunning',
+  'NDStatus'
 )
 				} // end for: frame reassembly loop
 			})

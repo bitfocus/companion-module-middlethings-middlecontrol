@@ -257,6 +257,41 @@ export function getFeedbackDefinitions(self) {
 			},
 		},
 
+		// ND filter of the selected camera, from the feed's `aND` token (denominator, or clear).
+		NDStatus: {
+			type: 'boolean',
+			name: 'ND filter status',
+			description: 'Change style when the ND filter of the current camera is clear, or at a given density',
+			defaultStyle: {
+				color: combineRgb(0, 0, 0),
+				bgcolor: combineRgb(0, 255, 0), // green when condition is true
+			},
+			options: [
+				{
+					type: 'dropdown',
+					label: 'ND filter',
+					id: 'nd',
+					default: 'CLEAR',
+					choices: [
+						{ id: 'CLEAR', label: 'Clear (no ND)' },
+						{ id: 'ANY', label: 'Any ND engaged' },
+						{ id: '4', label: '1/4' },
+						{ id: '16', label: '1/16' },
+						{ id: '64', label: '1/64' },
+						{ id: '256', label: '1/256' },
+						{ id: '1024', label: '1/1024' },
+					],
+				},
+			],
+			callback: function (feedback) {
+				const desired = feedback.options.nd
+				const nd = self.MIDDLE.ND // "CLEAR", a denominator string, or undefined
+				if (nd === undefined) return false
+				if (desired === 'ANY') return nd !== 'CLEAR'
+				return nd === desired
+			},
+		},
+
 		DigitalZoomStatus: {
 			type: 'boolean',
 			name: 'Digital zoom status',

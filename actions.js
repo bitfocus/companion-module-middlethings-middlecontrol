@@ -9,6 +9,7 @@ import {
 	automation,
 	focusStep,
 	presetEase,
+	ndFilter,
 } from './commands.js'
 
 export const CHOICES_END = [
@@ -426,6 +427,64 @@ export function getActionDefinitions(self) {
 				const cmd = presetEase(v)
 				if (cmd === null) {
 					self.log('warn', 'Preset Transition Easing: the value must be a number between 0 and 100 — nothing sent')
+					return
+				}
+				self.log('debug', '>> ' + cmd)
+				self.send(cmd)
+			},
+		},
+
+		// ND filter — ND<denominator> / NDCLEAR. The feedback frame reports the current filter as `aND`
+		// (variable aND_var, feedback "ND filter status").
+		nd_set: {
+			name: 'Set ND Filter',
+			options: [
+				{
+					type: 'static-text',
+					id: 'Textlabel',
+					label:
+						'Sets the ND filter of a camera: clear, one of the standard densities, or a custom denominator (Sony variable ND, 2 – 4096). Use the Camera Action "ND increase / decrease" to step instead.',
+					width: 6,
+				},
+				{
+					type: 'dropdown',
+					id: 'id_nd_choice',
+					label: 'ND filter',
+					default: 'CLEAR',
+					choices: [
+						{ id: 'CLEAR', label: 'Clear (no ND)' },
+						{ id: '4', label: '1/4' },
+						{ id: '16', label: '1/16' },
+						{ id: '64', label: '1/64' },
+						{ id: '256', label: '1/256' },
+						{ id: '1024', label: '1/1024' },
+						{ id: 'custom', label: 'Custom denominator…' },
+					],
+				},
+				{
+					type: 'textinput',
+					id: 'id_nd_custom',
+					label: 'Custom denominator (e.g. 128 for 1/128)',
+					default: '',
+					useVariables: true,
+					isVisible: (options) => options.id_nd_choice === 'custom',
+				},
+				{
+					type: 'textinput',
+					id: 'id_nd_camera',
+					label: 'Camera ID (optional):',
+					tooltip:
+						'If set, the ND goes to that camera number whatever the current selection. Empty = the selected camera.',
+					default: '',
+					width: 6,
+				},
+			],
+			callback: async (event) => {
+				const custom = unescape(await self.parseVariablesInString(event.options.id_nd_custom ?? ''))
+				const camRaw = unescape(await self.parseVariablesInString(event.options.id_nd_camera ?? '')).trim()
+				const cmd = ndFilter(event.options.id_nd_choice, custom, camRaw)
+				if (cmd === null) {
+					self.log('warn', 'Set ND Filter: the custom denominator must be a whole number (e.g. 128) — nothing sent')
 					return
 				}
 				self.log('debug', '>> ' + cmd)

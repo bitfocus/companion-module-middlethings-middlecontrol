@@ -148,3 +148,16 @@ export function presetEase(valueRaw) {
 	if (s === '' || !Number.isFinite(n)) return null
 	return `PRES_E${clamp(Math.round(n), 0, 100)}`
 }
+
+// ND<denominator> / NDCLEAR — absolute ND filter, optional "@C<id>". (nd_set action)
+// The app takes a denominator (4 = 1/4, 16, 64, 256, 1024 ride the standard ladder; any other value
+// 2..4096 goes to Sony variable-ND bodies) or CLEAR / OFF / THROUGH for no filter. `choice` is the
+// dropdown id ('CLEAR', a ladder value, or 'custom' → `customRaw`). Rejects a non-numeric or
+// non-positive custom value (caller skips the send).
+export function ndFilter(choice, customRaw, camRaw) {
+	const c = String(choice ?? '').trim()
+	if (c.toUpperCase() === 'CLEAR') return withCamera('NDCLEAR', camRaw)
+	const raw = c === 'custom' ? String(customRaw ?? '').trim() : c
+	if (!/^\d+$/.test(raw) || parseInt(raw, 10) <= 0) return null
+	return withCamera(`ND${parseInt(raw, 10)}`, camRaw)
+}

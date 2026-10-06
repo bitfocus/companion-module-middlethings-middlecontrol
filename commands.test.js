@@ -12,6 +12,7 @@ import {
 	automation,
 	focusStep,
 	presetEase,
+	ndFilter,
 } from './commands.js'
 
 // --- toInt ---
@@ -150,4 +151,18 @@ test('presetEase: integer 0..100, junk rejected', () => {
 	assert.equal(presetEase('12.6'), 'PRES_E13')
 	assert.equal(presetEase(''), null)
 	assert.equal(presetEase('abc'), null)
+})
+
+// --- ndFilter: ND<denominator> / NDCLEAR, optional camera ---
+test('ndFilter: ladder values, clear, custom denominator, junk rejected', () => {
+	assert.equal(ndFilter('CLEAR', '', ''), 'NDCLEAR')
+	assert.equal(ndFilter('clear', '', '2'), 'NDCLEAR@C2')
+	assert.equal(ndFilter('64', '', ''), 'ND64')
+	assert.equal(ndFilter('4', '', '3'), 'ND4@C3')
+	assert.equal(ndFilter('custom', '128', ''), 'ND128')
+	assert.equal(ndFilter('custom', ' 8 ', '5'), 'ND8@C5')
+	assert.equal(ndFilter('custom', '', ''), null)
+	assert.equal(ndFilter('custom', '0', ''), null)
+	assert.equal(ndFilter('custom', '1/64', ''), null)
+	assert.equal(ndFilter('custom', 'abc', ''), null)
 })

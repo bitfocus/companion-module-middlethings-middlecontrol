@@ -44,6 +44,10 @@ const variables = [
 		variableId: 'aI_var',
 	},
 	{
+		name: 'ND Filter (CLEAR or denominator, e.g. 64)',
+		variableId: 'aND_var',
+	},
+	{
 		name: 'Shutter',
 		variableId: 'aSHUT_var',
 	},

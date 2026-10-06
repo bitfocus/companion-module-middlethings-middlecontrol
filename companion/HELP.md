@@ -22,13 +22,14 @@ Check exact compatibility : https://www.middlethings.co/compatibility/
 **Recording:** start/stop on the active camera or on all cameras at once.
 **Presets:** recall and save positions, stop a running preset, and set the preset transition duration and easing (easing needs an APC-R with firmware 2.0 or later).
 **Windows:** open / close the Live View window of the selected camera, and the Multi View window (Middle Control Pro).
+**ND filter:** step it with the ND increase / decrease camera actions, or set it directly with *Set ND Filter* — clear, 1/4 … 1/1024, or a custom denominator for Sony variable ND; the current filter is reported in the ND Filter variable and the *ND filter status* feedback.
 **Automations:** control the app's automations from one action — pick the type (Camera Shake, Zoom Loop, Presets Sequence), then Start/Stop or set a parameter (speed, amplitude, durations, or the active sequence bank). The options shown adapt to the type you choose. Leave Camera ID empty to target the currently selected camera, or set one to target a specific camera.
 **Camera extras:** menu navigation, MultiSelector, and Custom C1–C6 buttons.
 **Custom commands (SDK):** send any raw command/value (e.g. set ISO or WB to a specific value). See https://www.middlethings.co/api
 
 ### Feedbacks & variables
 
-Boolean **feedbacks** let buttons reflect live state: recording tally, camera connection, APC-R connection, active preset, Auto Focus, Digital Zoom, and automations running (Camera Shake / Zoom Loop / Presets Sequence). Several feedbacks accept an optional Camera ID so you can monitor multiple cameras at a glance.
+Boolean **feedbacks** let buttons reflect live state: recording tally, camera connection, APC-R connection, active preset, Auto Focus, Digital Zoom, ND filter (clear / any / a given density), and automations running (Camera Shake / Zoom Loop / Presets Sequence). Several feedbacks accept an optional Camera ID so you can monitor multiple cameras at a glance.
 
 **Variables** expose live values (selected camera, pan/tilt & zoom speed, preset transition duration and easing, WB, tint, gain, iris, shutter, contrast, saturation, levels, gimbal pan/tilt/roll/zoom, recording status, lists of connected/recording cameras, automation running states and the active sequence bank, …). They show `-` until the module is connected and receiving data.
 
