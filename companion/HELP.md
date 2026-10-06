@@ -17,9 +17,11 @@ Check exact compatibility : https://www.middlethings.co/compatibility/
 ### What you can do
 
 **Cameras (CCU):** select the active camera, adjust focus, iris, white balance, tint, gain/ISO, shutter, ND, contrast, saturation and black/mid/white levels; toggle Auto Focus / Auto Iris / Auto WB / Auto Gain / Auto Shutter; zebra, false colour, focus peaking, colour bars.
+**Focus, three ways (Middle Control 4.0.4 or later):** *Focus in / out* behave like the app's own focus button — one press is one fine step, repeated presses ramp up; *Focus in / out — hold* on Press with *Focus stop* on Release moves the lens for as long as the button is held (ready-made in the **"Focus (buttons)"** presets); *Focus by a Fixed Step* moves by an exact fraction of the lens travel (0.002 = the finest step, 0.01 = the step of the plain actions before 4.0.4).
 **Gimbal:** pan / tilt / roll / zoom / slider, speed control, recenter, sleep/wake, auto-calibration, Active Track.
 **Recording:** start/stop on the active camera or on all cameras at once.
-**Presets:** recall and save positions, stop a running preset, and set the preset transition duration.
+**Presets:** recall and save positions, stop a running preset, and set the preset transition duration and easing (easing needs an APC-R with firmware 2.0 or later).
+**Windows:** open / close the Live View window of the selected camera, and the Multi View window (Middle Control Pro).
 **Automations:** control the app's automations from one action — pick the type (Camera Shake, Zoom Loop, Presets Sequence), then Start/Stop or set a parameter (speed, amplitude, durations, or the active sequence bank). The options shown adapt to the type you choose. Leave Camera ID empty to target the currently selected camera, or set one to target a specific camera.
 **Camera extras:** menu navigation, MultiSelector, and Custom C1–C6 buttons.
 **Custom commands (SDK):** send any raw command/value (e.g. set ISO or WB to a specific value). See https://www.middlethings.co/api
@@ -28,11 +30,13 @@ Check exact compatibility : https://www.middlethings.co/compatibility/
 
 Boolean **feedbacks** let buttons reflect live state: recording tally, camera connection, APC-R connection, active preset, Auto Focus, Digital Zoom, and automations running (Camera Shake / Zoom Loop / Presets Sequence). Several feedbacks accept an optional Camera ID so you can monitor multiple cameras at a glance.
 
-**Variables** expose live values (selected camera, pan/tilt & zoom speed, WB, tint, gain, iris, shutter, contrast, saturation, levels, gimbal pan/tilt/roll/zoom, recording status, lists of connected/recording cameras, automation running states and the active sequence bank, …). They show `-` until the module is connected and receiving data.
+**Variables** expose live values (selected camera, pan/tilt & zoom speed, preset transition duration and easing, WB, tint, gain, iris, shutter, contrast, saturation, levels, gimbal pan/tilt/roll/zoom, recording status, lists of connected/recording cameras, automation running states and the active sequence bank, …). They show `-` until the module is connected and receiving data.
 
 ### Streamdeck+ encoders
 
 This module ships ready-made rotary-encoder presets in the **"Encoders (Streamdeck+)"** preset category — Focus, Iris, ISO/Gain, White Balance, Shutter, Tint, Contrast, Saturation, Black Level, Pan/Tilt Speed and Zoom Speed. Rotate to step the value; press (where shown) toggles the matching Auto mode.
+
+The Focus encoder is velocity-sensitive with Middle Control 4.0.4 or later: slow detents move by the app's finest step, a quick twist ramps up like the app's own button held down. If you prefer a fixed amount per detent, build the encoder from the *Focus by a Fixed Step* action instead (0.01 = the detent of earlier versions).
 
 Note: gimbal **pan / tilt / roll / zoom** are not offered as encoder presets, because those start a continuous movement that needs a separate stop command on release — which a rotary detent doesn't provide. Use buttons for gimbal motion.
 

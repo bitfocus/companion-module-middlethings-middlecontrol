@@ -203,6 +203,17 @@ class instance extends InstanceBase {
 						PRES_D = parseFloat(PRES_D.substring(6))
 					}
 
+					//GET PRESET TRANSITION EASING FROM TCP ("-" when no APC-R firmware 2.0+ → left empty)
+					var PRES_E = response_array1.find((element) => {
+						if (element.includes('PRES_E')) {
+							return true
+						}
+					})
+					if (PRES_E !== undefined) {
+						PRES_E = parseFloat(PRES_E.substring(6))
+						if (!Number.isFinite(PRES_E)) PRES_E = undefined
+					}
+
 					//GET PRESET COMPLETION  FROM TCP
 					var PRES_C = response_array1.find((element) => {
 						if (element.includes('PRES_C')) {
@@ -347,6 +358,11 @@ class instance extends InstanceBase {
 						this.setVariableValues({ PRES_D_var: PRES_D })
 					} else {
 						this.setVariableValues({ PRES_D_var: '' })
+					}
+					if (PRES_E !== undefined) {
+						this.setVariableValues({ PRES_E_var: PRES_E })
+					} else {
+						this.setVariableValues({ PRES_E_var: '' })
 					}
 					if (PRES_C !== undefined) {
 						this.setVariableValues({ PRES_C_var: PRES_C })

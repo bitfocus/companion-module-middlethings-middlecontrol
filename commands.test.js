@@ -10,6 +10,8 @@ import {
 	absGimbal,
 	stopPreset,
 	automation,
+	focusStep,
+	presetEase,
 } from './commands.js'
 
 // --- toInt ---
@@ -125,4 +127,27 @@ test('automation: rejects missing/non-numeric value and bad type/op', () => {
 	assert.equal(automation('shake', 'speed', 'abc', ''), null)
 	assert.equal(automation('bogus', 'start', '', ''), null)
 	assert.equal(automation('shake', 'bogus', '', ''), null)
+})
+
+// --- focusStep: FOCUS±<size>, exact size text, optional camera ---
+test('focusStep: sign from the direction, size forwarded as typed, junk rejected', () => {
+	assert.equal(focusStep('in', '0.002', ''), 'FOCUS+0.002')
+	assert.equal(focusStep('out', '0.01', '3'), 'FOCUS-0.01@C3')
+	assert.equal(focusStep('in', ' 0.5 ', ''), 'FOCUS+0.5')
+	assert.equal(focusStep('in', '', ''), null)
+	assert.equal(focusStep('in', '0', ''), null)
+	assert.equal(focusStep('in', '-0.01', ''), null)
+	assert.equal(focusStep('in', 'abc', ''), null)
+	assert.equal(focusStep('in', undefined, ''), null)
+})
+
+// --- presetEase: PRES_E<0..100>, rounded and clamped ---
+test('presetEase: integer 0..100, junk rejected', () => {
+	assert.equal(presetEase('50'), 'PRES_E50')
+	assert.equal(presetEase(' 88 '), 'PRES_E88')
+	assert.equal(presetEase('150'), 'PRES_E100')
+	assert.equal(presetEase('-5'), 'PRES_E0')
+	assert.equal(presetEase('12.6'), 'PRES_E13')
+	assert.equal(presetEase(''), null)
+	assert.equal(presetEase('abc'), null)
 })

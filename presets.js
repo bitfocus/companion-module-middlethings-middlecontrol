@@ -171,5 +171,57 @@ export function getPresetDefinitions() {
 		right: 'ZSPEED+',
 	})
 
+	// ── Focus buttons (Middle Control 4.0.4 or later) ──
+	// Press-and-hold: FOCUS_IN / FOCUS_OUT on Press, FOCUS_IDLE on Release — the lens moves exactly like
+	// the app's own focus button held with the mouse (fine first step, then a ramp) and stops on release.
+	// Fine step: one exact 0.002 step per press, no ramp (the "Focus by a Fixed Step" action).
+	const FOCUS_CAT = 'Focus (buttons)'
+	function focusHoldButton({ title, text, command }) {
+		return {
+			type: 'button',
+			category: FOCUS_CAT,
+			name: title,
+			style: { text, size: TEXT_SIZE, color: WHITE, bgcolor: BLACK },
+			steps: [
+				{
+					down: [
+						{ actionId: 'sendcameracommand', options: { id_sendcameracommand: command, id_sendcameracommand_camera: '' } },
+					],
+					up: [
+						{
+							actionId: 'sendcameracommand',
+							options: { id_sendcameracommand: 'FOCUS_IDLE', id_sendcameracommand_camera: '' },
+						},
+					],
+				},
+			],
+			feedbacks: [],
+		}
+	}
+	function focusFineButton({ title, text, dir }) {
+		return {
+			type: 'button',
+			category: FOCUS_CAT,
+			name: title,
+			style: { text, size: TEXT_SIZE, color: WHITE, bgcolor: BLACK },
+			steps: [
+				{
+					down: [
+						{
+							actionId: 'focus_step',
+							options: { id_focusstep_dir: dir, id_focusstep_size: '0.002', id_focusstep_camera: '' },
+						},
+					],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
+	}
+	presets.focus_hold_in = focusHoldButton({ title: 'Focus in — hold', text: 'FOCUS IN\nhold', command: 'FOCUS_IN' })
+	presets.focus_hold_out = focusHoldButton({ title: 'Focus out — hold', text: 'FOCUS OUT\nhold', command: 'FOCUS_OUT' })
+	presets.focus_fine_in = focusFineButton({ title: 'Focus in — fine step (0.002)', text: 'FOCUS IN\nfine', dir: 'in' })
+	presets.focus_fine_out = focusFineButton({ title: 'Focus out — fine step (0.002)', text: 'FOCUS OUT\nfine', dir: 'out' })
+
 	return presets
 }

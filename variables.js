@@ -20,6 +20,10 @@ const variables = [
 		variableId: 'PRES_D_var',
 	},
 	{
+		name: 'Preset Transition Easing (0-100)',
+		variableId: 'PRES_E_var',
+	},
+	{
 		name: 'Preset Completion (%) ',
 		variableId: 'PRES_C_var',
 	},

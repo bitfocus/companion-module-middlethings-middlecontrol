@@ -25,6 +25,13 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 
 ## Changes
 
+### v3.5.0
+
+- Focus with Middle Control 4.0.4+: the Focus in / out actions now step as finely as the app's own focus button and ramp up when repeated; new **Focus in / out — hold** actions (press / release) and a **Focus by a Fixed Step** action; ready-made buttons in the new "Focus (buttons)" preset category
+- New actions: open / close the **Live View** and **Multi View** windows
+- New **Set Preset Transition Easing** action and a Preset Transition Easing variable
+- Custom command help: the focus example is `aFxx` (the previous `aFOCUSxx` was never accepted); adds the shutter and ND examples
+
 ### v3.4.0
 
 - Adds an Automations action to start, stop and adjust Camera Shake, Zoom Loop and Presets Sequence
