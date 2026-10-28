@@ -31,8 +31,6 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 - Adds a "Track all cameras" option to follow every connected camera, not just the selected one
 - Adds per-camera variables (cam3_rec, cam3_af, cam3_iso, …) when Track all cameras is on
 - Adds an optional Camera ID to the Autofocus, Digital Zoom, Active Preset, ND filter and Automation feedbacks
-- Adds Hue and Sharpness actions
-- Adds a Set CCU Value action to set an exact Hue or Luma Mix
 - Adds an ATEM Link On/Off action (Pro)
 - Adds decimal pan/tilt speeds below 10% (e.g. 2.5)
 - Adds an optional Camera ID to Set Preset Transition Duration
