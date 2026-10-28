@@ -26,6 +26,10 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 
 ## Changes
 
+### v4.0.1
+
+- Fixes the automated release checks; no change to the module itself
+
 ### v4.0.0
 
 - Adds a "Monitor all cameras" option to receive the status of every connected camera, not just the selected one
