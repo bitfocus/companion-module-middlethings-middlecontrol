@@ -4,21 +4,21 @@ The Middle Control Companion plugin remotely controls the Middle Control softwar
 
 **Features**
 
-- Select Camera ID
-- Send Camera Action (CCU: focus, iris, WB, tint, gain/ISO, shutter, ND, levels; Auto modes; zebra/false-colour/peaking)
-- Send Gimbal Action (pan/tilt/roll/zoom/slider, speed, recenter, sleep/wake, Active Track)
-- Recall/Save Preset, Stop Running Preset, preset transition duration & easing
-- Automatic network discovery of Middle Control (with manual IP fallback)
-- Recording start/stop (per camera or all)
-- Sony menus, MultiSelector and Custom C1–C6 buttons
-- Send absolute gimbal positions (pan/tilt/roll/zoom)
-- Set Custom Pan/Tilt/Zoom Speed
-- Send a Custom Command (SDK)
-- Automations (Camera Shake, Zoom Loop, Presets Sequence) — start/stop and live parameters, per camera
-- Monitor all cameras (Middle Control 4.1+) — per-camera variables and feedbacks
-- Feedbacks (selected camera, recording tally, camera/APC-R connection, active preset, AF, digital zoom, ND filter, automation running)
-- Live Variables for camera & gimbal settings, plus automation state (running effects & active sequence bank)
-- Streamdeck+ rotary-encoder presets (Focus, Iris, ISO/Gain, WB, Shutter, Tint, Contrast, Saturation, Black Level, Pan/Tilt Speed, Zoom Speed)
+- Select the active camera
+- Camera control: focus, iris, white balance, tint, gain/ISO, shutter, ND filter, black/mid/white levels, auto modes, zebra, false colour, peaking
+- Gimbal control: pan, tilt, roll, zoom, slider, speed, recenter, sleep/wake, Active Track
+- Absolute gimbal positions and custom pan/tilt/zoom speed
+- Presets: recall, save, stop, transition duration and easing
+- Automations: Camera Shake, Zoom Loop and Presets Sequence, with live parameters
+- Recording start/stop, per camera or all
+- Sony menu navigation, MultiSelector and Custom C1–C6 buttons
+- Live View and Multi View windows
+- Custom commands (SDK)
+- Feedbacks: selected camera, recording, camera and APC-R connection, active preset, autofocus, digital zoom, ND filter, automations
+- Variables for camera, gimbal and automation state
+- Monitor all cameras: per-camera variables and feedbacks
+- Ready-made Streamdeck+ encoder and focus button presets
+- Automatic discovery of Middle Control on the network, with manual IP as a fallback
 
 ## Development
 
