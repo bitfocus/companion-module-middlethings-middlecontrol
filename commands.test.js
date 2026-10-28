@@ -15,6 +15,7 @@ import {
 	ndFilter,
 	atemLink,
 	ccuSet,
+	recallMask,
 } from './commands.js'
 
 // --- toInt ---
@@ -198,4 +199,17 @@ test('ccuSet: hue and luma mix are rounded, clamped and camera-targetable', () =
 	assert.equal(ccuSet('lumamix', '150', ''), 'aLUMAMIX100')
 	assert.equal(ccuSet('lumamix', '', ''), null)
 	assert.equal(ccuSet('bogus', '1', ''), null)
+})
+
+// --- recallMask: MASK:<list> sent before a Custom preset recall ---
+test('recallMask: lists the ticked settings in a fixed order, null when none', () => {
+	assert.equal(
+		recallMask({ pt: true, zoom: true, focus: true, iris: true, iso: true, wb: true }),
+		'MASK:PT,ZOOM,FOCUS,IRIS,ISO,WB'
+	)
+	assert.equal(recallMask({ wb: true, iso: true }), 'MASK:ISO,WB')
+	assert.equal(recallMask({ pt: true }), 'MASK:PT')
+	assert.equal(recallMask({}), null)
+	assert.equal(recallMask({ pt: false, iso: false }), null)
+	assert.equal(recallMask(undefined), null)
 })

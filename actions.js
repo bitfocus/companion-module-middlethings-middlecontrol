@@ -12,7 +12,19 @@ import {
 	ndFilter,
 	atemLink,
 	ccuSet,
+	recallMask,
 } from './commands.js'
+
+// The six settings a preset recall can apply — same list as the tick boxes on the app's Presets page.
+// Used by the Recall/Save Preset action when "Settings to recall" is Custom.
+const RECALL_SETTINGS = [
+	{ key: 'pt', id: 'id_recall_pt', label: 'Pan / Tilt' },
+	{ key: 'zoom', id: 'id_recall_zoom', label: 'Zoom' },
+	{ key: 'focus', id: 'id_recall_focus', label: 'Focus' },
+	{ key: 'iris', id: 'id_recall_iris', label: 'Iris' },
+	{ key: 'iso', id: 'id_recall_iso', label: 'ISO / Gain' },
+	{ key: 'wb', id: 'id_recall_wb', label: 'White Balance' },
+]
 
 export const CHOICES_END = [
 	{ id: '', label: 'None' },
@@ -338,6 +350,32 @@ export function getActionDefinitions(self) {
 						{ id: 'SAVE', label: 'Save' },
 					],
 				},
+				// Which settings the recall applies. "Same as Middle Control" = the tick boxes of the app's Presets
+				// page (every version). "Custom" shows the six boxes below for this button only — Middle Control
+				// 4.1 or later; older versions ignore the choice and recall as usual. Companion can't grey fields
+				// out, so the boxes are hidden instead until Custom is picked.
+				// NOTE: isVisible runs in an isolated scope on the client — only its argument and literals.
+				{
+					type: 'dropdown',
+					id: 'id_presetrecall',
+					label: 'Settings to recall',
+					default: 'app',
+					choices: [
+						{ id: 'app', label: 'Same as Middle Control' },
+						{ id: 'custom', label: 'Custom' },
+					],
+					tooltip:
+						'Same as Middle Control follows the tick boxes of the Presets page. Custom lets this button pick its own settings (Middle Control 4.1 or later; older versions recall as usual).',
+					isVisible: (opts) => opts.id_presetmode === 'RECALL',
+				},
+				...RECALL_SETTINGS.map((s) => ({
+					type: 'checkbox',
+					id: s.id,
+					label: s.label,
+					default: true,
+					width: 4,
+					isVisible: (opts) => opts.id_presetmode === 'RECALL' && opts.id_presetrecall === 'custom',
+				})),
 			],
 			callback: async (event) => {
 				const PresetCamID = unescape(await self.parseVariablesInString(event.options.id_presetcameraID))
@@ -350,6 +388,20 @@ export function getActionDefinitions(self) {
 						'Preset: camera/preset number must be numeric (got ' + PresetNumber + ' / ' + PresetCamID + ')'
 					)
 					return
+				}
+
+				// Custom recall: tell the app which settings THIS recall applies, right before the recall itself
+				// (MASK:… is consumed by the next PRESET on this connection).
+				if (event.options.id_presetmode === 'RECALL' && event.options.id_presetrecall === 'custom') {
+					const flags = {}
+					for (const s of RECALL_SETTINGS) flags[s.key] = !!event.options[s.id]
+					const mask = recallMask(flags)
+					if (mask === null) {
+						self.log('warn', 'Preset: Custom recall with no setting ticked — nothing to recall, not sent')
+						return
+					}
+					self.log('debug', '>> ' + mask)
+					self.send(mask)
 				}
 
 				self.log('debug', '>> ' + cmd)
@@ -945,6 +997,13 @@ export function getActionDefinitions(self) {
 					type: 'static-text',
 					id: 'Textlabel',
 					label: 'Set Luma Mix : aLUMAMIXxx (xx from 0 to 100, Middle Control 4.1+) ',
+					width: 6,
+				},
+				{
+					type: 'static-text',
+					id: 'Textlabel',
+					label:
+						'Recall only some settings : MASK:ISO,WB sent just before PRESET5C1 (PT, ZOOM, FOCUS, IRIS, ISO, WB — Middle Control 4.1+) ',
 					width: 6,
 				},
 				{

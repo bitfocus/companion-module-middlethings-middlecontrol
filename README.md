@@ -8,7 +8,7 @@ The Middle Control Companion plugin remotely controls the Middle Control softwar
 - Camera control: focus, iris, white balance, tint, gain/ISO, shutter, ND filter, contrast, saturation, black/mid/white levels, auto modes, zebra, false colour, peaking
 - Motion control: pan, tilt, roll, zoom, slider, speed, recenter, sleep/wake, Active Track
 - Absolute gimbal positions and custom pan/tilt/zoom speed
-- Presets: recall, save, stop, transition duration and easing
+- Presets: recall, save, stop, choice of settings to recall, transition duration and easing
 - Automations: Camera Shake, Zoom Loop and Presets Sequence, with live parameters
 - Recording start/stop, per camera or all
 - Sony menu navigation, MultiSelector and Custom C1–C6 buttons
@@ -34,6 +34,7 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 - Adds an ATEM Link On/Off action (Pro)
 - Adds decimal pan/tilt speeds below 10% (e.g. 2.5)
 - Adds an optional Camera ID to Set Preset Transition Duration
+- Adds a "Settings to recall" option to Recall/Save Preset: same as Middle Control, or pick pan/tilt, zoom, focus, iris, ISO and white balance
 - Adds Focus in/out hold actions and a Focus by a Fixed Step action
 - Adds ready-made focus buttons in the "Focus (buttons)" preset category
 - Adds actions to open and close the Live View and Multi View windows (Multi View requires Pro)

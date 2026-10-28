@@ -174,6 +174,24 @@ export function ndFilter(choice, customRaw, camRaw) {
 	return withCamera(`ND${parseInt(raw, 10)}`, camRaw)
 }
 
+// MASK:<list> — restrict the NEXT preset recall on this connection to the ticked settings. (preset
+// action, "Settings to recall: Custom") Sent right before PRESET<n>C<id>. Middle Control 4.1 builds
+// from 2026-10-28 apply it to that one recall (the camera's own limits still apply, e.g. no WB
+// recall on plain VISCA); older versions ignore it and recall with the app's own tick boxes.
+// `flags`: { pt, zoom, focus, iris, iso, wb } booleans. Returns null when nothing is ticked.
+const RECALL_FLAG_TOKENS = [
+	['pt', 'PT'],
+	['zoom', 'ZOOM'],
+	['focus', 'FOCUS'],
+	['iris', 'IRIS'],
+	['iso', 'ISO'],
+	['wb', 'WB'],
+]
+export function recallMask(flags) {
+	const list = RECALL_FLAG_TOKENS.filter(([k]) => flags && flags[k]).map(([, token]) => token)
+	return list.length > 0 ? `MASK:${list.join(',')}` : null
+}
+
 // ATEMLINK_ON / ATEMLINK_OFF — the ATEM Link switch, as on the camera screen. (atem_link action)
 // Middle Control 4.1+ (older versions ignore it); the app refuses ON without a Pro licence.
 export function atemLink(on) {
