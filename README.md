@@ -34,7 +34,7 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 - Adds an ATEM Link On/Off action (Pro)
 - Adds decimal pan/tilt speeds below 10% (e.g. 2.5)
 - Adds an optional Camera ID to Set Preset Transition Duration
-- Adds a "Settings to recall" option to Recall Preset: same as Middle Control, or pick pan/tilt, zoom, focus, iris, ISO and white balance
+- Adds a "Settings to recall" option to Recall Preset: same as Middle Control, or pick pan/tilt, zoom, focus, iris, ISO and white balance.
 - Adds Focus in/out hold actions and a Focus by a Fixed Step action
 - Adds ready-made focus buttons in the "Focus (buttons)" preset category
 - Adds actions to open and close the Live View and Multi View windows (Multi View requires Pro)
