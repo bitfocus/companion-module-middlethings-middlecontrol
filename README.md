@@ -41,7 +41,6 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 - Adds a Set ND Filter action, an ND Filter variable and an ND filter status feedback
 - Focus in/out now step like the app's own focus button and ramp up when held
 - Rewrote feedback parsing for speed and reliability; variables now show "-" when a value isn't available
-- Fixed the custom command help: the focus example is aFxx; adds shutter, ND, hue and luma mix examples
 - Still works with older Middle Control versions
 
 ### v3.4.0
