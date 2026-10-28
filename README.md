@@ -1,25 +1,24 @@
 # companion-module-middlethings-middlecontrol
 
-The Middle Control Companion plugin remotely controls the Middle Control software, which drives **Blackmagic and Sony cameras** and **DJI gimbals** (via Middle Things APC-R / APC-R Mini / APC-R Mini Lite). It can run on the same device as Middle Control, or on any device on the same network. Connects over TCP on port 11580.
+The Middle Control Companion plugin remotely controls the Middle Control software, which drives **Blackmagic, Sony, Canon, Panasonic, Lumix, OBSBOT and Visca cameras** and **DJI gimbals** (via Middle Things APC-R / APC-R Mini / APC-R Mini Lite). It can run on the same device as Middle Control, or on any device on the same network. Connects over TCP on port 11580.
 
 **Features**
 
 - Select Camera ID
 - Send Camera Action (CCU: focus, iris, WB, tint, gain/ISO, shutter, ND, levels; Auto modes; zebra/false-colour/peaking)
 - Send Gimbal Action (pan/tilt/roll/zoom/slider, speed, recenter, sleep/wake, Active Track)
-- Recall/Save Preset, Stop Running Preset & preset transition duration
+- Recall/Save Preset, Stop Running Preset, preset transition duration & easing
 - Automatic network discovery of Middle Control (with manual IP fallback)
 - Recording start/stop (per camera or all)
 - Sony menus, MultiSelector and Custom C1–C6 buttons
-- Set Custom Camera & Pan/Tilt/Zoom Positions
+- Send absolute gimbal positions (pan/tilt/roll/zoom)
 - Set Custom Pan/Tilt/Zoom Speed
 - Send a Custom Command (SDK)
 - Automations (Camera Shake, Zoom Loop, Presets Sequence) — start/stop and live parameters, per camera
 - Track all cameras (Middle Control 4.1+) — per-camera variables and feedbacks
-- Hue / Sharpness / Luma Mix controls and an ATEM Link switch (Middle Control 4.1+)
-- Feedbacks (recording tally, camera/APC-R connection, active preset, AF, digital zoom, automation running)
+- Feedbacks (selected camera, recording tally, camera/APC-R connection, active preset, AF, digital zoom, ND filter, automation running)
 - Live Variables for camera & gimbal settings, plus automation state (running effects & active sequence bank)
-- **Streamdeck+ rotary-encoder presets** (Focus, Iris, ISO/Gain, WB, Shutter, Tint, Zoom Speed) — see the "Encoders (Streamdeck+)" preset category
+- Streamdeck+ rotary-encoder presets (Focus, Iris, ISO/Gain, WB, Shutter, Tint, Contrast, Saturation, Black Level, Pan/Tilt Speed, Zoom Speed)
 
 ## Development
 
@@ -29,18 +28,28 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 
 ### v4.0.0
 
-- Track all cameras (Middle Control 4.1+): turn it on in the connection settings and the module follows every connected camera, not just the selected one. Feedbacks for autofocus, digital zoom, active preset, ND filter and automations get an optional Camera ID, and each camera gets its own variables (cam3_rec, cam3_af, cam3_iso, …).
-- New camera controls (Middle Control 4.1+): Hue and Sharpness steps in Send Camera Action, and a Set CCU Value action for an exact Hue (-180 to 180°) or Luma Mix (0 to 100%).
-- New ATEM Link action to switch the ATEM link on or off (Middle Control 4.1+, Pro).
-- Pan/tilt speed can be set in tenths below 10% (e.g. 2.5) for slow, precise moves (Middle Control 4.1+).
-- Set Preset Transition Duration can target a specific camera (Middle Control 4.1+).
-- Focus (Middle Control 4.0.4+): Focus in/out now step as finely as the app's own button and ramp up when held; new Focus in/out hold actions and a Focus by a Fixed Step action, with ready-made buttons in the "Focus (buttons)" preset category.
-- New actions to open and close the Live View and Multi View windows.
-- New Set Preset Transition Easing action and variable.
+**Needs Middle Control 4.1 or later** (older versions simply ignore these):
+
+- Track all cameras — new connection setting. The module follows every connected camera, not just the selected one: the autofocus, digital zoom, active preset, ND filter and automation feedbacks get an optional Camera ID, and each camera gets its own variables (cam3_rec, cam3_af, cam3_iso, …).
+- Hue and Sharpness steps in Send Camera Action, plus a Set CCU Value action for an exact Hue (-180 to 180°) or Luma Mix (0 to 100%).
+- ATEM Link action to switch the ATEM link on or off (Pro).
+- Pan/tilt speed accepts tenths below 10% (e.g. 2.5) for slow, precise moves.
+- Set Preset Transition Duration can target a specific camera.
+
+**Needs Middle Control 4.0.4 or later:**
+
+- Focus in/out now step as finely as the app's own button and ramp up when held. Send Camera Action gains Focus in/out hold options (press / release), there is a new Focus by a Fixed Step action, and ready-made buttons in the "Focus (buttons)" preset category.
+
+**Needs Middle Control 4.0.3 or later:**
+
+- Send Camera Action can open and close the Live View and Multi View windows (Multi View needs Pro).
+- Set Preset Transition Easing action and variable.
 - ND filter: Set ND Filter action (clear, 1/4 … 1/1024 or a custom value), an ND Filter variable and an ND filter status feedback.
-- Feed handling rewritten: faster, more robust, and variables now show "-" whenever a value isn't available instead of sometimes going blank.
-- Still works with older Middle Control versions: the 4.1+ features simply do nothing there, and everything else behaves as before.
-- Custom command help: the focus example is aFxx (aFOCUSxx was never accepted); adds shutter, ND, hue and luma mix examples.
+
+**All versions:**
+
+- Feed handling rewritten: faster, more robust, and variables show "-" whenever a value isn't available instead of sometimes going blank.
+- Custom command help: the focus example is aFxx (aFOCUSxx was never accepted); shutter, ND, hue and luma mix examples added.
 
 ### v3.4.0
 
