@@ -44,8 +44,6 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 - Adds a Set Preset Transition Easing action and variable
 - Adds a Set ND Filter action, an ND Filter variable and an ND filter status feedback
 - Focus in/out now step like the app's own focus button and ramp up when held
-- Removes the Middle Control Software Version setting (it only ever had one choice)
-- Fixed Send Gimbal Action buttons created with 3.2.0 or 3.2.1 and left on their default, which sent nothing
 - Rewrote feedback parsing for speed and reliability; variables now show "-" when a value isn't available
 - Still works with older Middle Control versions
 
