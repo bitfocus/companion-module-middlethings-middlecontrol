@@ -13,6 +13,8 @@ import {
 	focusStep,
 	presetEase,
 	ndFilter,
+	atemLink,
+	ccuSet,
 } from './commands.js'
 
 // --- toInt ---
@@ -165,4 +167,35 @@ test('ndFilter: ladder values, clear, custom denominator, junk rejected', () => 
 	assert.equal(ndFilter('custom', '0', ''), null)
 	assert.equal(ndFilter('custom', '1/64', ''), null)
 	assert.equal(ndFilter('custom', 'abc', ''), null)
+})
+
+// --- setSpeed: tenths below 10% for pan/tilt (4.1+), whole numbers otherwise ---
+test('setSpeed: keeps tenths below 10 for pan/tilt, rounds from 10 up and for zoom', () => {
+	assert.equal(setSpeed('PanTilt', '2.5', ''), 'PTS2.5')
+	assert.equal(setSpeed('PanTilt', '0.5', ''), 'PTS0.5')
+	assert.equal(setSpeed('PanTilt', '5', ''), 'PTS5') // integral stays integral
+	assert.equal(setSpeed('PanTilt', '2.55', ''), 'PTS2.6') // rounded to one decimal
+	assert.equal(setSpeed('PanTilt', '33.7', ''), 'PTS34') // >= 10 → whole number
+	assert.equal(setSpeed('Zoom', '2.5', ''), 'ZS3') // zoom speed is always whole
+})
+
+// --- presetTransition: optional camera ---
+test('presetTransition: bare without a camera (legacy-safe), @C with one', () => {
+	assert.equal(presetTransition('1.5', ''), 'PRES_D1.5')
+	assert.equal(presetTransition('1.5', undefined), 'PRES_D1.5')
+	assert.equal(presetTransition('20', '5'), 'PRES_D20@C5')
+})
+
+// --- atemLink / ccuSet ---
+test('atemLink: on/off tokens', () => {
+	assert.equal(atemLink('on'), 'ATEMLINK_ON')
+	assert.equal(atemLink('off'), 'ATEMLINK_OFF')
+})
+test('ccuSet: hue and luma mix are rounded, clamped and camera-targetable', () => {
+	assert.equal(ccuSet('hue', '30', ''), 'aHUE30')
+	assert.equal(ccuSet('hue', '-200', ''), 'aHUE-180')
+	assert.equal(ccuSet('hue', '12.6', '4'), 'aHUE13@C4')
+	assert.equal(ccuSet('lumamix', '150', ''), 'aLUMAMIX100')
+	assert.equal(ccuSet('lumamix', '', ''), null)
+	assert.equal(ccuSet('bogus', '1', ''), null)
 })

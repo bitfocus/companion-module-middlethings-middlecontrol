@@ -50,23 +50,35 @@ export function preset(mode, numberRaw, camIdRaw) {
 	return `${prefix}${num}C${cam}`
 }
 
-// PRES_D<duration>. (preset_transition)
-// Duration may be fractional seconds, so accept any finite number; reject junk.
-export function presetTransition(durRaw) {
+// PRES_D<duration>[@C<id>]. (preset_transition)
+// Duration may be fractional seconds, so accept any finite number; reject junk. The optional
+// camera suffix is understood by Middle Control 4.1+ (older versions ignore the whole command
+// when it is present, so the action only adds it when a camera is actually filled in).
+export function presetTransition(durRaw, camRaw) {
 	const s = String(durRaw ?? '').trim()
 	const n = Number(s)
 	if (s === '' || !Number.isFinite(n)) return null
-	return `PRES_D${s}` // keep the user's exact numeric text (e.g. "1.5")
+	return withCamera(`PRES_D${s}`, camRaw) // keep the user's exact numeric text (e.g. "1.5")
 }
 
 // PTS<v> (Pan/Tilt) / ZS<v> (Zoom) speed, 0..100. (setspeed)
 // mode: 'PanTilt' | 'Zoom'. Clamps to the UI-declared 0..100; rejects non-numeric.
+// Pan/tilt keeps tenths below 10% (Middle Control 4.1+ reads e.g. PTS2.5; older versions ignore
+// a decimal value) and sends whole numbers from 10% up, matching what the app itself stores.
+// Zoom speed is always a whole number.
 export function setSpeed(mode, valueRaw, camRaw) {
-	const n = toInt(valueRaw)
-	if (n === null) return null
+	const s = String(valueRaw ?? '').trim()
+	const n = Number(s)
+	if (s === '' || !Number.isFinite(n)) return null
 	const v = clamp(n, 0, 100)
-	const cmd = (mode === 'Zoom' ? 'ZS' : 'PTS') + v
-	return withCamera(cmd, camRaw)
+	let text
+	if (mode !== 'Zoom' && v < 10) {
+		const tenths = Math.round(v * 10) / 10
+		text = Number.isInteger(tenths) ? String(tenths) : tenths.toFixed(1)
+	} else {
+		text = String(Math.round(v))
+	}
+	return withCamera((mode === 'Zoom' ? 'ZS' : 'PTS') + text, camRaw)
 }
 
 // STOPPRESET / STOPPRESET@C<id> — stop the running preset. (stoppreset)
@@ -160,4 +172,21 @@ export function ndFilter(choice, customRaw, camRaw) {
 	const raw = c === 'custom' ? String(customRaw ?? '').trim() : c
 	if (!/^\d+$/.test(raw) || parseInt(raw, 10) <= 0) return null
 	return withCamera(`ND${parseInt(raw, 10)}`, camRaw)
+}
+
+// ATEMLINK_ON / ATEMLINK_OFF — the ATEM Link switch, as on the camera screen. (atem_link action)
+// Middle Control 4.1+ (older versions ignore it); the app refuses ON without a Pro licence.
+export function atemLink(on) {
+	return on === 'on' || on === true ? 'ATEMLINK_ON' : 'ATEMLINK_OFF'
+}
+
+// aHUE<-180..180> / aLUMAMIX<0..100>[@C<id>] — absolute hue (degrees) and luma mix (%). (ccu_set action)
+// Middle Control 4.1+ (older versions ignore both). Rounded and clamped; rejects non-numeric input.
+export function ccuSet(param, valueRaw, camRaw) {
+	const s = String(valueRaw ?? '').trim()
+	const n = Number(s)
+	if (s === '' || !Number.isFinite(n)) return null
+	if (param === 'hue') return withCamera(`aHUE${clamp(Math.round(n), -180, 180)}`, camRaw)
+	if (param === 'lumamix') return withCamera(`aLUMAMIX${clamp(Math.round(n), 0, 100)}`, camRaw)
+	return null
 }

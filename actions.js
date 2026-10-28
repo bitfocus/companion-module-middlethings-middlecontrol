@@ -10,6 +10,8 @@ import {
 	focusStep,
 	presetEase,
 	ndFilter,
+	atemLink,
+	ccuSet,
 } from './commands.js'
 
 export const CHOICES_END = [
@@ -71,6 +73,10 @@ export const CHOICES_CAMERACOMMAND = [
 	{ id: 'WLEV-', label: 'White Level decrease' },
 	{ id: 'ND+', label: 'ND Filter increase' },
 	{ id: 'ND-', label: 'ND Filter decrease' },
+	{ id: 'HUE+', label: 'Hue +5° (Middle Control 4.1+)' },
+	{ id: 'HUE-', label: 'Hue -5° (Middle Control 4.1+)' },
+	{ id: 'SHARP+', label: 'Sharpness increase (Middle Control 4.1+)' },
+	{ id: 'SHARP-', label: 'Sharpness decrease (Middle Control 4.1+)' },
 	{ id: 'RESETCCU', label: 'Reset the Color Correction (CCU)' },
 
 	// --- Additional Sony Commands ---
@@ -174,7 +180,7 @@ export function getActionDefinitions(self) {
 					type: 'textinput',
 					id: 'id_selectcameraID',
 					label: 'Camera ID :',
-					tooltip: 'Set the camera number you want to control (1 to 100)',
+					tooltip: 'Set the camera number you want to control (1 to 99)',
 					/*default: '1',
                 min: 1,
                 max: 100,*/
@@ -492,6 +498,86 @@ export function getActionDefinitions(self) {
 			},
 		},
 
+		// ATEM Link on/off (Middle Control 4.1+; the app refuses ON without a Pro licence).
+		atem_link: {
+			name: 'ATEM Link On/Off',
+			options: [
+				{
+					type: 'static-text',
+					id: 'Textlabel',
+					label:
+						'Switches the ATEM Link in Middle Control on or off, like the switch on the camera screen. Needs Middle Control 4.1 or later; turning it on requires a Pro licence.',
+					width: 12,
+				},
+				{
+					type: 'dropdown',
+					id: 'id_atemlink',
+					label: 'ATEM Link',
+					default: 'on',
+					choices: [
+						{ id: 'on', label: 'On' },
+						{ id: 'off', label: 'Off' },
+					],
+				},
+			],
+			callback: async (event) => {
+				const cmd = atemLink(event.options.id_atemlink)
+				self.log('debug', '>> ' + cmd)
+				self.send(cmd)
+			},
+		},
+
+		// Absolute hue / luma mix (Middle Control 4.1+).
+		ccu_set: {
+			name: 'Set CCU Value (Hue / Luma Mix)',
+			options: [
+				{
+					type: 'static-text',
+					id: 'Textlabel',
+					label:
+						'Sets Hue (-180 to 180°) or Luma Mix (0 to 100%) to an exact value. Needs Middle Control 4.1 or later. Leave Camera ID empty for the selected camera.',
+					width: 12,
+				},
+				{
+					type: 'dropdown',
+					id: 'id_ccu_param',
+					label: 'Setting',
+					default: 'hue',
+					choices: [
+						{ id: 'hue', label: 'Hue (-180 to 180°)' },
+						{ id: 'lumamix', label: 'Luma Mix (0 to 100%)' },
+					],
+				},
+				{
+					type: 'textinput',
+					id: 'id_ccu_value',
+					label: 'Value',
+					default: '0',
+					width: 6,
+				},
+				{
+					type: 'textinput',
+					id: 'id_ccu_camera',
+					label: 'Camera ID (optional):',
+					default: '',
+					width: 6,
+					regex: '^[0-9]*$',
+					regexMessage: 'Only numbers are allowed',
+				},
+			],
+			callback: async (event) => {
+				const value = unescape(await self.parseVariablesInString(event.options.id_ccu_value ?? '')).trim()
+				const camRaw = unescape(await self.parseVariablesInString(event.options.id_ccu_camera ?? '')).trim()
+				const cmd = ccuSet(event.options.id_ccu_param, value, camRaw)
+				if (cmd === null) {
+					self.log('warn', 'Set CCU Value: the value must be a number — nothing sent')
+					return
+				}
+				self.log('debug', '>> ' + cmd)
+				self.send(cmd)
+			},
+		},
+
 		preset_transition: {
 			name: 'Set Preset Transition Duration',
 			options: [
@@ -510,10 +596,22 @@ export function getActionDefinitions(self) {
                 max: 120,*/
 					default: 1,
 				},
+				{
+					type: 'textinput',
+					id: 'id_settransition_camera',
+					label: 'Camera ID (optional):',
+					tooltip:
+						'Middle Control 4.1 or later: apply to that camera number. Leave empty for the selected camera (and for older versions of Middle Control).',
+					default: '',
+					width: 6,
+					regex: '^[0-9]*$',
+					regexMessage: 'Only numbers are allowed',
+				},
 			],
 			callback: async (event) => {
 				const dur = unescape(await self.parseVariablesInString(event.options.id_settransitionduration))
-				const cmd = presetTransition(dur)
+				const camRaw = unescape(await self.parseVariablesInString(event.options.id_settransition_camera ?? '')).trim()
+				const cmd = presetTransition(dur, camRaw)
 				if (cmd === null) {
 					self.log('warn', 'Preset Transition: duration must be a number: ' + dur)
 					return
@@ -691,13 +789,10 @@ export function getActionDefinitions(self) {
 				{
 					type: 'textinput',
 					id: 'id_setspeed',
-					label: 'Value (0 to 100)',
-					min: 1,
-					max: 100,
-					range: true,
+					label: 'Value (0 to 100 — tenths allowed below 10, e.g. 2.5)',
 					default: 100,
-					regex: '^(100|[0-9]{1,2})$',
-					regexMessage: 'Enter a number from 0 to 100',
+					regex: '^(100|[0-9]{1,2}([.][0-9])?)$',
+					regexMessage: 'Enter a number from 0 to 100 (one decimal allowed below 10)',
 				},
 
 				// NEW: optional camera number (numeric only)
@@ -838,6 +933,18 @@ export function getActionDefinitions(self) {
 					type: 'static-text',
 					id: 'Textlabel',
 					label: 'Set Tint : aTINTxx (xx from -50 to 50) ',
+					width: 6,
+				},
+				{
+					type: 'static-text',
+					id: 'Textlabel',
+					label: 'Set Hue : aHUExx (xx from -180 to 180, Middle Control 4.1+) ',
+					width: 6,
+				},
+				{
+					type: 'static-text',
+					id: 'Textlabel',
+					label: 'Set Luma Mix : aLUMAMIXxx (xx from 0 to 100, Middle Control 4.1+) ',
 					width: 6,
 				},
 				{
