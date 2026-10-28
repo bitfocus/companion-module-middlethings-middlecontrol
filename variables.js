@@ -147,7 +147,7 @@ export function getVariables() {
 	return variables
 }
 
-// Variables for each camera the module has seen (only registered when "Track all cameras" is on).
+// Variables for each camera the module has seen (only registered when "Monitor all cameras" is on).
 export function perCameraVariables(camIds) {
 	const defs = []
 	for (const cam of camIds) {

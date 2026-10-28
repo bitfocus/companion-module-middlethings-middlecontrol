@@ -222,7 +222,7 @@ export function toVars(p) {
 	}
 }
 
-// Per-camera variables (only when "Track all cameras" is on): cam<N>_<suffix>.
+// Per-camera variables (only when "Monitor all cameras" is on): cam<N>_<suffix>.
 export const CAM_VAR_FIELDS = [
 	{ suffix: 'rec', key: 'REC', label: 'Recording (0/1)' },
 	{ suffix: 'af', key: 'AF', label: 'AutoFocus (0/1)' },

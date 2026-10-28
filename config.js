@@ -83,7 +83,7 @@ export function buildConfigFields(discoveredChoices = []) {
 	const trackAllField = {
 		type: 'checkbox',
 		id: 'trackAll',
-		label: 'Track all cameras',
+		label: 'Monitor all cameras',
 		default: false,
 		width: 6,
 		tooltip:

@@ -13,7 +13,7 @@ Check exact compatibility : https://www.middlethings.co/compatibility/
    - **Manual**: choose *Manual* in the dropdown, then type the **Target IP** — `127.0.0.1` when Middle Control runs on this same computer, otherwise the IP of the computer running it. (The Target IP box is locked unless *Manual* is selected.)
 3. The module connects over **TCP on port 11580**. The connection turns **green (OK)** once Middle Control is reachable. If it stays yellow, check the IP, that Middle Control is running, and that port 11580 isn't blocked by a firewall.
 4. To control **gimbal movement** you need an APC-R / APC-R Mini / APC-R Mini Lite.
-5. **Track all cameras** (Middle Control 4.1 or later): tick it in the connection settings to follow every connected camera. This enables the Camera ID option on more feedbacks and per-camera variables such as `$(middlecontrol:cam3_rec)`. Leave it off with older versions of Middle Control.
+5. **Monitor all cameras** (Middle Control 4.1 or later): tick it in the connection settings to receive the status of every connected camera. This enables the Camera ID option on more feedbacks and per-camera variables such as `$(middlecontrol:cam3_rec)`. Leave it off with older versions of Middle Control.
 
 ### What you can do
 
@@ -31,7 +31,7 @@ Check exact compatibility : https://www.middlethings.co/compatibility/
 
 ### Feedbacks & variables
 
-Boolean **feedbacks** let buttons reflect live state: recording tally, camera connection, APC-R connection, active preset, Auto Focus, Digital Zoom, ND filter (clear / any / a given density), and automations running (Camera Shake / Zoom Loop / Presets Sequence). Several feedbacks accept an optional Camera ID so you can monitor multiple cameras at a glance. With **Track all cameras** on (Middle Control 4.1+), the autofocus, digital zoom, active preset, ND filter and automation feedbacks also accept a Camera ID, and every camera gets its own variables (`cam3_rec`, `cam3_af`, `cam3_iso`, …).
+Boolean **feedbacks** let buttons reflect live state: recording tally, camera connection, APC-R connection, active preset, Auto Focus, Digital Zoom, ND filter (clear / any / a given density), and automations running (Camera Shake / Zoom Loop / Presets Sequence). Several feedbacks accept an optional Camera ID so you can monitor multiple cameras at a glance. With **Monitor all cameras** on (Middle Control 4.1+), the autofocus, digital zoom, active preset, ND filter and automation feedbacks also accept a Camera ID, and every camera gets its own variables (`cam3_rec`, `cam3_af`, `cam3_iso`, …).
 
 **Variables** expose live values (selected camera, pan/tilt & zoom speed, preset transition duration and easing, WB, tint, gain, iris, shutter, contrast, saturation, levels, gimbal pan/tilt/roll/zoom, recording status, lists of connected/recording cameras, automation running states and the active sequence bank, …). They show `-` until the module is connected and receiving data.
 

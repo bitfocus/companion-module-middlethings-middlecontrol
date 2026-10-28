@@ -3,7 +3,7 @@ import { combineRgb } from '@companion-module/base'
 export function getFeedbackDefinitions(self) {
 	// Optional per-camera targeting. Empty → the camera currently selected in Middle Control
 	// (self.MIDDLE, every app version). A camera number → that camera's last frame, which only
-	// exists when "Track all cameras" is on (Middle Control 4.1+); otherwise it reads as "off".
+	// exists when "Monitor all cameras" is on (Middle Control 4.1+); otherwise it reads as "off".
 	const stateFor = (feedback) => {
 		const raw = String(feedback.options?.camera_id ?? '').trim()
 		if (raw === '') return self.MIDDLE || {}
@@ -17,7 +17,7 @@ export function getFeedbackDefinitions(self) {
 		regex: '^[0-9]*$',
 		regexMessage: 'Only numbers are allowed',
 		tooltip:
-			'Leave empty for the camera selected in Middle Control. Enter a camera number to watch that camera instead (needs "Track all cameras" in the connection settings and Middle Control 4.1 or later).',
+			'Leave empty for the camera selected in Middle Control. Enter a camera number to watch that camera instead (needs "Monitor all cameras" in the connection settings and Middle Control 4.1 or later).',
 	}
 
 	//var CAMCHECK=parseInt(this.CAM)

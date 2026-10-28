@@ -47,7 +47,7 @@ class instance extends InstanceBase {
 		this.setVariableValues(Object.fromEntries(getVariables(this).map((v) => [v.variableId, '-'])))
 
 		this.MIDDLE = { CAM: '1' }
-		this.camState = {} // per-camera state keyed by camera id (filled when "Track all cameras" is on)
+		this.camState = {} // per-camera state keyed by camera id (filled when "Monitor all cameras" is on)
 		this.knownCams = new Set()
 		this._lastVars = {}
 		this._seenPresC = false
@@ -137,7 +137,7 @@ class instance extends InstanceBase {
 					this.camState = {}
 					this._lastVars = {}
 					this._lastFeedbackSig = undefined
-					// "Track all cameras" (Middle Control 4.1+): ask for one frame per connected camera on
+					// "Monitor all cameras" (Middle Control 4.1+): ask for one frame per connected camera on
 					// every tick. Older versions don't know the command and simply ignore it.
 					if (this.config?.trackAll) this.send('FEED_ALL1')
 				}
@@ -155,7 +155,7 @@ class instance extends InstanceBase {
 
 			this.socket.on('data', (data) => {
 				// Reassemble the TCP byte stream into '{...}\n' frames. The app emits one frame per
-				// tick (several when "Track all cameras" is on), but TCP may coalesce or split packets,
+				// tick (several when "Monitor all cameras" is on), but TCP may coalesce or split packets,
 				// so buffer and split on '\n' — never assume one 'data' event == one frame.
 				if ((this._rx || '').length + data.length > 65536) {
 					this.log('warn', 'RX buffer overflow; clearing')
