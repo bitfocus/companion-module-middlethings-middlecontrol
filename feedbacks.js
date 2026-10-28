@@ -1,6 +1,25 @@
 import { combineRgb } from '@companion-module/base'
 
 export function getFeedbackDefinitions(self) {
+	// Optional per-camera targeting. Empty → the camera currently selected in Middle Control
+	// (self.MIDDLE, every app version). A camera number → that camera's last frame, which only
+	// exists when "Track all cameras" is on (Middle Control 4.1+); otherwise it reads as "off".
+	const stateFor = (feedback) => {
+		const raw = String(feedback.options?.camera_id ?? '').trim()
+		if (raw === '') return self.MIDDLE || {}
+		return (self.camState && self.camState[String(parseInt(raw, 10))]) || {}
+	}
+	const CAMERA_OPT = {
+		type: 'textinput',
+		label: 'Camera ID (optional)',
+		id: 'camera_id',
+		default: '',
+		regex: '^[0-9]*$',
+		regexMessage: 'Only numbers are allowed',
+		tooltip:
+			'Leave empty for the camera selected in Middle Control. Enter a camera number to watch that camera instead (needs "Track all cameras" in the connection settings and Middle Control 4.1 or later).',
+	}
+
 	//var CAMCHECK=parseInt(this.CAM)
 	//this.log('debug',"CAM CALLBACK =" + CAMCHECK )
 
@@ -245,10 +264,11 @@ export function getFeedbackDefinitions(self) {
 						{ id: 'off', label: 'AF Off' },
 					],
 				},
+				CAMERA_OPT,
 			],
 			callback: function (feedback) {
 				const desired = feedback.options.status
-				const af = self.MIDDLE.AF // "0" or "1" or undefined
+				const af = stateFor(feedback).AF // "0" or "1" or undefined
 
 				if (af === undefined) return false
 
@@ -282,10 +302,11 @@ export function getFeedbackDefinitions(self) {
 						{ id: '1024', label: '1/1024' },
 					],
 				},
+				CAMERA_OPT,
 			],
 			callback: function (feedback) {
 				const desired = feedback.options.nd
-				const nd = self.MIDDLE.ND // "CLEAR", a denominator string, or undefined
+				const nd = stateFor(feedback).ND // "CLEAR", a denominator string, or undefined
 				if (nd === undefined) return false
 				if (desired === 'ANY') return nd !== 'CLEAR'
 				return nd === desired
@@ -311,10 +332,11 @@ export function getFeedbackDefinitions(self) {
 						{ id: 'off', label: 'DZoom Off' },
 					],
 				},
+				CAMERA_OPT,
 			],
 			callback: function (feedback) {
 				const desired = feedback.options.status
-				const dz = self.MIDDLE.DZOOM // "0" or "1" or undefined
+				const dz = stateFor(feedback).DZOOM // "0" or "1" or undefined
 
 				if (dz === undefined) return false
 
@@ -341,10 +363,11 @@ export function getFeedbackDefinitions(self) {
 					max: 12,
 					range: true,
 				},
+				CAMERA_OPT,
 			],
 			callback: function (feedback) {
 				const desiredPreset = String(feedback.options.preset) // "0".."12"
-				const activePreset = self.MIDDLE.PRESET_ACTIVE // "0".."12" or undefined
+				const activePreset = stateFor(feedback).PRESET_ACTIVE // "0".."12" or undefined
 
 				if (activePreset === undefined) return false
 
@@ -360,9 +383,9 @@ export function getFeedbackDefinitions(self) {
 				color: combineRgb(0, 0, 0),
 				bgcolor: combineRgb(180, 90, 255), // purple = Camera Shake identity colour
 			},
-			options: [],
-			callback: function () {
-				return self.MIDDLE.SHAKE_RUN === '1'
+			options: [CAMERA_OPT],
+			callback: function (feedback) {
+				return stateFor(feedback).SHAKE_RUN === '1'
 			},
 		},
 
@@ -374,9 +397,9 @@ export function getFeedbackDefinitions(self) {
 				color: combineRgb(0, 0, 0),
 				bgcolor: combineRgb(0, 200, 0), // green = Zoom Loop identity colour
 			},
-			options: [],
-			callback: function () {
-				return self.MIDDLE.ZLOOP_RUN === '1'
+			options: [CAMERA_OPT],
+			callback: function (feedback) {
+				return stateFor(feedback).ZLOOP_RUN === '1'
 			},
 		},
 
@@ -388,9 +411,9 @@ export function getFeedbackDefinitions(self) {
 				color: combineRgb(0, 0, 0),
 				bgcolor: combineRgb(8, 130, 255), // blue = Presets Sequence identity colour
 			},
-			options: [],
-			callback: function () {
-				return self.MIDDLE.PRESETSEQ_RUN === '1'
+			options: [CAMERA_OPT],
+			callback: function (feedback) {
+				return stateFor(feedback).PRESETSEQ_RUN === '1'
 			},
 		},
 	}

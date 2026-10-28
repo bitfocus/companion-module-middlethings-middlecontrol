@@ -1,11 +1,25 @@
 import { InstanceBase, InstanceStatus, runEntrypoint, TCPHelper } from '@companion-module/base'
 import { buildConfigFields } from './config.js'
 import { getActionDefinitions } from './actions.js'
-import { getVariables } from './variables.js'
+import { getVariables, perCameraVariables } from './variables.js'
 import { getFeedbackDefinitions } from './feedbacks.js'
 import { getPresetDefinitions } from './presets.js'
-import { numOrAuto, parseList, reassembleFrames, sanitizeCommand } from './lib.js'
+import { reassembleFrames, sanitizeCommand, parseFrame, isSelectedFrame, toState, toVars, toCamVars } from './lib.js'
 import { MiddleDiscovery } from './discovery.js'
+
+const FEEDBACK_IDS = [
+	'CurrentCameraID',
+	'RecordingStatus',
+	'AutofocusStatus',
+	'NDStatus',
+	'DigitalZoomStatus',
+	'CurrentPresetActive',
+	'CameraConnectionStatus',
+	'APCRConnectionStatus',
+	'ShakeRunning',
+	'ZoomLoopRunning',
+	'PresetsSequenceRunning',
+]
 
 class instance extends InstanceBase {
 	constructor(internal) {
@@ -30,11 +44,13 @@ class instance extends InstanceBase {
 
 		// Seed every variable to '-' so buttons show a placeholder instead of
 		// being blank until the first feedback frame arrives.
-		this.setVariableValues(
-			Object.fromEntries(getVariables(this).map((v) => [v.variableId, '-']))
-		)
+		this.setVariableValues(Object.fromEntries(getVariables(this).map((v) => [v.variableId, '-'])))
 
 		this.MIDDLE = { CAM: '1' }
+		this.camState = {} // per-camera state keyed by camera id (filled when "Track all cameras" is on)
+		this.knownCams = new Set()
+		this._lastVars = {}
+		this._seenPresC = false
 		await this.configUpdated(config)
 	}
 
@@ -87,17 +103,16 @@ class instance extends InstanceBase {
 	// feedbacks. Used on connection loss so nothing stays stuck on a stale value
 	// that is no longer being refreshed.
 	_resetAllState() {
-		this.setVariableValues(Object.fromEntries(getVariables().map((v) => [v.variableId, '-'])))
+		const ids = [
+			...getVariables().map((v) => v.variableId),
+			...perCameraVariables([...this.knownCams]).map((v) => v.variableId),
+		]
+		this.setVariableValues(Object.fromEntries(ids.map((id) => [id, '-'])))
+		this._lastVars = {}
 		this.MIDDLE = {} // undefined fields make every feedback evaluate to "off"
-		this.checkFeedbacks(
-			'CurrentCameraID',
-			'RecordingStatus',
-			'AutofocusStatus',
-			'DigitalZoomStatus',
-			'CurrentPresetActive',
-			'CameraConnectionStatus',
-			'APCRConnectionStatus'
-		)
+		this.camState = {}
+		this._lastFeedbackSig = undefined
+		this.checkFeedbacks(...FEEDBACK_IDS)
 	}
 
 	init_tcp() {
@@ -116,6 +131,16 @@ class instance extends InstanceBase {
 			this.socket.on('status_change', (status, message) => {
 				this.updateStatus(status, message)
 				this.log('debug', 'TCP status_change ' + status + ' ' + message)
+				if (status === InstanceStatus.Ok) {
+					// Fresh link: forget everything learnt on the previous one.
+					this._seenPresC = false
+					this.camState = {}
+					this._lastVars = {}
+					this._lastFeedbackSig = undefined
+					// "Track all cameras" (Middle Control 4.1+): ask for one frame per connected camera on
+					// every tick. Older versions don't know the command and simply ignore it.
+					if (this.config?.trackAll) this.send('FEED_ALL1')
+				}
 			})
 
 			this.socket.on('error', (err) => {
@@ -129,9 +154,9 @@ class instance extends InstanceBase {
 			})
 
 			this.socket.on('data', (data) => {
-				// Reassemble the TCP byte stream into '{...}\n' frames. The app emits
-				// one frame per tick, but TCP may coalesce or split packets, so we must
-				// buffer and split on '\n' (never assume one 'data' event == one frame).
+				// Reassemble the TCP byte stream into '{...}\n' frames. The app emits one frame per
+				// tick (several when "Track all cameras" is on), but TCP may coalesce or split packets,
+				// so buffer and split on '\n' — never assume one 'data' event == one frame.
 				if ((this._rx || '').length + data.length > 65536) {
 					this.log('warn', 'RX buffer overflow; clearing')
 					this._rx = ''
@@ -139,605 +164,86 @@ class instance extends InstanceBase {
 				}
 				const { frames, rest } = reassembleFrames(this._rx, data.toString('latin1'))
 				this._rx = rest
-				for (const body of frames) {
-
-				//PARSE INCOMING DATA
-				var response_array = body.split(';')
-				this.log('debug', 'RESPONSE ARRAY =' + response_array)
-
-				// Standard Middle Control Feedback into ARRAY 1 (detects using PTS presence)
-				var presence_pts = response_array.findIndex((element) => element.includes('PTS'))
-				if (parseFloat(presence_pts) > -1) {
-					var response_array1 = body.split(';')
-					//    this.log('debug', 'RESPONSE ARRAY 1 NORM=' + response_array1)
-
-					//GET CAM FROM TCP
-					var CAM = response_array1.find((element) => {
-						if (element.includes('CAM')) {
-							return true
-						}
-					})
-					if (CAM !== undefined) {
-						CAM = CAM.substring(3)
-						//this.log('debug', 'CAM =' + CAM)
-						//  this.send(CAM)
-					}
-
-					//GET PAN/TILT SPEED FROM TCP
-					var PTS = response_array1.find((element) => {
-						if (element.includes('PTS')) {
-							return true
-						}
-					})
-					if (PTS !== undefined) {
-						PTS = parseFloat(PTS.substring(3))
-					}
-
-					//GET ZOOM SPEED FROM TCP
-					var ZS = response_array1.find((element) => {
-						if (element.includes('ZS')) {
-							return true
-						}
-					})
-					if (ZS !== undefined) {
-						ZS = parseFloat(ZS.substring(2))
-					}
-
-					//GET SLIDER SPEED FROM TCP
-					var SS = response_array1.find((element) => {
-						if (element.includes('SS')) {
-							return true
-						}
-					})
-					if (SS !== undefined) {
-						SS = parseFloat(SS.substring(2))
-					}
-
-					//GET PRESET TRANSITION SPEED FROM TCP
-					var PRES_D = response_array1.find((element) => {
-						if (element.includes('PRES_D')) {
-							return true
-						}
-					})
-					if (PRES_D !== undefined) {
-						PRES_D = parseFloat(PRES_D.substring(6))
-					}
-
-					//GET PRESET TRANSITION EASING FROM TCP ("-" when no APC-R firmware 2.0+ → left empty)
-					var PRES_E = response_array1.find((element) => {
-						if (element.includes('PRES_E')) {
-							return true
-						}
-					})
-					if (PRES_E !== undefined) {
-						PRES_E = parseFloat(PRES_E.substring(6))
-						if (!Number.isFinite(PRES_E)) PRES_E = undefined
-					}
-
-					//GET PRESET COMPLETION  FROM TCP
-					var PRES_C = response_array1.find((element) => {
-						if (element.includes('PRES_C')) {
-							return true
-						}
-					})
-					if (PRES_C !== undefined) {
-						PRES_C = parseFloat(PRES_C.substring(6))
-					}
-
-					// GET RECORDING STATUS FROM TCP (REC0 / REC1)
-					// IMPORTANT: exclude REC_LIST[...] entries
-					let REC = response_array1.find((element) => {
-						return element.startsWith('REC') && !element.startsWith('REC_LIST[')
-					})
-
-					if (REC !== undefined) {
-						REC = REC.substring(3) // "0" or "1"
-					}
-					// --------------------------------------------------
-					// GET RECORDING CAMERA LIST FROM TCP (REC_LIST[1,4,7])
-					// --------------------------------------------------
-					let REC_LIST = response_array1.find((element) => {
-						if (element.startsWith('REC_LIST[')) {
-							return true
-						}
-					})
-
-					if (REC_LIST !== undefined) {
-						// Extract inside brackets: "REC_LIST[4,7,8]" → "4,7,8"
-						const listStr = REC_LIST.slice(9, -1)
-
-						this.MIDDLE.REC_LIST = parseList(listStr)
-
-						this.setVariableValues({
-							LIST_REC_var: this.MIDDLE.REC_LIST.join(','),
-						})
-
-						this.log('debug', 'Parsed REC_LIST = ' + JSON.stringify(this.MIDDLE.REC_LIST))
-					} else {
-						// Important: clear list if not present in frame
-						this.MIDDLE.REC_LIST = []
-					}
-
-					// --------------------------------------------------
-					// GET CAMERA CONNECTION LIST (CAM_CON_LIST[4,3,7])
-					// --------------------------------------------------
-					let CAM_CON_LIST = response_array1.find((element) => element.startsWith('CAM_CON_LIST['))
-
-					if (CAM_CON_LIST !== undefined) {
-						const listStr = CAM_CON_LIST.slice(13, -1) // remove "CAM_CON_LIST[" and "]"
-						this.MIDDLE.CAM_CON_LIST = parseList(listStr)
-
-						this.setVariableValues({
-							LIST_CAM_CON_var: this.MIDDLE.CAM_CON_LIST.join(','),
-						})
-					} else {
-						this.MIDDLE.CAM_CON_LIST = []
-					}
-
-					// --------------------------------------------------
-					// GET APC-R CONNECTION LIST (APCR_CON_LIST[1,2,7])
-					// --------------------------------------------------
-					let APCR_CON_LIST = response_array1.find((element) => element.startsWith('APCR_CON_LIST['))
-
-					if (APCR_CON_LIST !== undefined) {
-						const listStr = APCR_CON_LIST.slice(14, -1) // remove "APCR_CON_LIST[" and "]"
-						this.MIDDLE.APCR_CON_LIST = parseList(listStr)
-
-						this.setVariableValues({
-							LIST_APCR_CON_var: this.MIDDLE.APCR_CON_LIST.join(','),
-						})
-					} else {
-						this.MIDDLE.APCR_CON_LIST = []
-					}
-
-					// GET AUTOFOCUS STATUS FROM TCP (AF0 / AF1)
-					let AF = response_array1.find((element) => {
-						if (element.startsWith('AF')) {
-							return true
-						}
-					})
-					if (AF !== undefined) {
-						AF = AF.substring(2) // "0" or "1"
-					}
-
-					// GET DIGITAL ZOOM STATUS FROM TCP (DZOOM0 / DZOOM1)
-					let DZOOM = response_array1.find((element) => {
-						if (element.startsWith('DZOOM')) {
-							return true
-						}
-					})
-					if (DZOOM !== undefined) {
-						DZOOM = DZOOM.substring(5) // "0" or "1"
-					}
-
-					// GET CURRENT ACTIVE PRESET NUMBER FROM TCP (PRES_ACTIVE0..9)
-					let PRES_ACTIVE = response_array1.find((element) => {
-						if (element.startsWith('PRES_ACTIVE')) {
-							return true
-						}
-					})
-					if (PRES_ACTIVE !== undefined) {
-						// "PRES_ACTIVE" is 11 characters → keep what comes after
-						PRES_ACTIVE = PRES_ACTIVE.substring(11) // e.g. "0", "2", "3"
-					}
-
-					// GET AUTOMATION RUN STATES (Companion feed): SHAKE_RUN / ZLOOP_RUN /
-					// PRESETSEQ_RUN (0/1) + PRESETSEQ_BANK (active sequence bank). Anchored
-					// startsWith so PRESETSEQ_RUN and PRESETSEQ_BANK never cross-match.
-					let SHAKE_RUN = response_array1.find((element) => element.startsWith('SHAKE_RUN'))
-					if (SHAKE_RUN !== undefined) SHAKE_RUN = SHAKE_RUN.substring(9) // "0"/"1"
-					let ZLOOP_RUN = response_array1.find((element) => element.startsWith('ZLOOP_RUN'))
-					if (ZLOOP_RUN !== undefined) ZLOOP_RUN = ZLOOP_RUN.substring(9) // "0"/"1"
-					let PRESETSEQ_RUN = response_array1.find((element) => element.startsWith('PRESETSEQ_RUN'))
-					if (PRESETSEQ_RUN !== undefined) PRESETSEQ_RUN = PRESETSEQ_RUN.substring(13) // "0"/"1"
-					let SEQ_BANK = response_array1.find((element) => element.startsWith('PRESETSEQ_BANK'))
-					if (SEQ_BANK !== undefined) SEQ_BANK = SEQ_BANK.substring(14) // "1".."7"
-
-					if (CAM !== undefined) {
-						this.setVariableValues({ CAM_var: CAM })
-					} else {
-						this.setVariableValues({ CAM_var: '' })
-					}
-
-					if (PTS !== undefined) {
-						this.setVariableValues({ PTS_var: PTS })
-					} else {
-						this.setVariableValues({ PTS_var: '' })
-					}
-					if (ZS !== undefined) {
-						this.setVariableValues({ ZS_var: ZS })
-					} else {
-						this.setVariableValues({ ZS_var: '' })
-					}
-					if (SS !== undefined) {
-						this.setVariableValues({ SS_var: SS })
-					} else {
-						this.setVariableValues({ SS_var: '' })
-					}
-					if (PRES_D !== undefined) {
-						this.setVariableValues({ PRES_D_var: PRES_D })
-					} else {
-						this.setVariableValues({ PRES_D_var: '' })
-					}
-					if (PRES_E !== undefined) {
-						this.setVariableValues({ PRES_E_var: PRES_E })
-					} else {
-						this.setVariableValues({ PRES_E_var: '' })
-					}
-					if (PRES_C !== undefined) {
-						this.setVariableValues({ PRES_C_var: PRES_C })
-					} else {
-						this.setVariableValues({ PRES_C_var: '' })
-					}
-					if (REC !== undefined) {
-						this.setVariableValues({ REC_var: REC })
-					} else {
-						this.setVariableValues({ REC_var: '' })
-					}
-
-					if (AF !== undefined) {
-						this.setVariableValues({ AF_var: AF })
-					} else {
-						this.setVariableValues({ AF_var: '' })
-					}
-
-					if (DZOOM !== undefined) {
-						this.setVariableValues({ DZOOM_var: DZOOM })
-					} else {
-						this.setVariableValues({ DZOOM_var: '' })
-					}
-
-					if (PRES_ACTIVE !== undefined) {
-						this.setVariableValues({ PRESET_ACTIVE_var: PRES_ACTIVE })
-					} else {
-						this.setVariableValues({ PRESET_ACTIVE_var: '' })
-					}
-
-					// CONVERT TO PROTOTYPE FOR FEEDBACKS
-					this.MIDDLE.CAM = CAM
-					this.MIDDLE.REC = REC
-					this.MIDDLE.AF = AF
-					this.MIDDLE.DZOOM = DZOOM
-					this.MIDDLE.PRESET_ACTIVE = PRES_ACTIVE
-					this.MIDDLE.PTS = PTS
-					this.MIDDLE.ZS = ZS
-
-					this.setVariableValues({
-						SHAKE_RUN_var: SHAKE_RUN ?? '',
-						ZLOOP_RUN_var: ZLOOP_RUN ?? '',
-						PRESETSEQ_RUN_var: PRESETSEQ_RUN ?? '',
-						SEQ_BANK_var: SEQ_BANK ?? '',
-					})
-					this.MIDDLE.SHAKE_RUN = SHAKE_RUN
-					this.MIDDLE.ZLOOP_RUN = ZLOOP_RUN
-					this.MIDDLE.PRESETSEQ_RUN = PRESETSEQ_RUN
-					this.MIDDLE.SEQ_BANK = SEQ_BANK
-				}
-
-				// ATEM Middle Control Feedback into ARRAY 2 (detects using aWB presence)
-				var presence_aWB = response_array.findIndex((element) => element.includes('aWB')) // Detects if it is an ATEM Middle Control Feedback    (using WB value)
-				if (parseFloat(presence_aWB) > -1) {
-					var response_array2 = body.split(';')
-					//    this.log('debug', 'RESPONSE ARRAY 2 ATEM=' + response_array2)
-					//    this.log('debug', 'ATEM Connected to MiddleControl')
-
-					// GET WHITE BALANCE FROM TCP
-					var aWB = response_array2.find((element) => {
-						if (element.includes('aWB')) {
-							return true
-						}
-					})
-					if (aWB !== undefined) {
-						aWB = numOrAuto(aWB.substring(3))
-					}
-
-					// GET FOCUS FROM TCP
-					var aF = response_array2.find((element) => {
-						if (element.includes('aF')) {
-							return true
-						}
-					})
-					if (aF !== undefined) {
-						aF = numOrAuto(aF.substring(2))
-					}
-
-					// GET ND FILTER FROM TCP — `aND<denominator>` (4, 16, 64 …) or `aND-` when the filter is
-					// clear / the camera has none; startsWith, not includes (other tokens contain "aND").
-					var aND = response_array2.find((element) => element.startsWith('aND'))
-					if (aND !== undefined) {
-						aND = aND.substring(3).trim()
-						if (aND === '' || aND === '-') aND = 'CLEAR'
-					}
-
-					// GET IRIS FROM TCP
-					let aI = response_array2.find((element) => {
-						if (element.includes('aI')) {
-							return true
-						}
-					})
-					if (aI !== undefined) {
-						aI = numOrAuto(aI.substring(2))
-						this.MIDDLE.aI = aI
-					}
-
-					// GET TINT FROM TCP
-					var aTINT = response_array2.find((element) => {
-						if (element.includes('aTINT')) {
-							return true
-						}
-					})
-					if (aTINT !== undefined) {
-						aTINT = numOrAuto(aTINT.substring(5))
-					}
-
-					// GET ISO FROM TCP
-					var aISO = response_array2.find((element) => {
-						if (element.includes('aISO')) {
-							return true
-						}
-					})
-					if (aISO !== undefined) {
-						aISO = numOrAuto(aISO.substring(4))
-					}
-
-					// GET SHUTTER FROM TCP
-					var aSHUT = response_array2.find((element) => {
-						if (element.includes('aSHUT')) {
-							return true
-						}
-					})
-					if (aSHUT !== undefined) {
-						aSHUT = numOrAuto(aSHUT.substring(5))
-					}
-
-					// GET SATURATION FROM TCP
-					var aSAT = response_array2.find((element) => {
-						if (element.includes('aSAT')) {
-							return true
-						}
-					})
-					if (aSAT !== undefined) {
-						aSAT = parseFloat(aSAT.substring(4))
-						this.MIDDLE.aSAT = aSAT
-					}
-
-					// GET CONTRAST FROM TCP
-					var aCONT = response_array2.find((element) => {
-						if (element.includes('aCONT')) {
-							return true
-						}
-					})
-					if (aCONT !== undefined) {
-						aCONT = parseFloat(aCONT.substring(5))
-						this.MIDDLE.aCONT = aCONT
-					}
-
-					// GET BLACK LEVEL FROM TCP
-					var aBLACKLEV = response_array2.find((element) => {
-						if (element.includes('aBLACKLEV')) {
-							return true
-						}
-					})
-					if (aBLACKLEV !== undefined) {
-						aBLACKLEV = parseFloat(aBLACKLEV.substring(9))
-						this.MIDDLE.aBLEV = aBLACKLEV
-					}
-
-					// GET MID LEVEL FROM TCP
-					var aMIDLEV = response_array2.find((element) => {
-						if (element.includes('aMIDLEV')) {
-							return true
-						}
-					})
-					if (aMIDLEV !== undefined) {
-						aMIDLEV = parseFloat(aMIDLEV.substring(7))
-						this.MIDDLE.aMLEV = aMIDLEV
-					}
-
-					// GET WHITELEV FROM TCP
-					var aWHITELEV = response_array2.find((element) => {
-						if (element.includes('aWHITELEV')) {
-							return true
-						}
-					})
-					if (aWHITELEV !== undefined) {
-						aWHITELEV = parseFloat(aWHITELEV.substring(9))
-						this.MIDDLE.aWLEV = aWHITELEV
-					}
-
-					// Create Companion Variables
-
-					if (aWB !== undefined) {
-						this.setVariableValues({ aWB_var: aWB })
-					} else {
-						this.setVariableValues({ aWB_var: '' })
-					}
-					if (aF !== undefined) {
-						this.setVariableValues({ aF_var: aF })
-					} else {
-						this.setVariableValues({ aF_var: '' })
-					}
-					// ND filter: variable ("CLEAR" or the denominator) + state for the NDStatus feedback
-					this.MIDDLE.ND = aND
-					if (aND !== undefined) {
-						this.setVariableValues({ aND_var: aND })
-					} else {
-						this.setVariableValues({ aND_var: '' })
-					}
-					if (aI !== undefined) {
-						this.setVariableValues({ aI_var: aI })
-					} else {
-						this.setVariableValues({ aI_var: '' })
-					}
-					if (aTINT !== undefined) {
-						this.setVariableValues({ aTINT_var: aTINT })
-					} else {
-						this.setVariableValues({ aTINT_var: '' })
-					}
-					if (aISO !== undefined) {
-						this.setVariableValues({ aISO_var: aISO })
-					} else {
-						this.setVariableValues({ aISO_var: '' })
-					}
-					if (aSHUT !== undefined) {
-						// AUTO/unavailable shutter ('-') must not render as '1/-'.
-						this.setVariableValues({ aSHUT_var: aSHUT === '-' ? '-' : '1/' + aSHUT })
-					} else {
-						this.setVariableValues({ aSHUT_var: '' })
-					}
-					if (aSAT !== undefined) {
-						this.setVariableValues({ aSAT_var: aSAT })
-					} else {
-						this.setVariableValues({ aSAT_var: '' })
-					}
-
-					if (aCONT !== undefined) {
-						this.setVariableValues({ aCONT_var: aCONT })
-					} else {
-						this.setVariableValues({ aCONT_var: '' })
-					}
-					if (aBLACKLEV !== undefined) {
-						this.setVariableValues({ aBLACKLEV_var: aBLACKLEV })
-					} else {
-						this.setVariableValues({ aBLACKLEV_var: '' })
-					}
-					if (aMIDLEV !== undefined) {
-						this.setVariableValues({ aMIDLEV_var: aMIDLEV })
-					} else {
-						this.setVariableValues({ aMIDLEV_var: '' })
-					}
-					if (aWHITELEV !== undefined) {
-						this.setVariableValues({ aWHITELEV_var: aWHITELEV })
-					} else {
-						this.setVariableValues({ aWHITELEV_var: '' })
-					}
-				} else {
-					//this.log('debug', 'VARIABLES_NULL')
-					this.setVariableValues({ aBLACKLEV_var: '-' })
-					this.setVariableValues({ aMIDLEV_var: '-' })
-					this.setVariableValues({ aWHITELEV_var: '-' })
-					this.setVariableValues({ aWB_var: '-' })
-					this.setVariableValues({ aF_var: '-' })
-					this.setVariableValues({ aI_var: '-' })
-					this.setVariableValues({ aTINT_var: '-' })
-					this.setVariableValues({ aISO_var: '-' })
-					this.setVariableValues({ aCONT_var: '-' })
-					this.setVariableValues({ aSAT_var: '-' })
-					this.setVariableValues({ aSHUT_var: '-' })
-				}
-
-				// Gimbal Middle Control Feedback into ARRAY 3 (detects using aPAN presence)
-				var presence_aPAN = response_array.findIndex((element) => element.includes('aPAN')) // Detects if it is an Gimbal Canbus Feedback    (using aPAN value)
-				if (parseFloat(presence_aPAN) > -1) {
-					var response_array3 = body.split(';')
-					//    this.log('debug', 'RESPONSE ARRAY 3 GIMBAL=' + response_array3)
-
-					//    this.log('debug', 'Gimbal CANBUS Connected')
-
-					// GET ABS PAN FROM TCP
-					var aPAN = response_array3.find((element) => {
-						if (element.includes('aPAN')) {
-							return true
-						}
-					})
-					if (aPAN !== undefined) {
-						aPAN = parseFloat(aPAN.substring(4))
-					}
-
-					// GET ABS TILT FROM TCP
-					var aTILT = response_array3.find((element) => {
-						if (element.includes('aTILT')) {
-							return true
-						}
-					})
-					if (aTILT !== undefined) {
-						aTILT = parseFloat(aTILT.substring(5))
-					}
-
-					// GET ABS ROLL FROM TCP
-					var aROLL = response_array3.find((element) => {
-						if (element.includes('aROLL')) {
-							return true
-						}
-					})
-					if (aROLL !== undefined) {
-						aROLL = parseFloat(aROLL.substring(5))
-					}
-
-					// GET ABS ZOOM FROM TCP
-					var aZOOM = response_array3.find((element) => {
-						if (element.includes('aZOOM')) {
-							return true
-						}
-					})
-					if (aZOOM !== undefined) {
-						aZOOM = parseFloat(aZOOM.substring(5))
-					}
-
-					// GET SLIDER POS FROM TCP
-					var aSLIDER = response_array3.find((element) => {
-						if (element.includes('aSLIDER')) {
-							return true
-						}
-					})
-					if (aSLIDER !== undefined) {
-						aSLIDER = parseFloat(aSLIDER.substring(5))
-					}
-
-					// Create Companion Variables
-
-					if (aPAN !== undefined) {
-						this.setVariableValues({ aPAN_var: aPAN })
-					} else {
-						this.setVariableValues({ aPAN_var: '' })
-					}
-					if (aTILT !== undefined) {
-						this.setVariableValues({ aTILT_var: aTILT })
-					} else {
-						this.setVariableValues({ aTILT_var: '' })
-					}
-					if (aROLL !== undefined) {
-						this.setVariableValues({ aROLL_var: aROLL })
-					} else {
-						this.setVariableValues({ aROLL_var: '' })
-					}
-					if (aZOOM !== undefined) {
-						this.setVariableValues({ aZOOM_var: aZOOM })
-					} else {
-						this.setVariableValues({ aZOOM_var: '' })
-					}
-					if (aSLIDER !== undefined) {
-						this.setVariableValues({ aSLIDER_var: aSLIDER })
-					} else {
-						this.setVariableValues({ aSLIDER_var: '' })
-					}
-				} else {
-					//   this.log('debug', 'VARIABLES_NULL')
-					this.setVariableValues({ aPAN_var: '-' })
-					this.setVariableValues({ aTILT_var: '-' })
-					this.setVariableValues({ aROLL_var: '-' })
-					this.setVariableValues({ aZOOM_var: '-' })
-					this.setVariableValues({ aSLIDER_var: '-' })
-				}
-
-this.checkFeedbacks(
-  'CurrentCameraID',
-  'RecordingStatus',
-  'AutofocusStatus',
-  'DigitalZoomStatus',
-  'CurrentPresetActive',
-  'CameraConnectionStatus',
-  'APCRConnectionStatus',
-  'ShakeRunning',
-  'ZoomLoopRunning',
-  'PresetsSequenceRunning',
-  'NDStatus'
-)
-				} // end for: frame reassembly loop
+				for (const body of frames) this._applyFrame(body)
 			})
 		} else {
 			this.updateStatus(InstanceStatus.BadConfig)
 		}
+	}
+
+	// ---- Feed frames → state & variables (the parsing itself lives in lib.js: parseFrame/toState/toVars) ----
+
+	_applyFrame(body) {
+		const p = parseFrame(body)
+		if (p.PRES_C !== undefined) this._seenPresC = true
+		const cam = p.CAM
+		const trackAll = !!this.config?.trackAll
+		if (cam !== undefined) this.camState[cam] = toState(p)
+
+		const vals = {}
+		if (isSelectedFrame(p, trackAll, this._seenPresC)) {
+			this.MIDDLE = toState(p)
+			Object.assign(vals, toVars(p))
+		}
+		if (trackAll && cam !== undefined) {
+			this._ensureCamVars(cam)
+			Object.assign(vals, toCamVars(cam, p))
+		}
+		this._flushVars(vals)
+		this._checkFeedbacksIfChanged()
+	}
+
+	// One setVariableValues per frame, carrying only the values that actually changed.
+	_flushVars(vals) {
+		const changed = {}
+		for (const [id, value] of Object.entries(vals)) {
+			if (this._lastVars[id] !== value) {
+				changed[id] = value
+				this._lastVars[id] = value
+			}
+		}
+		if (Object.keys(changed).length > 0) this.setVariableValues(changed)
+	}
+
+	// Register the cam<N>_* variables the first time camera N is seen.
+	_ensureCamVars(cam) {
+		if (this.knownCams.has(cam)) return
+		this.knownCams.add(cam)
+		this.setVariableDefinitions([...getVariables(), ...perCameraVariables([...this.knownCams])])
+	}
+
+	// Re-run feedbacks only when something a feedback can see has changed.
+	_checkFeedbacksIfChanged() {
+		const m = this.MIDDLE || {}
+		const perCam = Object.entries(this.camState).map(([c, st]) => [
+			c,
+			st.REC,
+			st.AF,
+			st.DZOOM,
+			st.PRESET_ACTIVE,
+			st.ND,
+			st.SHAKE_RUN,
+			st.ZLOOP_RUN,
+			st.PRESETSEQ_RUN,
+		])
+		const sig = JSON.stringify([
+			m.CAM,
+			m.REC,
+			m.AF,
+			m.DZOOM,
+			m.PRESET_ACTIVE,
+			m.ND,
+			m.SHAKE_RUN,
+			m.ZLOOP_RUN,
+			m.PRESETSEQ_RUN,
+			m.REC_LIST,
+			m.CAM_CON_LIST,
+			m.APCR_CON_LIST,
+			perCam,
+		])
+		if (sig === this._lastFeedbackSig) return
+		this._lastFeedbackSig = sig
+		this.checkFeedbacks(...FEEDBACK_IDS)
 	}
 
 	send(cmd) {

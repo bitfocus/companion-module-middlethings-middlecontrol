@@ -1,3 +1,5 @@
+import { CAM_VAR_FIELDS } from './lib.js'
+
 const variables = [
 	{
 		name: 'Selected Camera Number',
@@ -143,4 +145,15 @@ const variables = [
 
 export function getVariables() {
 	return variables
+}
+
+// Variables for each camera the module has seen (only registered when "Track all cameras" is on).
+export function perCameraVariables(camIds) {
+	const defs = []
+	for (const cam of camIds) {
+		for (const f of CAM_VAR_FIELDS) {
+			defs.push({ name: `Camera ${cam}: ${f.label}`, variableId: `cam${cam}_${f.suffix}` })
+		}
+	}
+	return defs
 }

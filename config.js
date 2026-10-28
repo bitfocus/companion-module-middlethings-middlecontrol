@@ -78,9 +78,21 @@ export function buildConfigFields(discoveredChoices = []) {
 		isVisible: (opts) => opts.device === 'manual' || opts.device === undefined,
 	}
 
+	// Opt-in per-camera state (Middle Control 4.1+). Off by default so older app versions, and
+	// existing setups, see exactly the behaviour they had before.
+	const trackAllField = {
+		type: 'checkbox',
+		id: 'trackAll',
+		label: 'Track all cameras',
+		default: false,
+		width: 6,
+		tooltip:
+			'Middle Control 4.1 or later only. Receives the live state of every connected camera, enabling per-camera variables (cam3_rec, cam3_af, …) and the Camera ID option on feedbacks. Leave off for older versions of Middle Control.',
+	}
+
 	const fields = [INFO_FIELD, deviceField, hostField, hostLocked]
 	if (discoveredChoices.length === 0) fields.push(searchingHint)
-	fields.push(PROT_FIELD)
+	fields.push(trackAllField, PROT_FIELD)
 	return fields
 }
 
