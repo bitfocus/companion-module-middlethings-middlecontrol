@@ -78,6 +78,18 @@ const variables = [
 		variableId: 'aF_var',
 	},
 	{
+		name: 'Battery (%, or - when the camera reports none)',
+		variableId: 'aBAT_var',
+	},
+	{
+		name: 'Power source (Battery / AC)',
+		variableId: 'aPWR_var',
+	},
+	{
+		name: 'Battery text (85 %, AC, 85 % (AC))',
+		variableId: 'BAT_var',
+	},
+	{
 		name: 'Gimbal Absolute Pan Value',
 		variableId: 'aPAN_var',
 	},

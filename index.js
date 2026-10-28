@@ -30,6 +30,8 @@ const FEEDBACK_IDS = [
 	'ShakeRunning',
 	'ZoomLoopRunning',
 	'PresetsSequenceRunning',
+	'BatteryLevel',
+	'PowerSource',
 ]
 
 // "Monitor all cameras": a camera not heard from for this long is treated as gone (its variables are
@@ -303,6 +305,8 @@ class instance extends InstanceBase {
 			st.SHAKE_RUN,
 			st.ZLOOP_RUN,
 			st.PRESETSEQ_RUN,
+			st.BAT,
+			st.PWR,
 		])
 		const sig = JSON.stringify([
 			m.CAM,
@@ -314,6 +318,8 @@ class instance extends InstanceBase {
 			m.SHAKE_RUN,
 			m.ZLOOP_RUN,
 			m.PRESETSEQ_RUN,
+			m.BAT,
+			m.PWR,
 			m.REC_LIST,
 			m.CAM_CON_LIST,
 			m.APCR_CON_LIST,

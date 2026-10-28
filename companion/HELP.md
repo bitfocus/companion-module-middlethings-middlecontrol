@@ -31,13 +31,15 @@ Check exact compatibility : https://www.middlethings.co/compatibility/
 
 ### Feedbacks & variables
 
-Boolean **feedbacks** let buttons reflect live state: recording tally, camera connection, APC-R connection, active preset, Auto Focus, Digital Zoom, ND filter (clear / any / a given density), and automations running (Camera Shake / Zoom Loop / Presets Sequence). Several feedbacks accept an optional Camera ID so you can monitor multiple cameras at a glance. With **Monitor all cameras** on (Middle Control 4.1+), the autofocus, digital zoom, active preset, ND filter and automation feedbacks also accept a Camera ID, and every camera gets its own variables (`cam3_rec`, `cam3_af`, `cam3_iso`, …).
+Boolean **feedbacks** let buttons reflect live state: recording tally, camera connection, APC-R connection, active preset, Auto Focus, Digital Zoom, ND filter (clear / any / a given density), automations running (Camera Shake / Zoom Loop / Presets Sequence), battery level (at or below a percentage) and power source (battery or mains; these two need Middle Control 4.1 or later). Several feedbacks accept an optional Camera ID so you can monitor multiple cameras at a glance. With **Monitor all cameras** on (Middle Control 4.1+), the autofocus, digital zoom, active preset, ND filter and automation feedbacks also accept a Camera ID, and every camera gets its own variables (`cam3_rec`, `cam3_af`, `cam3_iso`, …).
 
-**Variables** expose live values (selected camera, pan/tilt & zoom speed, preset transition duration and easing, WB, tint, gain, iris, shutter, contrast, saturation, levels, gimbal pan/tilt/roll/zoom, recording status, lists of connected/recording cameras, automation running states and the active sequence bank, …). They show `-` until the module is connected and receiving data.
+**Variables** expose live values (selected camera, pan/tilt & zoom speed, preset transition duration and easing, WB, tint, gain, iris, shutter, contrast, saturation, levels, gimbal pan/tilt/roll/zoom, battery level and power source (Middle Control 4.1 or later), recording status, lists of connected/recording cameras, automation running states and the active sequence bank, …). They show `-` until the module is connected and receiving data.
 
 ### Streamdeck+ encoders
 
 This module ships ready-made rotary-encoder presets in the **"Encoders (Streamdeck+)"** preset category — Focus, Iris, ISO/Gain, White Balance, Shutter, Tint, Contrast, Saturation, Black Level, Pan/Tilt Speed and Zoom Speed. Rotate to step the value; press (where shown) toggles the matching Auto mode.
+
+The **"Status (buttons)"** category holds a ready-made Battery button for the selected camera (Middle Control 4.1 or later): it shows the battery text, turns green on mains power and orange at or below 20 %.
 
 The Focus encoder is velocity-sensitive with Middle Control 4.0.4 or later: slow detents move by the app's finest step, a quick twist ramps up like the app's own button held down. If you prefer a fixed amount per detent, build the encoder from the *Focus by a Fixed Step* action instead (0.01 = the detent of earlier versions).
 

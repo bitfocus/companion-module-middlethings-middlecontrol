@@ -97,6 +97,7 @@ const NUMERIC_TOKENS = [
 	'aROLL',
 	'aZOOM',
 	'aSLIDER',
+	'aBAT', // battery % of the camera (Middle Control 4.1+); '-' when the body publishes none
 ]
 const TOKEN_SPECS = [
 	{ key: 'REC_LIST', prefix: 'REC_LIST[', type: 'list' },
@@ -113,6 +114,7 @@ const TOKEN_SPECS = [
 	{ key: 'PRESETSEQ_BANK', prefix: 'PRESETSEQ_BANK', type: 'str' },
 	{ key: 'SEL', prefix: 'SEL', type: 'str' },
 	{ key: 'aND', prefix: 'aND', type: 'nd' },
+	{ key: 'aPWR', prefix: 'aPWR', type: 'str' }, // power source: B battery, A mains (DC / USB-PD), - unknown (4.1+)
 	...NUMERIC_TOKENS.map((k) => ({ key: k, prefix: k, type: 'num' })),
 ].sort((a, b) => b.prefix.length - a.prefix.length)
 
@@ -170,6 +172,18 @@ export function expiredCams(lastSeen, now, ttlMs) {
 
 const dash = (x) => (x === undefined ? '-' : x)
 const shutterText = (x) => (x === undefined || x === '-' ? dash(x) : '1/' + x)
+// Power source token → text. 'B' battery, 'A' mains (DC coupler, USB-PD, V-mount through DC-in).
+export function powerText(raw) {
+	if (raw === 'B') return 'Battery'
+	if (raw === 'A') return 'AC'
+	return '-'
+}
+// Battery + power source → one display text: '85 %', 'AC', '85 % (AC)' (a pack present while on mains), '-'.
+export function batteryText(pct, pwr) {
+	const hasPct = typeof pct === 'number'
+	if (pwr === 'A') return hasPct ? `${pct} % (AC)` : 'AC'
+	return hasPct ? `${pct} %` : '-'
+}
 
 // Parsed frame → the per-camera state object that feedbacks and send() read. The field names are
 // the historical this.MIDDLE contract and must not change.
@@ -196,6 +210,8 @@ export function toState(p) {
 		aBLEV: p.aBLACKLEV,
 		aMLEV: p.aMIDLEV,
 		aWLEV: p.aWHITELEV,
+		BAT: p.aBAT, // number, '-' (none / unknown) or undefined (app older than 4.1)
+		PWR: p.aPWR, // 'B' | 'A' | '-' | undefined
 	}
 }
 
@@ -222,6 +238,9 @@ export function toVars(p) {
 		aMIDLEV_var: dash(p.aMIDLEV),
 		aWHITELEV_var: dash(p.aWHITELEV),
 		aF_var: dash(p.aF),
+		aBAT_var: dash(p.aBAT),
+		aPWR_var: powerText(p.aPWR),
+		BAT_var: batteryText(p.aBAT, p.aPWR),
 		aPAN_var: dash(p.aPAN),
 		aTILT_var: dash(p.aTILT),
 		aROLL_var: dash(p.aROLL),
@@ -257,12 +276,16 @@ export const CAM_VAR_FIELDS = [
 	{ suffix: 'iris', key: 'aI', label: 'Iris' },
 	{ suffix: 'shutter', key: 'aSHUT', label: 'Shutter' },
 	{ suffix: 'focus', key: 'aF', label: 'Focus' },
+	{ suffix: 'bat', key: 'aBAT', label: 'Battery (%)' },
+	{ suffix: 'power', key: 'aPWR', label: 'Power source (Battery / AC)' },
 ]
 
 export function toCamVars(cam, p) {
 	const out = {}
 	for (const f of CAM_VAR_FIELDS) {
-		out[`cam${cam}_${f.suffix}`] = f.key === 'aSHUT' ? shutterText(p.aSHUT) : dash(p[f.key])
+		if (f.key === 'aSHUT') out[`cam${cam}_${f.suffix}`] = shutterText(p.aSHUT)
+		else if (f.key === 'aPWR') out[`cam${cam}_${f.suffix}`] = powerText(p.aPWR)
+		else out[`cam${cam}_${f.suffix}`] = dash(p[f.key])
 	}
 	return out
 }

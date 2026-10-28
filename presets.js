@@ -223,5 +223,23 @@ export function getPresetDefinitions() {
 	presets.focus_fine_in = focusFineButton({ title: 'Focus in — fine step (0.002)', text: 'FOCUS IN\nfine', dir: 'in' })
 	presets.focus_fine_out = focusFineButton({ title: 'Focus out — fine step (0.002)', text: 'FOCUS OUT\nfine', dir: 'out' })
 
+	// ── Status buttons (display only, no action) ──
+	// Battery of the selected camera (Middle Control 4.1 or later): green on mains power, orange at or below
+	// 20 %, the text shows "85 %", "AC", "85 % (AC)" or "-". Feedback order matters: the low-battery
+	// style is listed last so it wins over the mains colour when a pack is low while on AC.
+	const STATUS_CAT = 'Status (buttons)'
+	const ORANGE = combineRgb(255, 80, 0)
+	presets.status_battery = {
+		type: 'button',
+		category: STATUS_CAT,
+		name: 'Battery (selected camera) — green on mains, orange at or below 20 %',
+		style: { text: 'BATTERY\n$(middlecontrol:BAT_var)', size: TEXT_SIZE, color: WHITE, bgcolor: BLACK },
+		steps: [{ down: [], up: [] }],
+		feedbacks: [
+			{ feedbackId: 'PowerSource', options: { source: 'A', camera_id: '' }, style: { color: BLACK, bgcolor: GREEN } },
+			{ feedbackId: 'BatteryLevel', options: { threshold: 20, camera_id: '' }, style: { color: BLACK, bgcolor: ORANGE } },
+		],
+	}
+
 	return presets
 }

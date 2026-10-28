@@ -313,6 +313,63 @@ export function getFeedbackDefinitions(self) {
 			},
 		},
 
+		// Battery of the selected camera (or of a given camera with Monitor all cameras), from the feed's
+		// `aBAT` / `aPWR` tokens (Middle Control 4.1+). Unknown ('-' or an older app) never lights the button.
+		BatteryLevel: {
+			type: 'boolean',
+			name: 'Battery level',
+			description: 'Change style when the camera battery is at or below a level (Middle Control 4.1 or later)',
+			defaultStyle: {
+				color: combineRgb(0, 0, 0),
+				bgcolor: combineRgb(255, 80, 0), // orange = low battery
+			},
+			options: [
+				{
+					type: 'number',
+					label: 'At or below (%)',
+					id: 'threshold',
+					default: 20,
+					min: 0,
+					max: 100,
+				},
+				CAMERA_OPT,
+			],
+			callback: function (feedback) {
+				const bat = stateFor(feedback).BAT // number, '-' or undefined
+				if (typeof bat !== 'number') return false
+				const threshold = Number(feedback.options.threshold)
+				return bat <= (Number.isFinite(threshold) ? threshold : 20)
+			},
+		},
+
+		PowerSource: {
+			type: 'boolean',
+			name: 'Power source',
+			description: 'Change style when the camera runs on mains power or on its battery (Middle Control 4.1 or later)',
+			defaultStyle: {
+				color: combineRgb(0, 0, 0),
+				bgcolor: combineRgb(0, 255, 0), // green when condition is true
+			},
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Source',
+					id: 'source',
+					default: 'A',
+					choices: [
+						{ id: 'A', label: 'Mains / DC (AC)' },
+						{ id: 'B', label: 'Battery' },
+					],
+				},
+				CAMERA_OPT,
+			],
+			callback: function (feedback) {
+				const pwr = stateFor(feedback).PWR // 'B', 'A', '-' or undefined
+				if (pwr !== 'A' && pwr !== 'B') return false
+				return pwr === feedback.options.source
+			},
+		},
+
 		DigitalZoomStatus: {
 			type: 'boolean',
 			name: 'Digital zoom status',
