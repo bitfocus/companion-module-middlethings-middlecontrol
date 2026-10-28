@@ -16,6 +16,7 @@ import {
 	toCamVars,
 } from './lib.js'
 import { MiddleDiscovery } from './discovery.js'
+import { UpgradeScripts } from './upgrades.js'
 
 const FEEDBACK_IDS = [
 	'CurrentCameraID',
@@ -410,7 +411,7 @@ class instance extends InstanceBase {
 	}
 }
 
-runEntrypoint(instance, [])
+runEntrypoint(instance, UpgradeScripts)
 
 ////old
 

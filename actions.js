@@ -16,8 +16,9 @@ import {
 } from './commands.js'
 
 // The six settings a preset recall can apply — same list as the tick boxes on the app's Presets page.
-// Used by the Recall/Save Preset action when "Settings to recall" is Custom.
-const RECALL_SETTINGS = [
+// Used by the Recall/Save Preset action when "Settings to recall" is Custom (and by upgrades.js to
+// fill them in on actions saved by older versions).
+export const RECALL_SETTINGS = [
 	{ key: 'pt', id: 'id_recall_pt', label: 'Pan / Tilt' },
 	{ key: 'zoom', id: 'id_recall_zoom', label: 'Zoom' },
 	{ key: 'focus', id: 'id_recall_focus', label: 'Focus' },
