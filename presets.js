@@ -29,7 +29,12 @@ function cameraEncoder({ title, text, down, left, right, feedbacks }) {
 		steps: [
 			{
 				down: down
-					? [{ actionId: 'sendcameracommand', options: { id_sendcameracommand: down, id_sendcameracommand_camera: '' } }]
+					? [
+							{
+								actionId: 'sendcameracommand',
+								options: { id_sendcameracommand: down, id_sendcameracommand_camera: '' },
+							},
+					  ]
 					: [],
 				up: [],
 				rotate_left: [
@@ -185,7 +190,10 @@ export function getPresetDefinitions() {
 			steps: [
 				{
 					down: [
-						{ actionId: 'sendcameracommand', options: { id_sendcameracommand: command, id_sendcameracommand_camera: '' } },
+						{
+							actionId: 'sendcameracommand',
+							options: { id_sendcameracommand: command, id_sendcameracommand_camera: '' },
+						},
 					],
 					up: [
 						{
@@ -221,7 +229,11 @@ export function getPresetDefinitions() {
 	presets.focus_hold_in = focusHoldButton({ title: 'Focus in — hold', text: 'FOCUS IN\nhold', command: 'FOCUS_IN' })
 	presets.focus_hold_out = focusHoldButton({ title: 'Focus out — hold', text: 'FOCUS OUT\nhold', command: 'FOCUS_OUT' })
 	presets.focus_fine_in = focusFineButton({ title: 'Focus in — fine step (0.002)', text: 'FOCUS IN\nfine', dir: 'in' })
-	presets.focus_fine_out = focusFineButton({ title: 'Focus out — fine step (0.002)', text: 'FOCUS OUT\nfine', dir: 'out' })
+	presets.focus_fine_out = focusFineButton({
+		title: 'Focus out — fine step (0.002)',
+		text: 'FOCUS OUT\nfine',
+		dir: 'out',
+	})
 
 	// ── Status buttons (display only, no action) ──
 	// Battery of the selected camera (Middle Control 4.1 or later): green on mains power, orange at or below
@@ -237,7 +249,11 @@ export function getPresetDefinitions() {
 		steps: [{ down: [], up: [] }],
 		feedbacks: [
 			{ feedbackId: 'PowerSource', options: { source: 'A', camera_id: '' }, style: { color: BLACK, bgcolor: GREEN } },
-			{ feedbackId: 'BatteryLevel', options: { threshold: 20, camera_id: '' }, style: { color: BLACK, bgcolor: ORANGE } },
+			{
+				feedbackId: 'BatteryLevel',
+				options: { threshold: 20, camera_id: '' },
+				style: { color: BLACK, bgcolor: ORANGE },
+			},
 		],
 	}
 

@@ -31,9 +31,9 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 - Adds a "Monitor all cameras" option to receive the status of every connected camera, not just the selected one
 - Adds per-camera variables (cam3_rec, cam3_af, cam3_iso, …) when Monitor all cameras is on
 - Adds an optional Camera ID to the Autofocus, Digital Zoom, Active Preset, ND filter and Automation feedbacks
-- Adds the camera battery as variables: Battery (%), Power source (Battery / AC) and a ready-made Battery text (85 %, AC, 85 % (AC)); per camera too (cam3_bat, cam3_power) with Monitor all cameras on. Needs Middle Control 4.1 or later; shows "-" with older versions or when the camera reports no battery
-- Adds a Battery level feedback (at or below a percentage) and a Power source feedback (battery / mains), both with the optional Camera ID
-- Adds a ready-made Battery status button (new "Status (buttons)" preset category): green on mains, orange at or below 20 %
+- Adds Battery, Power source and Battery text variables, also per camera (cam3_bat, cam3_power)
+- Adds Battery level and Power source feedbacks, with the optional Camera ID
+- Adds a ready-made Battery status button in the "Status (buttons)" preset category
 - Adds an ATEM Link On/Off action (Pro)
 - Adds decimal pan/tilt speeds below 10% (e.g. 2.5)
 - Adds an optional Camera ID to Set Preset Transition Duration
