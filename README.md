@@ -15,6 +15,8 @@ The Middle Control Companion plugin remotely controls the Middle Control softwar
 - Set Custom Pan/Tilt/Zoom Speed
 - Send a Custom Command (SDK)
 - Automations (Camera Shake, Zoom Loop, Presets Sequence) — start/stop and live parameters, per camera
+- Track all cameras (Middle Control 4.1+) — per-camera variables and feedbacks
+- Hue / Sharpness / Luma Mix controls and an ATEM Link switch (Middle Control 4.1+)
 - Feedbacks (recording tally, camera/APC-R connection, active preset, AF, digital zoom, automation running)
 - Live Variables for camera & gimbal settings, plus automation state (running effects & active sequence bank)
 - **Streamdeck+ rotary-encoder presets** (Focus, Iris, ISO/Gain, WB, Shutter, Tint, Zoom Speed) — see the "Encoders (Streamdeck+)" preset category
@@ -25,13 +27,20 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 
 ## Changes
 
-### v3.5.0
+### v4.0.0
 
-- Focus with Middle Control 4.0.4+: the Focus in / out actions now step as finely as the app's own focus button and ramp up when repeated; new **Focus in / out — hold** actions (press / release) and a **Focus by a Fixed Step** action; ready-made buttons in the new "Focus (buttons)" preset category
-- New actions: open / close the **Live View** and **Multi View** windows
-- New **Set Preset Transition Easing** action and a Preset Transition Easing variable
-- ND filter: new **Set ND Filter** action (clear, 1/4 … 1/1024, or a custom denominator), an ND Filter variable and an **ND filter status** feedback
-- Custom command help: the focus example is `aFxx` (the previous `aFOCUSxx` was never accepted); adds the shutter and ND examples
+- Track all cameras (Middle Control 4.1+): turn it on in the connection settings and the module follows every connected camera, not just the selected one. Feedbacks for autofocus, digital zoom, active preset, ND filter and automations get an optional Camera ID, and each camera gets its own variables (cam3_rec, cam3_af, cam3_iso, …).
+- New camera controls (Middle Control 4.1+): Hue and Sharpness steps in Send Camera Action, and a Set CCU Value action for an exact Hue (-180 to 180°) or Luma Mix (0 to 100%).
+- New ATEM Link action to switch the ATEM link on or off (Middle Control 4.1+, Pro).
+- Pan/tilt speed can be set in tenths below 10% (e.g. 2.5) for slow, precise moves (Middle Control 4.1+).
+- Set Preset Transition Duration can target a specific camera (Middle Control 4.1+).
+- Focus (Middle Control 4.0.4+): Focus in/out now step as finely as the app's own button and ramp up when held; new Focus in/out hold actions and a Focus by a Fixed Step action, with ready-made buttons in the "Focus (buttons)" preset category.
+- New actions to open and close the Live View and Multi View windows.
+- New Set Preset Transition Easing action and variable.
+- ND filter: Set ND Filter action (clear, 1/4 … 1/1024 or a custom value), an ND Filter variable and an ND filter status feedback.
+- Feed handling rewritten: faster, more robust, and variables now show "-" whenever a value isn't available instead of sometimes going blank.
+- Still works with older Middle Control versions: the 4.1+ features simply do nothing there, and everything else behaves as before.
+- Custom command help: the focus example is aFxx (aFOCUSxx was never accepted); adds shutter, ND, hue and luma mix examples.
 
 ### v3.4.0
 

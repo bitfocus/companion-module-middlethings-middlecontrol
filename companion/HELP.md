@@ -13,6 +13,7 @@ Check exact compatibility : https://www.middlethings.co/compatibility/
    - **Manual**: choose *Manual* in the dropdown, then type the **Target IP** — `127.0.0.1` when Middle Control runs on this same computer, otherwise the IP of the computer running it. (The Target IP box is locked unless *Manual* is selected.)
 3. The module connects over **TCP on port 11580**. The connection turns **green (OK)** once Middle Control is reachable. If it stays yellow, check the IP, that Middle Control is running, and that port 11580 isn't blocked by a firewall.
 4. To control **gimbal movement** you need an APC-R / APC-R Mini / APC-R Mini Lite.
+5. **Track all cameras** (Middle Control 4.1 or later): tick it in the connection settings to follow every connected camera. This enables the Camera ID option on more feedbacks and per-camera variables such as `$(middlecontrol:cam3_rec)`. Leave it off with older versions of Middle Control.
 
 ### What you can do
 
@@ -24,12 +25,13 @@ Check exact compatibility : https://www.middlethings.co/compatibility/
 **Windows:** open / close the Live View window of the selected camera, and the Multi View window (Middle Control Pro).
 **ND filter:** step it with the ND increase / decrease camera actions, or set it directly with *Set ND Filter* — clear, 1/4 … 1/1024, or a custom denominator for Sony variable ND; the current filter is reported in the ND Filter variable and the *ND filter status* feedback.
 **Automations:** control the app's automations from one action — pick the type (Camera Shake, Zoom Loop, Presets Sequence), then Start/Stop or set a parameter (speed, amplitude, durations, or the active sequence bank). The options shown adapt to the type you choose. Leave Camera ID empty to target the currently selected camera, or set one to target a specific camera.
+**Colour & link (Middle Control 4.1+):** Hue and Sharpness steps, exact Hue / Luma Mix values (Set CCU Value), and an ATEM Link on/off switch.
 **Camera extras:** menu navigation, MultiSelector, and Custom C1–C6 buttons.
 **Custom commands (SDK):** send any raw command/value (e.g. set ISO or WB to a specific value). See https://www.middlethings.co/api
 
 ### Feedbacks & variables
 
-Boolean **feedbacks** let buttons reflect live state: recording tally, camera connection, APC-R connection, active preset, Auto Focus, Digital Zoom, ND filter (clear / any / a given density), and automations running (Camera Shake / Zoom Loop / Presets Sequence). Several feedbacks accept an optional Camera ID so you can monitor multiple cameras at a glance.
+Boolean **feedbacks** let buttons reflect live state: recording tally, camera connection, APC-R connection, active preset, Auto Focus, Digital Zoom, ND filter (clear / any / a given density), and automations running (Camera Shake / Zoom Loop / Presets Sequence). Several feedbacks accept an optional Camera ID so you can monitor multiple cameras at a glance. With **Track all cameras** on (Middle Control 4.1+), the autofocus, digital zoom, active preset, ND filter and automation feedbacks also accept a Camera ID, and every camera gets its own variables (`cam3_rec`, `cam3_af`, `cam3_iso`, …).
 
 **Variables** expose live values (selected camera, pan/tilt & zoom speed, preset transition duration and easing, WB, tint, gain, iris, shutter, contrast, saturation, levels, gimbal pan/tilt/roll/zoom, recording status, lists of connected/recording cameras, automation running states and the active sequence bank, …). They show `-` until the module is connected and receiving data.
 
