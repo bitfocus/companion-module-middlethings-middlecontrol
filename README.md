@@ -5,7 +5,7 @@ The Middle Control Companion plugin remotely controls the Middle Control softwar
 **Features**
 
 - Select the active camera
-- Camera control: focus, iris, white balance, tint, gain/ISO, shutter, ND filter, black/mid/white levels, auto modes, zebra, false colour, peaking
+- Camera control: focus, iris, white balance, tint, gain/ISO, shutter, ND filter, contrast, saturation, black/mid/white levels, auto modes, zebra, false colour, peaking
 - Gimbal control: pan, tilt, roll, zoom, slider, speed, recenter, sleep/wake, Active Track
 - Absolute gimbal positions and custom pan/tilt/zoom speed
 - Presets: recall, save, stop, transition duration and easing
