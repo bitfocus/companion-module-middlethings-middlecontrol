@@ -31,8 +31,8 @@ const FEEDBACK_IDS = [
 	'PresetsSequenceRunning',
 ]
 
-// "Monitor all cameras": a camera not heard from for this long is treated as gone (its variables go
-// back to '-', its feedbacks switch off). The app sends per-camera frames at least every 200 ms.
+// "Monitor all cameras": a camera not heard from for this long is treated as gone (its variables are
+// unpublished, its feedbacks switch off). The app sends per-camera frames every 200 ms.
 const CAM_TTL_MS = 1000
 
 class instance extends InstanceBase {
@@ -96,10 +96,10 @@ class instance extends InstanceBase {
 
 		this.config = config
 
-		// The config UI only offers TCP ("Latest"). Older saved configs may still
-		// say 'udp' (which never parsed feedback) — migrate them to TCP.
-		if (this.config.prot !== 'tcp') {
-			this.config.prot = 'tcp'
+		// Without "Monitor all cameras" there are no per-camera variables: unpublish any left from before.
+		if (!this.config?.trackAll && this.knownCams.size > 0) {
+			for (const cam of [...this.knownCams]) this._forgetCam(cam)
+			this._registerCamVars()
 		}
 
 		this.init_tcp()
@@ -243,19 +243,24 @@ class instance extends InstanceBase {
 		)
 	}
 
-	// A camera the app stopped describing (disconnected, or "Monitor all cameras" turned off) must not
-	// keep its last values: after CAM_TTL_MS without a frame its variables go back to '-' and its
+	// A camera the app stopped describing (removed from the app, or "Monitor all cameras" turned off)
+	// must not linger: after CAM_TTL_MS without a frame its variables are unpublished and its
 	// per-camera feedbacks switch off.
 	_expireCams(now) {
 		const gone = expiredCams(this._camSeen, now, CAM_TTL_MS)
 		if (gone.length === 0) return
-		const vals = {}
-		for (const cam of gone) {
-			delete this._camSeen[cam]
-			delete this.camState[cam]
-			for (const v of perCameraVariables([cam])) vals[v.variableId] = '-'
-		}
-		this._flushVars(vals)
+		for (const cam of gone) this._forgetCam(cam)
+		this._registerCamVars()
+	}
+
+	// Drop everything about camera N: its state, its cached values and its place in the variable list
+	// (the caller republishes via _registerCamVars). Forgetting the cached values matters: if the camera
+	// comes back, every value must be sent again, even one that didn't change meanwhile.
+	_forgetCam(cam) {
+		delete this._camSeen[cam]
+		delete this.camState[cam]
+		this.knownCams.delete(cam)
+		for (const v of perCameraVariables([cam])) delete this._lastVars[v.variableId]
 	}
 
 	// One setVariableValues per frame, carrying only the values that actually changed.
@@ -274,7 +279,13 @@ class instance extends InstanceBase {
 	_ensureCamVars(cam) {
 		if (this.knownCams.has(cam)) return
 		this.knownCams.add(cam)
-		const sorted = [...this.knownCams].sort((a, b) => Number(a) - Number(b)) // list in camera order, not discovery order
+		this._registerCamVars()
+	}
+
+	// (Re)publish the variable list: the base variables plus one set per camera currently known, in
+	// camera order. Companion drops the values of variables that are no longer in the list.
+	_registerCamVars() {
+		const sorted = [...this.knownCams].sort((a, b) => Number(a) - Number(b))
 		this.setVariableDefinitions([...getVariables(), ...perCameraVariables(sorted)])
 	}
 

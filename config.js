@@ -18,14 +18,6 @@ const INFO_FIELD = {
 		'Questions? Contact **support@middlethings.co**',
 }
 
-const PROT_FIELD = {
-	type: 'dropdown',
-	id: 'prot',
-	label: 'Middle Control Software Version',
-	default: 'tcp',
-	choices: [{ id: 'tcp', label: 'Latest' }],
-}
-
 // Build the config panel, ATEM-style: ONE "Middle Control" dropdown is the
 // single source of truth — "Manual" plus every instance discovered on the LAN
 // (see discovery.js). The Target IP field only appears when "Manual" is chosen
@@ -92,7 +84,7 @@ export function buildConfigFields(discoveredChoices = []) {
 
 	const fields = [INFO_FIELD, deviceField, hostField, hostLocked]
 	if (discoveredChoices.length === 0) fields.push(searchingHint)
-	fields.push(trackAllField, PROT_FIELD)
+	fields.push(trackAllField)
 	return fields
 }
 
