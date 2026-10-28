@@ -4,7 +4,17 @@ import { getActionDefinitions } from './actions.js'
 import { getVariables, perCameraVariables } from './variables.js'
 import { getFeedbackDefinitions } from './feedbacks.js'
 import { getPresetDefinitions } from './presets.js'
-import { reassembleFrames, sanitizeCommand, parseFrame, isSelectedFrame, toState, toVars, toCamVars } from './lib.js'
+import {
+	reassembleFrames,
+	sanitizeCommand,
+	parseFrame,
+	isSelectedFrame,
+	hasSelMarker,
+	expiredCams,
+	toState,
+	toVars,
+	toCamVars,
+} from './lib.js'
 import { MiddleDiscovery } from './discovery.js'
 
 const FEEDBACK_IDS = [
@@ -20,6 +30,10 @@ const FEEDBACK_IDS = [
 	'ZoomLoopRunning',
 	'PresetsSequenceRunning',
 ]
+
+// "Monitor all cameras": a camera not heard from for this long is treated as gone (its variables go
+// back to '-', its feedbacks switch off). The app sends per-camera frames at least every 200 ms.
+const CAM_TTL_MS = 1000
 
 class instance extends InstanceBase {
 	constructor(internal) {
@@ -49,13 +63,16 @@ class instance extends InstanceBase {
 		this.MIDDLE = { CAM: '1' }
 		this.camState = {} // per-camera state keyed by camera id (filled when "Monitor all cameras" is on)
 		this.knownCams = new Set()
+		this._camSeen = {} // camera id → time of its last frame (per-camera expiry)
 		this._lastVars = {}
-		this._seenPresC = false
+		this._seenSelMarker = false
+		this._sawPerCamFrame = false
 		await this.configUpdated(config)
 	}
 
 	// When module gets deleted
 	async destroy() {
+		clearTimeout(this._trackAllCheck)
 		if (this.socket) {
 			this.socket.destroy()
 			delete this.socket
@@ -68,10 +85,14 @@ class instance extends InstanceBase {
 	}
 
 	async configUpdated(config) {
+		clearTimeout(this._trackAllCheck)
 		if (this.socket) {
 			this.socket.destroy()
 			delete this.socket
 		}
+		// Start the new link from a clean slate: a changed setting (e.g. "Monitor all cameras" turned
+		// off) must not leave values from the old link frozen on screen.
+		this._resetAllState()
 
 		this.config = config
 
@@ -111,6 +132,7 @@ class instance extends InstanceBase {
 		this._lastVars = {}
 		this.MIDDLE = {} // undefined fields make every feedback evaluate to "off"
 		this.camState = {}
+		this._camSeen = {}
 		this._lastFeedbackSig = undefined
 		this.checkFeedbacks(...FEEDBACK_IDS)
 	}
@@ -133,13 +155,20 @@ class instance extends InstanceBase {
 				this.log('debug', 'TCP status_change ' + status + ' ' + message)
 				if (status === InstanceStatus.Ok) {
 					// Fresh link: forget everything learnt on the previous one.
-					this._seenPresC = false
+					this._seenSelMarker = false
+					this._sawPerCamFrame = false
 					this.camState = {}
+					this._camSeen = {}
 					this._lastVars = {}
 					this._lastFeedbackSig = undefined
-					// "Monitor all cameras" (Middle Control 4.1+): ask for one frame per connected camera on
-					// every tick. Older versions don't know the command and simply ignore it.
-					if (this.config?.trackAll) this.send('FEED_ALL1')
+					// "Monitor all cameras" (Middle Control 4.1+): ask for one frame per connected camera.
+					// Older versions don't know the command and simply ignore it — so if other cameras are
+					// connected and still no per-camera frame shows up, say so once instead of staying silent.
+					clearTimeout(this._trackAllCheck)
+					if (this.config?.trackAll) {
+						this.send('FEED_ALL1')
+						this._trackAllCheck = setTimeout(() => this._warnIfNoPerCameraData(), 3000)
+					}
 				}
 			})
 
@@ -157,7 +186,9 @@ class instance extends InstanceBase {
 				// Reassemble the TCP byte stream into '{...}\n' frames. The app emits one frame per
 				// tick (several when "Monitor all cameras" is on), but TCP may coalesce or split packets,
 				// so buffer and split on '\n' — never assume one 'data' event == one frame.
-				if ((this._rx || '').length + data.length > 65536) {
+				// With "Monitor all cameras" one tick can be dozens of frames (~350 bytes each), so keep a
+				// wide margin: two coalesced ticks from a big installation must never trip this guard.
+				if ((this._rx || '').length + data.length > 1048576) {
 					this.log('warn', 'RX buffer overflow; clearing')
 					this._rx = ''
 					return
@@ -165,6 +196,9 @@ class instance extends InstanceBase {
 				const { frames, rest } = reassembleFrames(this._rx, data.toString('latin1'))
 				this._rx = rest
 				for (const body of frames) this._applyFrame(body)
+				// Once per chunk, not per frame: a tick with N cameras is N+1 frames.
+				this._expireCams(Date.now())
+				this._checkFeedbacksIfChanged()
 			})
 		} else {
 			this.updateStatus(InstanceStatus.BadConfig)
@@ -175,22 +209,53 @@ class instance extends InstanceBase {
 
 	_applyFrame(body) {
 		const p = parseFrame(body)
-		if (p.PRES_C !== undefined) this._seenPresC = true
+		if (hasSelMarker(p)) this._seenSelMarker = true
 		const cam = p.CAM
 		const trackAll = !!this.config?.trackAll
 		if (cam !== undefined) this.camState[cam] = toState(p)
 
 		const vals = {}
-		if (isSelectedFrame(p, trackAll, this._seenPresC)) {
+		if (isSelectedFrame(p, trackAll, this._seenSelMarker)) {
 			this.MIDDLE = toState(p)
 			Object.assign(vals, toVars(p))
+		} else {
+			this._sawPerCamFrame = true
 		}
 		if (trackAll && cam !== undefined) {
+			this._camSeen[cam] = Date.now()
 			this._ensureCamVars(cam)
 			Object.assign(vals, toCamVars(cam, p))
 		}
 		this._flushVars(vals)
-		this._checkFeedbacksIfChanged()
+	}
+
+	// "Monitor all cameras" is on, the link has been up for a few seconds, other cameras are connected,
+	// yet every frame was the selected camera's: the app is too old to know FEED_ALL1. Logged once per link.
+	_warnIfNoPerCameraData() {
+		if (this._sawPerCamFrame) return
+		const m = this.MIDDLE || {}
+		const others = new Set([...(m.CAM_CON_LIST || []), ...(m.APCR_CON_LIST || [])].map(String))
+		others.delete(String(m.CAM))
+		if (others.size === 0) return // nothing else to report on — not a version problem
+		this.log(
+			'warn',
+			'Monitor all cameras is on, but Middle Control sent no per-camera data — this needs Middle Control 4.1 or later'
+		)
+	}
+
+	// A camera the app stopped describing (disconnected, or "Monitor all cameras" turned off) must not
+	// keep its last values: after CAM_TTL_MS without a frame its variables go back to '-' and its
+	// per-camera feedbacks switch off.
+	_expireCams(now) {
+		const gone = expiredCams(this._camSeen, now, CAM_TTL_MS)
+		if (gone.length === 0) return
+		const vals = {}
+		for (const cam of gone) {
+			delete this._camSeen[cam]
+			delete this.camState[cam]
+			for (const v of perCameraVariables([cam])) vals[v.variableId] = '-'
+		}
+		this._flushVars(vals)
 	}
 
 	// One setVariableValues per frame, carrying only the values that actually changed.
@@ -209,7 +274,8 @@ class instance extends InstanceBase {
 	_ensureCamVars(cam) {
 		if (this.knownCams.has(cam)) return
 		this.knownCams.add(cam)
-		this.setVariableDefinitions([...getVariables(), ...perCameraVariables([...this.knownCams])])
+		const sorted = [...this.knownCams].sort((a, b) => Number(a) - Number(b)) // list in camera order, not discovery order
+		this.setVariableDefinitions([...getVariables(), ...perCameraVariables(sorted)])
 	}
 
 	// Re-run feedbacks only when something a feedback can see has changed.

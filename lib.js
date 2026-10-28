@@ -111,6 +111,7 @@ const TOKEN_SPECS = [
 	{ key: 'ZLOOP_RUN', prefix: 'ZLOOP_RUN', type: 'str' },
 	{ key: 'PRESETSEQ_RUN', prefix: 'PRESETSEQ_RUN', type: 'str' },
 	{ key: 'PRESETSEQ_BANK', prefix: 'PRESETSEQ_BANK', type: 'str' },
+	{ key: 'SEL', prefix: 'SEL', type: 'str' },
 	{ key: 'aND', prefix: 'aND', type: 'nd' },
 	...NUMERIC_TOKENS.map((k) => ({ key: k, prefix: k, type: 'num' })),
 ].sort((a, b) => b.prefix.length - a.prefix.length)
@@ -136,17 +137,35 @@ export function parseFrame(body) {
 	return out
 }
 
+// Does this frame carry any "selected camera" marker the app can emit?
+//  - SEL<0|1>: explicit flag (Middle Control 4.1 builds from 2026-10-28): SEL1 on the selected
+//    camera's frame, SEL0 on the other cameras' frames.
+//  - PRES_ACTIVE / PRES_C: only ever present in the selected camera's frame (every version).
+export function hasSelMarker(p) {
+	return p.SEL !== undefined || p.PRES_ACTIVE !== undefined || p.PRES_C !== undefined
+}
+
 // Is this frame about the camera currently SELECTED in Middle Control?
 //  - trackAll off (default): yes, always — the app only ever sends the selected camera's frame.
 //    That is true for every Middle Control version, so this is the legacy-safe path.
 //  - trackAll on (FEED_ALL1, Middle Control 4.1+): the app also sends one frame per connected
-//    camera, and ONLY the selected camera's frame carries PRES_C. So PRES_C present ⇒ selected.
-//    If this connection has never seen PRES_C, the app is an older version that doesn't emit it
-//    (and ignores FEED_ALL1), so every frame is still the selected camera.
-export function isSelectedFrame(parsed, trackAll, seenPresC) {
+//    camera. SEL decides when present. Without SEL (earlier 4.1 builds) only the selected camera's
+//    frame carries PRES_ACTIVE (or PRES_C — PRES_C alone was not enough: the app only sends it when
+//    the selected camera is an IP camera, so ATEM / gimbal-only setups had no marker at all).
+//    If this connection has never seen any marker, the app is an older version that ignores
+//    FEED_ALL1, so every frame is still the selected camera.
+export function isSelectedFrame(parsed, trackAll, seenMarker) {
 	if (!trackAll) return true
-	if (parsed.PRES_C !== undefined) return true
-	return !seenPresC
+	if (parsed.SEL !== undefined) return parsed.SEL === '1'
+	if (parsed.PRES_ACTIVE !== undefined || parsed.PRES_C !== undefined) return true
+	return !seenMarker
+}
+
+// Cameras whose last frame is older than ttlMs. The app simply stops describing a camera that
+// disconnects (and sends no per-camera frames once "Monitor all cameras" is off), so without this
+// their last values would linger forever. lastSeen: { camId: timestampMs }.
+export function expiredCams(lastSeen, now, ttlMs) {
+	return Object.keys(lastSeen).filter((cam) => now - lastSeen[cam] > ttlMs)
 }
 
 const dash = (x) => (x === undefined ? '-' : x)
