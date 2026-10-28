@@ -28,18 +28,23 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 
 ### v4.0.0
 
-- Track all cameras — new connection setting. The module follows every connected camera, not just the selected one: the autofocus, digital zoom, active preset, ND filter and automation feedbacks get an optional Camera ID, and each camera gets its own variables (cam3_rec, cam3_af, cam3_iso, …).
-- Hue and Sharpness steps in Send Camera Action, plus a Set CCU Value action for an exact Hue (-180 to 180°) or Luma Mix (0 to 100%).
-- ATEM Link action to switch the ATEM link on or off (Pro).
-- Pan/tilt speed accepts tenths below 10% (e.g. 2.5).
-- Set Preset Transition Duration can target a specific camera.
-- Focus in/out now step as finely as the app's own button and ramp up when held. Send Camera Action gains Focus in/out hold options (press / release), there is a new Focus by a Fixed Step action, and ready-made buttons in the "Focus (buttons)" preset category.
-- Send Camera Action can open and close the Live View and Multi View windows (Multi View needs Pro).
-- Set Preset Transition Easing action and variable.
-- ND filter: Set ND Filter action (clear, 1/4 … 1/1024 or a custom value), an ND Filter variable and an ND filter status feedback.
-- Feed handling rewritten: faster, more robust, and variables show "-" whenever a value isn't available instead of sometimes going blank.
-- Still works with older Middle Control versions.
-- Custom command help: the focus example is aFxx (aFOCUSxx was never accepted); shutter, ND, hue and luma mix examples added.
+- Adds a "Track all cameras" option to follow every connected camera, not just the selected one
+- Adds per-camera variables (cam3_rec, cam3_af, cam3_iso, …) when Track all cameras is on
+- Adds an optional Camera ID to the Autofocus, Digital Zoom, Active Preset, ND filter and Automation feedbacks
+- Adds Hue and Sharpness actions
+- Adds a Set CCU Value action to set an exact Hue or Luma Mix
+- Adds an ATEM Link On/Off action (Pro)
+- Adds decimal pan/tilt speeds below 10% (e.g. 2.5)
+- Adds an optional Camera ID to Set Preset Transition Duration
+- Adds Focus in/out hold actions and a Focus by a Fixed Step action
+- Adds ready-made focus buttons in the "Focus (buttons)" preset category
+- Adds actions to open and close the Live View and Multi View windows (Multi View requires Pro)
+- Adds a Set Preset Transition Easing action and variable
+- Adds a Set ND Filter action, an ND Filter variable and an ND filter status feedback
+- Focus in/out now step like the app's own focus button and ramp up when held
+- Rewrote feedback parsing for speed and reliability; variables now show "-" when a value isn't available
+- Fixed the custom command help: the focus example is aFxx; adds shutter, ND, hue and luma mix examples
+- Still works with older Middle Control versions
 
 ### v3.4.0
 
