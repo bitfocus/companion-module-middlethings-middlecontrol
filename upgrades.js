@@ -27,13 +27,28 @@ export function fillPresetRecallDefaults(action) {
 	return changed
 }
 
-export const UpgradeScripts = [
-	// 1 — 4.0.0: preset recall settings
+// 3.2.0 – 3.2.1 shipped "Send Gimbal Action" with the LABEL 'Pan Left' as its default instead of the
+// id 'PAN_L'. 3.2.2 fixed the default for new buttons only: a button created on 3.2.x and left on its
+// default still stores 'Pan Left', which Middle Control ignores. Map it to the id it meant.
+export function fixLegacyGimbalDefault(action) {
+	if (action.actionId !== 'sendgimbalcommand') return false
+	if (!action.options || action.options.id_sendgimbalcommand !== 'Pan Left') return false
+	action.options.id_sendgimbalcommand = 'PAN_L'
+	return true
+}
+
+const forActions = (fix) =>
 	function (_context, props) {
 		const updatedActions = []
 		for (const action of props.actions) {
-			if (fillPresetRecallDefaults(action)) updatedActions.push(action)
+			if (fix(action)) updatedActions.push(action)
 		}
 		return { updatedConfig: null, updatedActions, updatedFeedbacks: [] }
-	},
+	}
+
+export const UpgradeScripts = [
+	// 1 — 4.0.0: preset recall settings
+	forActions(fillPresetRecallDefaults),
+	// 2 — 4.0.0: gimbal buttons created on 3.2.0 / 3.2.1 with the broken default
+	forActions(fixLegacyGimbalDefault),
 ]

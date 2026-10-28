@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { UpgradeScripts, fillPresetRecallDefaults } from './upgrades.js'
+import { UpgradeScripts, fillPresetRecallDefaults, fixLegacyGimbalDefault } from './upgrades.js'
 
 const RECALL_KEYS = [
 	'id_recall_pt',
@@ -56,4 +56,50 @@ test('UpgradeScripts[0]: reports only the actions it changed', () => {
 	assert.deepEqual(result.updatedFeedbacks, [])
 	assert.equal(result.updatedConfig, null)
 	assert.equal(changed.options.id_recall_iso, true)
+})
+
+// --- script 2: the 3.2.0 / 3.2.1 "Pan Left" default ---
+test('fixLegacyGimbalDefault: a 3.2.x gimbal button left on its default now sends PAN_L', () => {
+	const a = {
+		id: 'g1',
+		controlId: 'bank:4',
+		actionId: 'sendgimbalcommand',
+		options: { id_sendgimbalcommand: 'Pan Left' },
+	}
+	assert.equal(fixLegacyGimbalDefault(a), true)
+	assert.equal(a.options.id_sendgimbalcommand, 'PAN_L')
+})
+
+test('fixLegacyGimbalDefault: a real choice, another action, or missing options are left alone', () => {
+	const ok = {
+		id: 'g2',
+		controlId: 'bank:5',
+		actionId: 'sendgimbalcommand',
+		options: { id_sendgimbalcommand: 'TILT_U' },
+	}
+	assert.equal(fixLegacyGimbalDefault(ok), false)
+	assert.equal(ok.options.id_sendgimbalcommand, 'TILT_U')
+	const other = {
+		id: 'g3',
+		controlId: 'bank:6',
+		actionId: 'sendcameracommand',
+		options: { id_sendcameracommand: 'Pan Left' },
+	}
+	assert.equal(fixLegacyGimbalDefault(other), false)
+	assert.equal(fixLegacyGimbalDefault({ id: 'g4', controlId: 'bank:7', actionId: 'sendgimbalcommand' }), false)
+})
+
+test('UpgradeScripts: two scripts, each reporting only what it changed', () => {
+	assert.equal(UpgradeScripts.length, 2)
+	const gimbal = {
+		id: 'g5',
+		controlId: 'bank:8',
+		actionId: 'sendgimbalcommand',
+		options: { id_sendgimbalcommand: 'Pan Left' },
+	}
+	const preset = oldPresetAction()
+	const r1 = UpgradeScripts[0]({ currentConfig: {} }, { config: null, actions: [gimbal, preset], feedbacks: [] })
+	const r2 = UpgradeScripts[1]({ currentConfig: {} }, { config: null, actions: [gimbal, preset], feedbacks: [] })
+	assert.deepEqual(r1.updatedActions, [preset])
+	assert.deepEqual(r2.updatedActions, [gimbal])
 })
