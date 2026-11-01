@@ -18,7 +18,7 @@
 		"type": "node18",
 		"api": "nodejs-ipc",
 		"apiVersion": "1.7.1",
-		"entrypoint": "../index.js"
+		"entrypoint": "../src/main.js"
 	},
 	"manufacturer": "Middle Things",
 	"products": ["Middle Control","APC-R","APC-R Mini","APC-R Mini Lite", "Middle Remote"],

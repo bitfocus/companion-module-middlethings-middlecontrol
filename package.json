@@ -1,7 +1,7 @@
 {
 	"name": "middlethings-middlecontrol",
 	"version": "4.0.1",
-	"main": "index.js",
+	"main": "src/main.js",
 	"type": "module",
 	"scripts": {
 		"test": "node --test"
