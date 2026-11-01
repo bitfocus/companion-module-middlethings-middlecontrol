@@ -8,7 +8,7 @@ Check exact compatibility : https://www.middlethings.co/compatibility/
 ### Setup
 
 1. Install and launch **Middle Control** on a Mac on your network.
-2. In Companion, add this connection and set **Target IP**:
+2. In Companion (3.5 or later), add this connection and set **Target IP**:
    - **Auto-detect**: instances found on your network appear in the **Middle Control** dropdown on the config page — just pick one. They show by name on Middle Control 3.3.0+, otherwise by IP. (Detection can take up to ~10 s; re-open the config dialog to refresh.)
    - **Manual**: choose _Manual_ in the dropdown, then type the **Target IP** — `127.0.0.1` when Middle Control runs on this same computer, otherwise the IP of the computer running it. (The Target IP box is locked unless _Manual_ is selected.)
 3. The module connects over **TCP on port 11580**. The connection turns **green (OK)** once Middle Control is reachable. If it stays yellow, check the IP, that Middle Control is running, and that port 11580 isn't blocked by a firewall.

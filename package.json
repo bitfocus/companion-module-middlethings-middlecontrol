@@ -1,6 +1,6 @@
 {
 	"name": "middlethings-middlecontrol",
-	"version": "4.0.1",
+	"version": "4.0.2",
 	"main": "src/main.js",
 	"type": "module",
 	"scripts": {

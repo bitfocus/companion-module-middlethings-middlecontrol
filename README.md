@@ -22,9 +22,16 @@ The Middle Control Companion plugin remotely controls the Middle Control softwar
 
 ## Development
 
-This is an ESM project (`"type": "module"`). Install with `yarn install`. Load it as a developer module in Companion (point Companion at this folder) to test against a running Middle Control instance.
+Needs Node 22 and Yarn 4 (`corepack enable`, then `yarn install`). `yarn test` runs the unit tests, `yarn format` formats, `yarn package` builds the module the way the Bitfocus store does. Load the folder as a developer module in Companion to test against a running Middle Control instance.
 
 ## Changes
+
+### v4.0.2
+
+- Fixed feedbacks with a Camera ID keeping an old camera state when Monitor all cameras is off
+- Fixed the variables of a camera removed while the connection was down staying listed after a reconnect
+- Adds the variable picker to every text field
+- Requires Companion 3.5 or later
 
 ### v4.0.1
 
