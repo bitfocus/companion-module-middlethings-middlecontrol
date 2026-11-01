@@ -37,6 +37,9 @@ const FEEDBACK_IDS = [
 // "Monitor all cameras": a camera not heard from for this long is treated as gone (its variables are
 // unpublished, its feedbacks switch off). The app sends per-camera frames every 200 ms.
 const CAM_TTL_MS = 1000
+// Extra time granted after a reconnect before a known camera can expire (the app sends per-camera
+// frames at 5 Hz, but it may take a moment to answer FEED_ALL1 on a fresh link).
+const RECONNECT_GRACE_MS = 2000
 
 class instance extends InstanceBase {
 	constructor(internal) {
@@ -161,9 +164,12 @@ class instance extends InstanceBase {
 					this._seenSelMarker = false
 					this._sawPerCamFrame = false
 					this.camState = {}
-					this._camSeen = {}
 					this._lastVars = {}
 					this._lastFeedbackSig = undefined
+					// Cameras known from the previous link get a grace period: one that the app no longer
+					// reports (removed while the link was down) expires RECONNECT_GRACE_MS + CAM_TTL_MS later.
+					this._camSeen = {}
+					for (const c of this.knownCams) this._camSeen[c] = Date.now() + RECONNECT_GRACE_MS
 					// "Monitor all cameras" (Middle Control 4.1+): ask for one frame per connected camera.
 					// Older versions don't know the command and simply ignore it — so if other cameras are
 					// connected and still no per-camera frame shows up, say so once instead of staying silent.
@@ -215,7 +221,10 @@ class instance extends InstanceBase {
 		if (hasSelMarker(p)) this._seenSelMarker = true
 		const cam = p.CAM
 		const trackAll = !!this.config?.trackAll
-		if (cam !== undefined) this.camState[cam] = toState(p)
+		// Per-camera state exists only with "Monitor all cameras" on: without it the app only ever
+		// describes the selected camera, and keeping those frames would leave a Camera ID feedback
+		// stuck on a snapshot of whichever camera was selected last.
+		if (trackAll && cam !== undefined) this.camState[cam] = toState(p)
 
 		const vals = {}
 		if (isSelectedFrame(p, trackAll, this._seenSelMarker)) {

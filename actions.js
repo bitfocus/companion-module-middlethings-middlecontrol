@@ -191,6 +191,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_selectcameraID',
 					label: 'Camera ID :',
 					tooltip: 'Set the camera number you want to control (1 to 99)',
@@ -234,6 +235,7 @@ export function getActionDefinitions(self) {
 				// NEW: optional camera number
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_sendcameracommand_camera',
 					label: 'Camera ID (optional):',
 					tooltip:
@@ -286,6 +288,7 @@ export function getActionDefinitions(self) {
 				// NEW: optional camera number (numeric only)
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_sendgimbalcommand_camera',
 					label: 'Camera ID (optional):',
 					tooltip:
@@ -324,6 +327,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_presetcameraID',
 					label: 'Camera ID :',
 					default: '1',
@@ -334,6 +338,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_presetnumber',
 					label: 'Preset Number :',
 					default: '1',
@@ -440,6 +445,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_focusstep_camera',
 					label: 'Camera ID (optional):',
 					tooltip:
@@ -530,6 +536,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_nd_camera',
 					label: 'Camera ID (optional):',
 					tooltip:
@@ -603,6 +610,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_ccu_value',
 					label: 'Value',
 					default: '0',
@@ -610,6 +618,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_ccu_camera',
 					label: 'Camera ID (optional):',
 					default: '',
@@ -643,6 +652,7 @@ export function getActionDefinitions(self) {
 
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_settransitionduration',
 					label: 'Duration (in s)',
 					/*min: 0,
@@ -651,6 +661,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_settransition_camera',
 					label: 'Camera ID (optional):',
 					tooltip:
@@ -688,6 +699,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_stoppreset_camera',
 					label: 'Camera ID (optional):',
 					tooltip:
@@ -774,6 +786,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'auto_value',
 					label: 'Value',
 					tooltip: 'Numeric value for the selected "Set …" action (see its range above). Durations are in seconds.',
@@ -787,6 +800,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'auto_camera',
 					label: 'Camera ID (optional):',
 					tooltip: 'If set, targets that camera number. If empty, the currently selected camera.',
@@ -841,8 +855,10 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_setspeed',
-					label: 'Value (0 to 100 — tenths allowed below 10, e.g. 2.5)',
+					label:
+						'Value (0 to 100 — tenths allowed below 10 for Pan/Tilt, e.g. 2.5; Zoom speed is rounded to a whole number)',
 					default: 100,
 					regex: '^(100|[0-9]{1,2}([.][0-9])?)$',
 					regexMessage: 'Enter a number from 0 to 100 (one decimal allowed below 10)',
@@ -851,6 +867,7 @@ export function getActionDefinitions(self) {
 				// NEW: optional camera number (numeric only)
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_setspeed_camera',
 					label: 'Camera ID (optional):',
 					tooltip:
@@ -890,6 +907,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_sendabspan',
 					label: 'Pan Value (-2048 to 2048)',
 					/* min: -2048,
@@ -899,6 +917,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_sendabstilt',
 					label: 'Tilt Value (-2048 to 2048)',
 					/*min: -2048,
@@ -908,6 +927,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_sendabsroll',
 					label: 'Roll Value (-2048 to 2048)',
 					/*min: -2048,
@@ -917,6 +937,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_sendabszoom',
 					label: 'Zoom Value (0 to 4096)',
 					/*min: -2048,
@@ -926,6 +947,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_sendabsduration',
 					label: 'Transition duration (s)',
 					/*min: 0,
@@ -960,6 +982,7 @@ export function getActionDefinitions(self) {
 				},
 				{
 					type: 'textinput',
+					useVariables: true,
 					id: 'id_sendabscameracommand',
 					label: 'Command & Value',
 					default: 'aISO32',
