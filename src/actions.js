@@ -249,7 +249,7 @@ export function getActionDefinitions(self) {
 
 				// Optional camera target -> "@C<digits>" (applied consistently via commands.js)
 				const camRaw = unescape(
-					await self.parseVariablesInString(event.options.id_sendcameracommand_camera ?? '')
+					await self.parseVariablesInString(event.options.id_sendcameracommand_camera ?? ''),
 				).trim()
 
 				const cmd = withCamera(baseCmd, camRaw)
@@ -303,7 +303,7 @@ export function getActionDefinitions(self) {
 				const baseCmd = unescape(await self.parseVariablesInString(event.options.id_sendgimbalcommand))
 
 				const camNum = unescape(
-					await self.parseVariablesInString(event.options.id_sendgimbalcommand_camera ?? '')
+					await self.parseVariablesInString(event.options.id_sendgimbalcommand_camera ?? ''),
 				).trim()
 
 				const cmd = withCamera(baseCmd, camNum)
@@ -391,7 +391,7 @@ export function getActionDefinitions(self) {
 				if (cmd === null) {
 					self.log(
 						'warn',
-						'Preset: camera/preset number must be numeric (got ' + PresetNumber + ' / ' + PresetCamID + ')'
+						'Preset: camera/preset number must be numeric (got ' + PresetNumber + ' / ' + PresetCamID + ')',
 					)
 					return
 				}
@@ -816,10 +816,10 @@ export function getActionDefinitions(self) {
 					type === 'shake'
 						? event.options.op_shake
 						: type === 'zloop'
-						? event.options.op_zloop
-						: type === 'presetseq'
-						? event.options.op_presetseq
-						: undefined
+							? event.options.op_zloop
+							: type === 'presetseq'
+								? event.options.op_presetseq
+								: undefined
 				const value = unescape(await self.parseVariablesInString(event.options.auto_value ?? '')).trim()
 				const camNum = unescape(await self.parseVariablesInString(event.options.auto_camera ?? '')).trim()
 				const cmd = automation(type, op, value, camNum)

@@ -70,7 +70,7 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 - Fixed cached parameter state being shared between multiple Middle Control instances
 - Hardened command sending against malformed input coming from variables
 - Fixed a socket handle leak when the module is restarted or reconfigured
-- Fixed Contrast / Saturation / Black Level (Pedestal) (+/-) buttons: they now send raw relative commands so Middle Control applies the exact same step as its on-screen GUI buttons. 
+- Fixed Contrast / Saturation / Black Level (Pedestal) (+/-) buttons: they now send raw relative commands so Middle Control applies the exact same step as its on-screen GUI buttons.
 - Fixed the White Level variable not clearing on disconnect
 - AUTO parameters (White Balance / Tint / Gain / Iris / Shutter / Focus) now show "-" instead of "NaN" in the variables
 - Variables now show "-" on startup instead of being blank until the first update
@@ -80,7 +80,7 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 ### v3.2.1
 
 - Adds actions for Auto Iris, Auto Shutter, Auto Gain and Auto White Balance for supported cameras
-- Adds support for sending camera and gimbal actions to specific camera IDs simultaneously 
+- Adds support for sending camera and gimbal actions to specific camera IDs simultaneously
 - Adds feedbacks for APC-R Connection Status, Camera recording (IP) and Camera Connection Status (IP)
 - Adds variable with the list of cameras currently connected (over the network)
 - Adds variable with the list of cameras currently recording (over the network)
@@ -89,16 +89,16 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 
 ### v3.1.0
 
-- Adds support for remote control of Sony Camera Menus 
+- Adds support for remote control of Sony Camera Menus
 - Adds support for Sony Multi Selector Control
 - Adds support for Digital Zoom toggle
-- Adds support for triggering Sony Custom C1-C6 Buttons 
-- Adds variables for Rec status (Sony) / AF (Sony) / Digital Zoom (Sony) and Currently Active Preset 
-- Adds feedbacks for Rec status (Sony) / AF (Sony) / Digital Zoom (Sony) and Currently Active Preset 
+- Adds support for triggering Sony Custom C1-C6 Buttons
+- Adds variables for Rec status (Sony) / AF (Sony) / Digital Zoom (Sony) and Currently Active Preset
+- Adds feedbacks for Rec status (Sony) / AF (Sony) / Digital Zoom (Sony) and Currently Active Preset
 
 ### v2.3.0
 
-- Fix for Iris control not working properly. 
+- Fix for Iris control not working properly.
 
 ### v2.2.0
 
@@ -110,19 +110,16 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 
 ### v2.1.0
 
-- Improved action "Send a Custom Gimbal PTZ Absolute Value" which can now send Pan / Tilt / Roll / Zoom instruction in the same action. 
-
+- Improved action "Send a Custom Gimbal PTZ Absolute Value" which can now send Pan / Tilt / Roll / Zoom instruction in the same action.
 
 ### v2.0.1
 
 - Fixed variables not displaying properly in Companion 3
 
-
 ### v2.0.0
 
 - Added Support for Companion 3
 
-  
 ### v1.1.9
 
 - Added Support for Preset Completion feedback (in %)
@@ -134,7 +131,7 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 
 ### v1.1.7
 
-- Fixed Zoom control not properly working 
+- Fixed Zoom control not properly working
 - Fixed White level too slow to change
 
 ### v1.1.4
@@ -149,8 +146,8 @@ This is an ESM project (`"type": "module"`). Install with `yarn install`. Load i
 
 ### v1.1.3
 
-- Added Camera ID Selection Feedback 
-- Added Dynamic Variables to access ATEM values such as White Balance, Tint, ISO, Iris, Pan / Tilt Speed, ... 
+- Added Camera ID Selection Feedback
+- Added Dynamic Variables to access ATEM values such as White Balance, Tint, ISO, Iris, Pan / Tilt Speed, ...
 - Added Preset Transition Speed Command
 
 ### v1.1.2

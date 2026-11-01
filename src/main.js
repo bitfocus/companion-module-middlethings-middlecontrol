@@ -251,7 +251,7 @@ class instance extends InstanceBase {
 		if (others.size === 0) return // nothing else to report on — not a version problem
 		this.log(
 			'warn',
-			'Monitor all cameras is on, but Middle Control sent no per-camera data — this needs Middle Control 4.1 or later'
+			'Monitor all cameras is on, but Middle Control sent no per-camera data — this needs Middle Control 4.1 or later',
 		)
 	}
 

@@ -101,7 +101,7 @@ test('absGimbal: builds the exact aGLOB frame', () => {
 	assert.equal(absGimbal({ pan: '0', tilt: '0', roll: '0', zoom: '0', duration: '1' }), 'aGLOB;aP0;aT0;aR0;aZ0;1')
 	assert.equal(
 		absGimbal({ pan: '-100', tilt: '200', roll: '5', zoom: '4096', duration: '2' }),
-		'aGLOB;aP-100;aT200;aR5;aZ4096;2'
+		'aGLOB;aP-100;aT200;aR5;aZ4096;2',
 	)
 })
 
@@ -205,7 +205,7 @@ test('ccuSet: hue and luma mix are rounded, clamped and camera-targetable', () =
 test('recallMask: lists the ticked settings in a fixed order, null when none', () => {
 	assert.equal(
 		recallMask({ pt: true, zoom: true, focus: true, iris: true, iso: true, wb: true }),
-		'MASK:PT,ZOOM,FOCUS,IRIS,ISO,WB'
+		'MASK:PT,ZOOM,FOCUS,IRIS,ISO,WB',
 	)
 	assert.equal(recallMask({ wb: true, iso: true }), 'MASK:ISO,WB')
 	assert.equal(recallMask({ pt: true }), 'MASK:PT')

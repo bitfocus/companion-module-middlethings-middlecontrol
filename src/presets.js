@@ -34,7 +34,7 @@ function cameraEncoder({ title, text, down, left, right, feedbacks }) {
 								actionId: 'sendcameracommand',
 								options: { id_sendcameracommand: down, id_sendcameracommand_camera: '' },
 							},
-					  ]
+						]
 					: [],
 				up: [],
 				rotate_left: [

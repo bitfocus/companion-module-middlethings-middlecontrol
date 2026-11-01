@@ -50,7 +50,7 @@ test('UpgradeScripts[0]: reports only the actions it changed', () => {
 	const untouched = { id: 'a3', controlId: 'bank:3', actionId: 'stoppreset', options: {} }
 	const result = UpgradeScripts[0](
 		{ currentConfig: {} },
-		{ config: null, actions: [changed, untouched], feedbacks: [] }
+		{ config: null, actions: [changed, untouched], feedbacks: [] },
 	)
 	assert.deepEqual(result.updatedActions, [changed])
 	assert.deepEqual(result.updatedFeedbacks, [])

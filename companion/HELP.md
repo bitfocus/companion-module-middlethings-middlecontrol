@@ -10,7 +10,7 @@ Check exact compatibility : https://www.middlethings.co/compatibility/
 1. Install and launch **Middle Control** on a Mac on your network.
 2. In Companion, add this connection and set **Target IP**:
    - **Auto-detect**: instances found on your network appear in the **Middle Control** dropdown on the config page — just pick one. They show by name on Middle Control 3.3.0+, otherwise by IP. (Detection can take up to ~10 s; re-open the config dialog to refresh.)
-   - **Manual**: choose *Manual* in the dropdown, then type the **Target IP** — `127.0.0.1` when Middle Control runs on this same computer, otherwise the IP of the computer running it. (The Target IP box is locked unless *Manual* is selected.)
+   - **Manual**: choose _Manual_ in the dropdown, then type the **Target IP** — `127.0.0.1` when Middle Control runs on this same computer, otherwise the IP of the computer running it. (The Target IP box is locked unless _Manual_ is selected.)
 3. The module connects over **TCP on port 11580**. The connection turns **green (OK)** once Middle Control is reachable. If it stays yellow, check the IP, that Middle Control is running, and that port 11580 isn't blocked by a firewall.
 4. To control **gimbal movement** you need an APC-R / APC-R Mini / APC-R Mini Lite.
 5. **Monitor all cameras** (Middle Control 4.1 or later): tick it in the connection settings to receive the status of every connected camera. This enables the Camera ID option on more feedbacks and per-camera variables such as `$(middlecontrol:cam3_rec)`. Leave it off with older versions of Middle Control.
@@ -18,12 +18,12 @@ Check exact compatibility : https://www.middlethings.co/compatibility/
 ### What you can do
 
 **Cameras (CCU):** select the active camera, adjust focus, iris, white balance, tint, gain/ISO, shutter, ND, contrast, saturation and black/mid/white levels; toggle Auto Focus / Auto Iris / Auto WB / Auto Gain / Auto Shutter; zebra, false colour, focus peaking, colour bars.
-**Focus, three ways (Middle Control 4.0.4 or later):** *Focus in / out* behave like the app's own focus button — one press is one fine step, repeated presses ramp up; *Focus in / out — hold* on Press with *Focus stop* on Release moves the lens for as long as the button is held (ready-made in the **"Focus (buttons)"** presets); *Focus by a Fixed Step* moves by an exact fraction of the lens travel (0.002 = the finest step, 0.01 = the step of the plain actions before 4.0.4).
+**Focus, three ways (Middle Control 4.0.4 or later):** _Focus in / out_ behave like the app's own focus button — one press is one fine step, repeated presses ramp up; _Focus in / out — hold_ on Press with _Focus stop_ on Release moves the lens for as long as the button is held (ready-made in the **"Focus (buttons)"** presets); _Focus by a Fixed Step_ moves by an exact fraction of the lens travel (0.002 = the finest step, 0.01 = the step of the plain actions before 4.0.4).
 **Gimbal:** pan / tilt / roll / zoom / slider, speed control, recenter, sleep/wake, auto-calibration, Active Track.
 **Recording:** start/stop on the active camera or on all cameras at once.
-**Presets:** recall and save positions, stop a running preset, and set the preset transition duration and easing (easing needs an APC-R with firmware 2.0 or later). *Settings to recall* on the Recall/Save Preset action follows the tick boxes of the app's Presets page by default; choose *Custom* to pick pan/tilt, zoom, focus, iris, ISO and white balance for that button only (Middle Control 4.1 or later; older versions recall as usual).
+**Presets:** recall and save positions, stop a running preset, and set the preset transition duration and easing (easing needs an APC-R with firmware 2.0 or later). _Settings to recall_ on the Recall/Save Preset action follows the tick boxes of the app's Presets page by default; choose _Custom_ to pick pan/tilt, zoom, focus, iris, ISO and white balance for that button only (Middle Control 4.1 or later; older versions recall as usual).
 **Windows:** open / close the Live View window of the selected camera, and the Multi View window (Middle Control Pro).
-**ND filter:** step it with the ND increase / decrease camera actions, or set it directly with *Set ND Filter* — clear, 1/4 … 1/1024, or a custom denominator for Sony variable ND; the current filter is reported in the ND Filter variable and the *ND filter status* feedback.
+**ND filter:** step it with the ND increase / decrease camera actions, or set it directly with _Set ND Filter_ — clear, 1/4 … 1/1024, or a custom denominator for Sony variable ND; the current filter is reported in the ND Filter variable and the _ND filter status_ feedback.
 **Automations:** control the app's automations from one action — pick the type (Camera Shake, Zoom Loop, Presets Sequence), then Start/Stop or set a parameter (speed, amplitude, durations, or the active sequence bank). The options shown adapt to the type you choose. Leave Camera ID empty to target the currently selected camera, or set one to target a specific camera.
 **Colour & link (Middle Control 4.1+):** Hue and Sharpness steps, exact Hue / Luma Mix values (Set CCU Value), and an ATEM Link on/off switch.
 **Camera extras:** menu navigation, MultiSelector, and Custom C1–C6 buttons.
@@ -41,7 +41,7 @@ This module ships ready-made rotary-encoder presets in the **"Encoders (Streamde
 
 The **"Status (buttons)"** category holds a ready-made Battery button for the selected camera (Middle Control 4.1 or later): it shows the battery text, turns green on mains power and orange at or below 20 %.
 
-The Focus encoder is velocity-sensitive with Middle Control 4.0.4 or later: slow detents move by the app's finest step, a quick twist ramps up like the app's own button held down. If you prefer a fixed amount per detent, build the encoder from the *Focus by a Fixed Step* action instead (0.01 = the detent of earlier versions).
+The Focus encoder is velocity-sensitive with Middle Control 4.0.4 or later: slow detents move by the app's finest step, a quick twist ramps up like the app's own button held down. If you prefer a fixed amount per detent, build the encoder from the _Focus by a Fixed Step_ action instead (0.01 = the detent of earlier versions).
 
 Note: gimbal **pan / tilt / roll / zoom** are not offered as encoder presets, because those start a continuous movement that needs a separate stop command on release — which a rotary detent doesn't provide. Use buttons for gimbal motion.
 

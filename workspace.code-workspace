@@ -2,8 +2,8 @@
 	"folders": [
 		{
 			"name": "companion-module-middlethings-middlecontrol",
-			"path": "."
-		}
+			"path": ".",
+		},
 	],
-	"settings": {}
+	"settings": {},
 }

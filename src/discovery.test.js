@@ -64,7 +64,7 @@ test('MiddleDiscovery.getChoices: connect target is the REACHABLE source IP, not
 	// Sorted numerically by IP: .46 before .199. Neither is the sel (192.168.4.184).
 	assert.deepEqual(
 		choices.map((c) => c.id),
-		['192.168.10.46', '192.168.10.199']
+		['192.168.10.46', '192.168.10.199'],
 	)
 	// Labels are just the reachable IP — no confusing "via".
 	assert.equal(choices[0].label, '192.168.10.46')
@@ -101,7 +101,7 @@ test('MiddleDiscovery: named beacons dedupe by id across interfaces and label by
 	assert.equal(choices.length, 2) // two Macs, two rows
 	assert.deepEqual(
 		choices.map((c) => c.label),
-		['Booth Mac (192.168.10.199)', 'Studio Mac (192.168.10.46)']
+		['Booth Mac (192.168.10.199)', 'Studio Mac (192.168.10.46)'],
 	)
 	// The saved value is still the reachable LAN IP, not the name or camera VLAN.
 	const studio = choices.find((c) => c.label.startsWith('Studio'))
@@ -113,6 +113,6 @@ test('MiddleDiscovery: a legacy bare beacon is keyed by source IP', () => {
 	d._onMessage(Buffer.from(BEACON_PREFIX), { address: '172.16.0.4' })
 	assert.deepEqual(
 		d.getChoices().map((c) => c.id),
-		['172.16.0.4']
+		['172.16.0.4'],
 	)
 })
