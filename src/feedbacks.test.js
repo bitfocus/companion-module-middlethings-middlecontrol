@@ -39,11 +39,11 @@ test('PowerSource: mains or battery, unknown lights nothing', () => {
 	assert.equal(cb(fb({ source: 'B', camera_id: '5' })), false)
 })
 
-test('every feedback is in the FEEDBACK_IDS refresh list of index.js (and nothing stale is)', () => {
-	// index.js cannot be imported here (it starts the module), so read the array from its text.
-	const src = readFileSync(new URL('./index.js', import.meta.url), 'utf8')
+test('every feedback is in the FEEDBACK_IDS refresh list of main.js (and nothing stale is)', () => {
+	// main.js cannot be imported here (it starts the module), so read the array from its text.
+	const src = readFileSync(new URL('./main.js', import.meta.url), 'utf8')
 	const m = src.match(/const FEEDBACK_IDS = \[([^\]]*)\]/)
-	assert.ok(m, 'FEEDBACK_IDS not found in index.js')
+	assert.ok(m, 'FEEDBACK_IDS not found in main.js')
 	const listed = [...m[1].matchAll(/'([A-Za-z]+)'/g)].map((x) => x[1]).sort()
 	const defined = Object.keys(getFeedbackDefinitions(fakeSelf('CAM1'))).sort()
 	assert.deepEqual(listed, defined)

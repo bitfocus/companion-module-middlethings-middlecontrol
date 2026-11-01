@@ -1,2 +1,5 @@
-package.json
-/LICENSE.md
+/pkg
+/node_modules
+/.yarn
+/yarn.lock
+*.tgz

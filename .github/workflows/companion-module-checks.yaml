@@ -21,13 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: corepack enable
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22.x
           cache: yarn
       # The tests import the real module files, some of which import @companion-module/base.
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
       - name: Run unit tests
         run: node --test
-

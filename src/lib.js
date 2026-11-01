@@ -1,4 +1,4 @@
-// Pure, dependency-free helpers shared by index.js and the unit tests.
+// Pure, dependency-free helpers shared by main.js and the unit tests.
 // Keeping these out of index.js means tests can import them without triggering
 // runEntrypoint() (which would start the module IPC).
 
